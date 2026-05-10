@@ -22,11 +22,22 @@ Per-PRD retro for the marketing landing page build. One file per PRD; per-slice 
 
 **Recommended for the next slice:** option 1 (switch to WebKit). It's a one-file change in `Web/playwright.config.ts`, removes the LD_LIBRARY_PATH dependency, and unblocks every E2E test in slices #4–#11.
 
+**Status:** Applied on the feature branch on 2026-05-11. `Web/playwright.config.ts` now uses WebKit; `Web/AGENTS.md` reflects the choice and updates the install command to `npx playwright install webkit`. Subsequent slices should not see this issue. The `npm run test:e2e` script in `Web/package.json` was already clean (the `/tmp/pw-libs` `LD_LIBRARY_PATH` hack was only in the implementer's shell, not committed).
+
 ### Reviewer agent ran out of budget on cold containers (Issue #2, reviewer run)
 
 The reviewer log was 16 lines. It got through `git log`, `git diff`, started `npm install` — and the log truncated mid-install. The reviewer never reached the actual code-review phase. Implementer work landed without review.
 
-**Mitigation for next slice:** either pre-warm `node_modules` in the Sandcastle image so reviewers don't pay install cost on every run, or raise the reviewer iteration budget, or both. Until that's fixed, the host (Claude Code) should re-run a manual code review on the implementer branch before merge.
+**Update from #3 and #7 reviewers:** both ran cleanly in 1 iteration each (#3 moved `global.css` import to Layout; #7 reordered a null-guard before a cast). The cold-container cost only bit issue #2 because it scaffolded `node_modules` from scratch. Subsequent slices benefit from a warm package cache. **Mitigation:** leave as-is for now; only revisit if a future slice introduces another huge dependency tree.
+
+### Astro Container API requires Node, not happy-dom (Issue #3)
+
+Component tests using `experimental_AstroContainer` need a Node-like environment. With `happy-dom` set as the Vitest env, Astro detects "browser-like" and the Container API misbehaves. Fix: `Web/vitest.config.ts` imports `getViteConfig` from `astro/config` so Vitest inherits Astro's Vite config and treats `.astro` files correctly. Issue #3's implementer landed this fix already — subsequent component-test slices (#4, #5, #6, #8, #9, #10) inherit it for free. Do not re-introduce a pure-`happy-dom` Vitest config for component tests.
+
+### Astro 6 changed two integration points worth knowing (Issues #2, #7)
+
+- `@astrojs/tailwind` does not support Astro 6 — use `@tailwindcss/vite` (Tailwind v4's official Vite plugin) directly. Already done in #2.
+- Astro 6 removed `output: "hybrid"` mode. Per-route server rendering now uses `export const prerender = false;` inside the route module, with `output: "static"` retained as the default. Already done in #7's `Web/src/pages/api/lead.ts`. Future API-route slices inherit this pattern.
 
 ## Per-issue findings
 

@@ -11,7 +11,7 @@ Public marketing site for **CustomerCue**. A single focused landing page — her
 | Island framework | None yet — vanilla Astro components. Add Preact when interactive islands (forms) land. |
 | Hosting | **Static export** (`output: "static"` in astro.config). Deploy to Vercel or Cloudflare Pages. |
 | Test — unit | **Vitest 4.1** + **happy-dom** for DOM environment |
-| Test — E2E | **Playwright 1.59** (Chromium) |
+| Test — E2E | **Playwright 1.59** (WebKit) — chosen because the Sandcastle Docker image ships WebKit's required libs but not Chromium's. See `docs/retros/web-1-0-landing.md`. |
 | TypeScript | **6.0** via `astro check` |
 
 ## Commands
@@ -26,7 +26,7 @@ npm run test           # vitest run (unit tests)
 npm run test:e2e       # playwright test (E2E, starts dev server automatically)
 ```
 
-Playwright requires browser binaries: `npx playwright install --with-deps chromium`.
+Playwright requires browser binaries: `npx playwright install webkit` (no `--with-deps` needed on the Sandcastle image).
 
 ## Read these on demand
 
