@@ -8,7 +8,7 @@ Public marketing site for **CustomerCue**. A single focused landing page — her
 |---|---|
 | Framework | **Astro 6.3** — static-first delivery. See [`../docs/adr/0001-astro-for-web.md`](../docs/adr/0001-astro-for-web.md). |
 | Styling | **Tailwind CSS 4.3** via `@tailwindcss/vite` |
-| Island framework | None yet — vanilla Astro components. Add Preact when interactive islands (forms) land. |
+| Island framework | **Preact** via `@astrojs/preact` — used for interactive form islands (`DemoRequestForm`). `tsconfig.json` sets `jsxImportSource: "preact"`. |
 | Hosting | **Static export** (`output: "static"` in astro.config). Deploy to Vercel or Cloudflare Pages. |
 | Test — unit | **Vitest 4.1** + **happy-dom** for DOM environment |
 | Test — E2E | **Playwright 1.59** (WebKit) — chosen because the Sandcastle Docker image ships WebKit's required libs but not Chromium's. See `docs/retros/web-1-0-landing.md`. |

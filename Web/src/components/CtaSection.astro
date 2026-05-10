@@ -1,0 +1,30 @@
+---
+import { DemoRequestForm } from "./DemoRequestForm";
+---
+
+<section id="cta" class="mx-auto max-w-4xl px-6 py-24 text-center md:px-10">
+  <h2 class="mb-4 font-display text-2xl font-bold md:text-3xl">
+    Ready to see your signals?
+  </h2>
+  <p class="mx-auto mb-12 max-w-2xl text-muted">
+    Start with a demo, or send us real conversations and get a report in 48 hours.
+  </p>
+
+  <div class="grid gap-10 md:grid-cols-2">
+    <div>
+      <h3 class="mb-6 font-display text-lg font-semibold">
+        <span class="inline-flex items-center justify-center rounded-lg bg-accent px-6 py-3 text-base font-semibold text-background">Book a demo</span>
+      </h3>
+      <DemoRequestForm client:visible />
+    </div>
+
+    <div>
+      <h3 class="mb-6 font-display text-lg font-semibold">
+        <span class="inline-flex items-center justify-center rounded-lg border border-foreground/20 px-6 py-3 text-base font-semibold text-foreground">Send us 1,000 conversations</span>
+      </h3>
+      <div id="conversations-form-slot">
+        <!-- Placeholder: ConversationsUploadForm built in next slice -->
+      </div>
+    </div>
+  </div>
+</section>
