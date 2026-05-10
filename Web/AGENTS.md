@@ -37,4 +37,4 @@ Playwright requires browser binaries: `npx playwright install --with-deps chromi
 - [`../docs/stop-rules.md`](../docs/stop-rules.md) — when to ask before acting
 - [`../docs/adr/`](../docs/adr/) — Astro choice (0001), visual direction (0002)
 - [`../brief.md`](../brief.md) — positioning, ICP, differentiation copy
-- [`../Demo/retros/web-1-0-landing.md`](../Demo/retros/web-1-0-landing.md) — **read before starting any slice on this PRD**. Lists Playwright system-lib gotchas and other time-sinks earlier slices already paid for. See [`../AGENTS.md`](../AGENTS.md) § Per-PRD retros for the full rule.
+- [`../docs/retros/web-1-0-landing.md`](../docs/retros/web-1-0-landing.md) — **read before starting any slice on this PRD**. Lists Playwright system-lib gotchas and other time-sinks earlier slices already paid for. See [`../AGENTS.md`](../AGENTS.md) § Per-PRD retros for the full rule.

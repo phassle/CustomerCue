@@ -36,11 +36,11 @@ Work happens on `feature/*`. Never commit straight to `main` or `develop`.
 - [`docs/signals.md`](./docs/signals.md) — canonical signal taxonomy + trust contract (every signal must link to source conversations)
 - [`docs/conventions.md`](./docs/conventions.md) — mocked-data, vocabulary, code rules
 - [`docs/stop-rules.md`](./docs/stop-rules.md) — when to ask before acting
-- [`Demo/retros/`](./Demo/retros/) — per-PRD retro docs. **Any agent (Claude Code or Sandcastle) about to work on a slice MUST read the retro for its PRD first** — it lists time-sinks and workarounds earlier slices already paid for. Filename matches the feature branch (e.g. `web-1-0-landing.md` for `feature/web-1-0`).
+- [`docs/retros/`](./docs/retros/) — per-PRD retro docs. **Any agent (Claude Code or Sandcastle) about to work on a slice MUST read the retro for its PRD first** — it lists time-sinks and workarounds earlier slices already paid for. Filename matches the feature branch (e.g. `web-1-0-landing.md` for `feature/web-1-0`).
 
 ## Per-PRD retros (mandatory)
 
-For every PRD that produces a feature branch, maintain `Demo/retros/<feature-branch-slug>.md`. Claude Code (host agent) owns the bookkeeping; Sandcastle never edits it. Two trigger points where the retro must be brought current:
+For every PRD that produces a feature branch, maintain `docs/retros/<feature-branch-slug>.md`. Claude Code (host agent) owns the bookkeeping; Sandcastle never edits it. Two trigger points where the retro must be brought current:
 
 1. **At the end of each Claude Code session that touched Sandcastle output** — capture what was learned from any Sandcastle log read or review during the session.
 2. **Before the feature branch is closed** (merged into `develop` via PR, or deleted) — final pass synthesising the whole PRD build into "lessons for the next PRD."
