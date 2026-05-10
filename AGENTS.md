@@ -1,54 +1,44 @@
 # AGENTS
 
-**CustomerCue** — Monterro / InfuseAI demo. AI revenue intelligence for B2B SaaS Customer Success, Support, and Product teams. Reads support conversations (Intercom / Zendesk) and turns them into prioritized signals: churn risk, expansion intent, product friction, bug clusters, onboarding issues.
+**CustomerCue** — Monterro / InfuseAI demo. AI revenue intelligence for B2B SaaS Customer Success, Support, and Product teams. Reads support conversations (Intercom / Zendesk) and turns them into prioritized signals.
 
-> **Tagline:** *Turn support conversations into customer revenue signals.*
-> **MVP wedge:** *Weekly revenue signals from your support inbox.* Not an autonomous support agent.
-> Full positioning, ICP, signal taxonomy, and pricing hypothesis in `brief.md` — read it before scoping work.
+> *Turn support conversations into customer revenue signals.* — MVP wedge: weekly revenue signals from your support inbox. Not an autonomous support agent.
 
-Built for live agentic-development workshops. Visual-first, mocked data, no production deployment.
+Live agentic-development workshop demo. Visual-first, mocked data, no production deployment. **Read [`brief.md`](./brief.md) before scoping any work** — it's the source of truth for positioning, ICP, signal taxonomy, and pricing.
 
 ## Subprojects
 
 | Path | Purpose | Status |
 |---|---|---|
-| `Web/` | Public marketing site for CustomerCue (positioning, "send us 1,000 conversations" lead-gen) | Empty — not yet scaffolded. See `Web/AGENTS.md` |
-| `Saas/` | The CustomerCue product — signals dashboard, account drilldown, signed-in CS/Support workflow | Empty — not yet scaffolded. See `Saas/AGENTS.md` |
+| [`Web/`](./Web/AGENTS.md) | Public marketing site | Empty — stack TBD |
+| [`Saas/`](./Saas/AGENTS.md) | The signed-in product | Empty — stack TBD |
 
-Each subproject is independent — no shared deps, no monorepo tooling. Run dev servers separately. Stack decisions belong in the relevant subproject's AGENTS.md, not here.
+Independent codebases; no shared deps, no monorepo tooling. Run dev servers separately.
 
-## Product context cheat-sheet
+## Build / typecheck
 
-- **Primary buyer:** VP Customer Success. **Secondary:** Head of Support, COO, CRO, VP Product.
-- **Daily users:** Support leads, CSMs, account managers, PMs.
-- **ICP:** B2B SaaS, 50–500 employees, recurring revenue, support in Intercom/Zendesk, has a CS team.
-- **Signal types** (canonical taxonomy — use these names verbatim in code/UI): churn risk, expansion intent, product friction, bug cluster, onboarding issue, feature request, negative sentiment, strategic account escalation, documentation gap, repeated manual workaround.
-- **Differentiator vs Intercom Fin / Zendesk AI / Gainsight:** they optimize *resolution*; CustomerCue surfaces *revenue meaning* of support conversations.
-- **Trust requirement:** every signal MUST link back to the source conversations. Never show an AI signal without source receipts — this is a stated risk mitigation in the brief.
+Per-subproject. Both empty — commands TBD until the stack is chosen.
 
-## Conventions (project-wide)
+## Read these on demand
 
-- Mocked data only — no real customer data, no production credentials in this repo.
-- Use the canonical signal-type names from the brief; don't invent synonyms.
-- Every signal in the UI must show source tickets/conversations (mocked is fine, but the link/affordance must be there).
-- Shared types live next to their producer module, not in a global `types/` folder.
-- Linters handle code style — don't restate style rules in AGENTS.md files.
+- [`docs/signals.md`](./docs/signals.md) — canonical signal taxonomy + trust contract (every signal must link to source conversations)
+- [`docs/conventions.md`](./docs/conventions.md) — mocked-data, vocabulary, code rules
+- [`docs/stop-rules.md`](./docs/stop-rules.md) — when to ask before acting
 
-## Branching
+## Plan output
 
-- Default to `main` for now. Switch to git-flow if/when the project grows multiple parallel tracks (mirror sibling demos).
-- Don't commit or open PRs without explicit user request.
+Be extremely concise; sacrifice grammar for concision. End each plan with unresolved questions — flag scope choices that depend on the brief's open questions (Intercom vs Zendesk, dashboard vs Slack vs report, etc.).
 
-## Stop rules
+## Agent skills
 
-If unsure, stop and ask. Specifically:
+### Issue tracker
 
-- No destructive shell ops (`rm -rf`, `git reset --hard`, `git push --force`) without explicit confirmation.
-- No commits or PRs without explicit user request.
-- No stack/framework decisions for an empty subproject without the user's input — record the chosen stack in the subproject AGENTS.md once decided.
-- No new signal types beyond the brief's taxonomy without confirming.
+Issues live in GitHub Issues on `phassle/CustomerCue`, accessed via the `gh` CLI. See [`docs/agents/issue-tracker.md`](./docs/agents/issue-tracker.md).
 
-## Plan output rules
+### Triage labels
 
-- Be extremely concise. Sacrifice grammar for concision.
-- At the end of each plan, list unresolved questions (if any). The brief's own open questions (Intercom vs Zendesk first, dashboard vs Slack vs weekly report, etc.) are still open — flag scope choices that depend on them.
+Default canonical names (`needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`) — no overrides. See [`docs/agents/triage-labels.md`](./docs/agents/triage-labels.md).
+
+### Domain docs
+
+Multi-context: `CONTEXT-MAP.md` at the root pointing at per-subproject `CONTEXT.md` files (`Web/`, `Saas/`). See [`docs/agents/domain.md`](./docs/agents/domain.md).
