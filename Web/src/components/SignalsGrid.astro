@@ -1,0 +1,23 @@
+---
+import { getAllSignals } from "../lib/signal-catalog";
+
+const signals = getAllSignals();
+---
+
+<section class="px-6 py-20 md:px-10">
+  <h2 class="font-display text-2xl font-bold tracking-tight md:text-3xl mb-12">
+    10 signals from your support inbox
+  </h2>
+  <div class="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-5 md:gap-6">
+    {signals.map((signal) => (
+      <div
+        data-signal-cell
+        class="rounded-lg border border-foreground/10 px-4 py-5 text-center"
+      >
+        <span class="font-display text-sm font-semibold tracking-wide md:text-base">
+          {signal.name}
+        </span>
+      </div>
+    ))}
+  </div>
+</section>
