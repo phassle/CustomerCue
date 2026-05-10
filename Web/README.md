@@ -1,28 +1,28 @@
 # CustomerCue — Web
 
-Public marketing site for CustomerCue. Conventional B2B SaaS site — hero, value props, how-it-works, signals, pricing, social proof, "book a demo" CTAs. No signed-in experience (that's [`../Saas/`](../Saas/)).
+Public marketing site for CustomerCue. A single focused landing page — hero, how-it-works, signals, CTA, footer. No signed-in experience (that's [`../Saas/`](../Saas/)).
 
-## Status
-
-Empty directory — not yet scaffolded.
+## Stack
 
 | | |
 |---|---|
-| Framework | **Astro** — see [`../docs/adr/0001-astro-for-web.md`](../docs/adr/0001-astro-for-web.md) |
-| Styling | _TBD_ — Tailwind expected |
-| Hosting | _TBD_ — Vercel or Cloudflare Pages (static export) |
+| Framework | **Astro 6.3** — see [`../docs/adr/0001-astro-for-web.md`](../docs/adr/0001-astro-for-web.md) |
+| Styling | **Tailwind CSS 4.3** via `@tailwindcss/vite` |
+| Hosting | Static export (`output: "static"`) — deploy to Vercel or Cloudflare Pages |
 
 ## Getting started
 
 ```bash
-# npm install
-# npm run dev
+npm install
+npm run dev            # localhost:4321
+npm run build          # static export to dist/
+npm run test           # vitest (unit)
+npm run test:e2e       # playwright (E2E, starts dev server)
+npm run typecheck      # astro check
 ```
-
-Commands are placeholders until the stack is in.
 
 ## Read next
 
-- [`AGENTS.md`](./AGENTS.md) — agent entry point
+- [`AGENTS.md`](./AGENTS.md) — agent entry point (full stack table and commands)
 - [`docs/page-scope.md`](./docs/page-scope.md) — page-level scope and CTA hierarchy
 - [`../brief.md`](../brief.md) — positioning, ICP, differentiation copy
