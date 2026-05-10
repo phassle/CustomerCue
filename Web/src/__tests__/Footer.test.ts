@@ -46,9 +46,10 @@ describe("Footer", () => {
     expect(html).toContain("hello@customercue.com");
   });
 
-  it("renders the copyright line with 2026", async () => {
+  it("renders the copyright line with the current year", async () => {
     const html = await renderFooter();
-    expect(html).toMatch(/(&copy;|©)\s*2026\s*CustomerCue/);
+    const year = new Date().getFullYear();
+    expect(html).toMatch(new RegExp(`(&copy;|©)\\s*${year}\\s*CustomerCue`));
   });
 
   it("uses muted text token", async () => {
