@@ -13,9 +13,9 @@ export type LeadResponse =
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export function validateLead(body: unknown): string | null {
-  const b = body as Record<string, unknown>;
+  if (!body || typeof body !== "object") return "Request body must be a JSON object.";
 
-  if (!b || typeof b !== "object") return "Request body must be a JSON object.";
+  const b = body as Record<string, unknown>;
 
   if (b.kind !== "demo" && b.kind !== "conversations") {
     return "kind must be 'demo' or 'conversations'.";
