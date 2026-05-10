@@ -17,6 +17,7 @@ describe("DemoRequestForm", () => {
   beforeEach(() => {
     cleanup();
     vi.restoreAllMocks();
+    vi.unstubAllGlobals();
   });
 
   it("renders name, email, and company fields with labels", () => {

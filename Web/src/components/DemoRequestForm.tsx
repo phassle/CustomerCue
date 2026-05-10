@@ -6,6 +6,9 @@ type FormState =
   | { status: "success"; id: string }
   | { status: "error"; message: string };
 
+const INPUT_CLASS =
+  "w-full rounded-lg border border-foreground/20 bg-background px-4 py-2.5 text-foreground placeholder:text-muted/60 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background";
+
 export function DemoRequestForm() {
   const [state, setState] = useState<FormState>({ status: "idle" });
   const [name, setName] = useState("");
@@ -49,9 +52,6 @@ export function DemoRequestForm() {
     );
   }
 
-  const inputClass =
-    "w-full rounded-lg border border-foreground/20 bg-background px-4 py-2.5 text-foreground placeholder:text-muted/60 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background";
-
   return (
     <form onSubmit={handleSubmit} class="space-y-4 text-left" noValidate>
       {state.status === "error" && (
@@ -71,7 +71,7 @@ export function DemoRequestForm() {
           required
           value={name}
           onInput={(e) => setName((e.target as HTMLInputElement).value)}
-          class={inputClass}
+          class={INPUT_CLASS}
           placeholder="Your name"
         />
       </div>
@@ -87,7 +87,7 @@ export function DemoRequestForm() {
           required
           value={email}
           onInput={(e) => setEmail((e.target as HTMLInputElement).value)}
-          class={inputClass}
+          class={INPUT_CLASS}
           placeholder="you@company.com"
         />
       </div>
@@ -103,7 +103,7 @@ export function DemoRequestForm() {
           required
           value={company}
           onInput={(e) => setCompany((e.target as HTMLInputElement).value)}
-          class={inputClass}
+          class={INPUT_CLASS}
           placeholder="Your company"
         />
       </div>
