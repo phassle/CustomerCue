@@ -2,7 +2,7 @@ import { test, expect } from "@playwright/test";
 
 test("/ renders CustomerCue in the header", async ({ page }) => {
   await page.goto("/");
-  const header = page.locator("header");
+  const header = page.getByRole("banner");
   await expect(header).toBeVisible();
   await expect(header).toContainText("CustomerCue");
 });

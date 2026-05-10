@@ -52,7 +52,7 @@ export function ConversationsUploadForm() {
 
   if (state.status === "success") {
     return (
-      <div role="status" class="rounded-lg border border-accent/30 bg-accent/10 p-6 text-center">
+      <div role="status" aria-live="polite" class="rounded-lg border border-accent/30 bg-accent/10 p-6 text-center">
         <p class="font-display text-lg font-semibold text-foreground">
           Got it — report inbound within 48 hours.
         </p>
@@ -85,7 +85,7 @@ export function ConversationsUploadForm() {
 
       <form onSubmit={handleSubmit} class="space-y-4" noValidate>
         {state.status === "error" && (
-          <div role="alert" class="rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-400">
+          <div role="alert" aria-live="assertive" class="rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-400">
             {state.message}
           </div>
         )}

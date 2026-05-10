@@ -81,6 +81,18 @@ describe("Footer", () => {
     expect(text).not.toMatch(/\d{3}[\s-]\d{3}[\s-]\d{4}/); // no phone numbers
   });
 
+  it("all links have focus-visible ring classes", async () => {
+    const html = await renderFooter();
+    const anchorPattern = /<a\b[^>]*class="([^"]*)"[^>]*>/g;
+    let match;
+    let count = 0;
+    while ((match = anchorPattern.exec(html)) !== null) {
+      count++;
+      expect(match[1]).toContain("focus-visible:ring");
+    }
+    expect(count).toBeGreaterThan(0);
+  });
+
   it("renders the wordmark", async () => {
     const html = await renderFooter();
     const text = html.replace(/<[^>]+>/g, "").replace(/\s+/g, " ");

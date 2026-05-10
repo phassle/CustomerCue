@@ -131,6 +131,45 @@ describe("DemoRequestForm", () => {
     });
   });
 
+  it("success state has aria-live='polite' for screen readers", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve({ ok: true, id: "abc-123" }),
+      })
+    );
+
+    render(<DemoRequestForm />);
+    fillAndSubmit();
+
+    await waitFor(() => {
+      const status = document.querySelector("[role='status']");
+      expect(status).toBeDefined();
+      expect(status?.getAttribute("aria-live")).toBe("polite");
+    });
+  });
+
+  it("error state has aria-live='assertive' for screen readers", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: () =>
+          Promise.resolve({ ok: false, error: "Invalid email" }),
+      })
+    );
+
+    render(<DemoRequestForm />);
+    fillAndSubmit("Alex", "bad", "Acme");
+
+    await waitFor(() => {
+      const alert = document.querySelector("[role='alert']");
+      expect(alert).toBeDefined();
+      expect(alert?.getAttribute("aria-live")).toBe("assertive");
+    });
+  });
+
   it("all inputs have visible focus-ring classes", () => {
     render(<DemoRequestForm />);
     for (const el of [getInput("demo-name"), getInput("demo-email"), getInput("demo-company")]) {

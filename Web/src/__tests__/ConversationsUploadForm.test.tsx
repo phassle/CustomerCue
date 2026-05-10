@@ -206,6 +206,45 @@ describe("ConversationsUploadForm", () => {
     });
   });
 
+  it("success state has aria-live='polite' for screen readers", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve({ ok: true, id: "conv-abc" }),
+      }),
+    );
+
+    render(<ConversationsUploadForm />);
+    fillAndSubmit();
+
+    await waitFor(() => {
+      const status = document.querySelector("[role='status']");
+      expect(status).toBeDefined();
+      expect(status?.getAttribute("aria-live")).toBe("polite");
+    });
+  });
+
+  it("error state has aria-live='assertive' for screen readers", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: () =>
+          Promise.resolve({ ok: false, error: "Invalid email" }),
+      }),
+    );
+
+    render(<ConversationsUploadForm />);
+    fillAndSubmit("Alex", "bad");
+
+    await waitFor(() => {
+      const alert = document.querySelector("[role='alert']");
+      expect(alert).toBeDefined();
+      expect(alert?.getAttribute("aria-live")).toBe("assertive");
+    });
+  });
+
   it("all inputs have visible focus-ring classes", () => {
     render(<ConversationsUploadForm />);
     for (const el of [

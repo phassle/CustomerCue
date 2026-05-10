@@ -15,6 +15,12 @@ describe("SignalsGrid", () => {
     }
   });
 
+  it("has id='signals' anchor for footer link", async () => {
+    const container = await AstroContainer.create();
+    const html = await container.renderToString(SignalsGrid);
+    expect(html).toMatch(/id=["']signals["']/);
+  });
+
   it("renders exactly 10 signal cells", async () => {
     const container = await AstroContainer.create();
     const html = await container.renderToString(SignalsGrid);

@@ -11,7 +11,7 @@ Public marketing site for **CustomerCue**. A single focused landing page — her
 | Island framework | **Preact** via `@astrojs/preact` — used for interactive form islands (`DemoRequestForm`, `ConversationsUploadForm`). `tsconfig.json` sets `jsxImportSource: "preact"`. |
 | Hosting | **Static export** (`output: "static"` in astro.config). Deploy to Vercel or Cloudflare Pages. |
 | Test — unit | **Vitest 4.1** + **happy-dom** for DOM environment |
-| Test — E2E | **Playwright 1.59** (WebKit) — chosen because the Sandcastle Docker image ships WebKit's required libs but not Chromium's. See `docs/retros/web-1-0-landing.md`. |
+| Test — E2E | **Playwright 1.59** (Chromium Headless Shell) — switched from WebKit which had missing system libs (`libatk-1.0.so.0` etc.) in newer Playwright versions. Chromium Headless Shell's deps can be resolved via manual `.deb` extraction (see `docs/retros/web-1-0-landing.md`). |
 | TypeScript | **6.0** via `astro check` |
 
 ## Commands
@@ -26,7 +26,24 @@ npm run test           # vitest run (unit tests)
 npm run test:e2e       # playwright test (E2E, starts dev server automatically)
 ```
 
-Playwright requires browser binaries: `npx playwright install webkit` (no `--with-deps` needed on the Sandcastle image).
+Playwright requires browser binaries: `npx playwright install chromium`. On the Sandcastle Docker image, Chromium Headless Shell also needs ~13 system libs extracted from `.deb` packages into an `LD_LIBRARY_PATH` directory (see retro for the full list).
+
+## Cache strategy
+
+HTML pages use `<meta http-equiv>` cache-busting headers (`Cache-Control: no-cache, no-store, must-revalidate`, `Pragma: no-cache`, `Expires: 0`). These prevent browsers and CDN edge nodes from serving stale HTML after a redeploy. Static assets (JS/CSS/images) are fingerprinted by Astro's build pipeline and can be cached indefinitely by the hosting platform (Vercel / Cloudflare Pages handle this automatically via their default immutable-asset caching).
+
+## Performance baseline
+
+Measured on the Sandcastle Docker image (dev server, not production build). These are informational baselines — the build does not gate on them.
+
+| Metric | Value | Notes |
+|---|---|---|
+| Page load (dev, CI) | < 2 s | Asserted in E2E test (`e2e/performance.spec.ts`) |
+| LCP (fast-3G) | TBD | Measure after first production deploy; PRD stretch target is < 1 s |
+| CLS | TBD | Measure after first production deploy |
+| TTI (fast-3G) | TBD | Informational — document after first production deploy |
+
+Production numbers require a deployed build + Lighthouse or WebPageTest run. The dev server is not representative for LCP/CLS/TTI.
 
 ## Read these on demand
 
