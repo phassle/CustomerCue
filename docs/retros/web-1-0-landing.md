@@ -48,18 +48,41 @@ Component tests using `experimental_AstroContainer` need a Node-like environment
 - **Time profile (rough, by command count):** scaffold ~15 cmds, Playwright workaround ~60 cmds, verification + commit ~20 cmds. Playwright was the dominant cost.
 - **Decisions landed:** Astro 6.3, Tailwind CSS 4.3 via `@tailwindcss/vite` (the `@astrojs/tailwind` integration doesn't support Astro 6), Vitest 4.1 + happy-dom, Playwright 1.59 with Chromium (see Playwright lesson — should be switched to WebKit), static export to Vercel/Cloudflare Pages, no island framework yet (add Preact when forms land in #9/#10).
 - **What went well:** correct stack decisions; clean separation between unit and E2E test config; `Web/.gitignore` added; `Web/AGENTS.md` populated end-to-end (commands, stack table, test stack); committed with referenced PRD #1 and `fixes #2`.
-- **What to watch on review:** test:e2e script likely embeds the `/tmp/pw-libs/` `LD_LIBRARY_PATH` — confirm before merging that the committed command works on a fresh container, or apply the WebKit switch.
+- **What to watch on review:** test:e2e script likely embeds the `/tmp/pw-libs/` `LD_LIBRARY_PATH` — confirm before merging that the committed command works on a fresh container, or apply the WebKit switch. Verified after the fact: `package.json` was actually clean; the LD_LIBRARY_PATH hack only lived in the implementer's shell.
+
+### Issue #3 — Brand chrome: Layout, design tokens, Wordmark
+
+- **Status:** implementer + reviewer both COMPLETE; merged into `feature/web-1-0` (commits `074856b` implementer, `f4717fb` reviewer).
+- **Time profile:** ~50 commands implementer, ~15 reviewer. Playwright wall cost ~15 commands before implementer gave up trying to run E2E (committed the test without executing it).
+- **Decisions landed:** background `#0B0F1A`, foreground `#F0F0F2`, accent `#D4763C` (warm copper), muted `#7A7D85`; type pairing Plus Jakarta Sans / Inter / JetBrains Mono via Google Fonts; spacing scale 0.25rem; Wordmark splits "Customer" + "Cue" with accent colour on "Cue"; tokens in Tailwind v4 `@theme` block in `global.css`.
+- **What went well:** disciplined TDD (RED → GREEN → REFACTOR); reviewer caught a real issue (global.css imported in `index.astro` not `Layout.astro` — moved); discovered and fixed the Container API / happy-dom collision via `getViteConfig`.
+- **What went badly:** repeated the Playwright wall that #2 already paid for, because the retro pointer wasn't on the issue and AGENTS.md was not pulled into context. Validates the planner-level architecture.
+
+### Issue #7 — Lead capture mock API: POST /api/lead
+
+- **Status:** implementer + reviewer both COMPLETE; merged into `feature/web-1-0` (commits `0e1e8bd` implementer, `1f948e2` reviewer).
+- **Time profile:** ~35 commands implementer, ~25 reviewer. No Playwright involvement.
+- **Decisions landed:** `@astrojs/node` adapter added; `output: "static"` with `export const prerender = false;` on the API route (Astro 6 dropped `hybrid`); validation logic in `Web/src/lib/lead-capture.ts`; 22 unit tests covering valid demo, valid conversations, unique ids, missing/invalid fields, non-POST → 405.
+- **What went well:** clean TDD pass; reviewer found a subtle bug (premature `as Record<string, unknown>` cast in `validateLead`) and fixed the ordering so the type guard runs first.
+- **What went badly:** initial config used Astro 5's `hybrid` mode and had to be reworked when typecheck flagged it. Time was small (~3 commands) but a future API-route slice should know `prerender = false` is the Astro 6 pattern.
+
+## In flight (current Sandcastle session)
+
+As of 2026-05-11 ~01:30 UTC: Sandcastle is running issues #4, #5, #6, #8 in parallel. The WebKit fix was pushed to `origin/feature/web-1-0` at commit `1184502`. Agents that started before that commit will still ship Chromium-config-based E2E and likely hit the wall again; agents that pulled after will inherit WebKit. Read their logs after they stop and update this retro accordingly.
 
 ## What went well (running list)
 
 - Astro / Tailwind / Vitest scaffolded cleanly with one round-trip each.
 - Sandcastle followed the PRD vocabulary (PRD #1 reference, slice issue closes via `fixes #2`).
+- TDD discipline held across slices (#3, #7 both wrote tests first).
+- Reviewers caught real issues on #3 and #7 (global.css placement, premature cast).
 
 ## What went badly (running list)
 
-- Playwright system libs (see cross-cutting lesson).
-- Reviewer cold-start cost (see cross-cutting lesson).
-- `Co-Authored-By` line on the implementer's commit credits `Claude Opus 4.6`, not 4.7 — flag if retro needs to compare across model versions.
+- Playwright system libs (see cross-cutting lesson) — bit #2 and #3 both; fixed at the host level by switching to WebKit on 2026-05-11.
+- Reviewer cold-start cost (see cross-cutting lesson) — only bit #2; #3 and #7 reviewers ran cleanly.
+- `Co-Authored-By` line on Sandcastle commits credits `Claude Opus 4.6`, not 4.7 — flag if retro needs to compare across model versions.
+- The retro pointer in AGENTS.md was NOT pulled into Sandcastle's context on issue #3, even though the file existed at commit time. Auto-loaded `CLAUDE.md` symlinks did not propagate to Sandcastle either. **Conclusion: passive "read on demand" pointers don't work for Sandcastle — the planner must encode lessons into specs/code at planning time.**
 
 ## Lessons for the next PRD
 
