@@ -2,29 +2,31 @@
 
 Public marketing site for **CustomerCue**. A single focused landing page — hero, how-it-works, signals, CTA, footer. No signed-in experience (that's `../Saas/`). Page scope locked in [`docs/page-scope.md`](./docs/page-scope.md).
 
-> Empty directory — not yet scaffolded. Update this file as decisions are made; don't leave stale placeholders.
-
 ## Stack
 
 | | |
 |---|---|
-| Framework | **Astro** — chosen for static-first delivery. See [`../docs/adr/0001-astro-for-web.md`](../docs/adr/0001-astro-for-web.md). Version: TBD on scaffold. |
-| Styling | _TBD_ — Tailwind expected |
-| Hosting | _TBD_ — Vercel or Cloudflare Pages (static export) |
-
-Record exact versions on scaffold. Saas/ uses a different stack — Web and Saas are intentionally allowed to diverge.
+| Framework | **Astro 6.3** — static-first delivery. See [`../docs/adr/0001-astro-for-web.md`](../docs/adr/0001-astro-for-web.md). |
+| Styling | **Tailwind CSS 4.3** via `@tailwindcss/vite` |
+| Island framework | None yet — vanilla Astro components. Add Preact when interactive islands (forms) land. |
+| Hosting | **Static export** (`output: "static"` in astro.config). Deploy to Vercel or Cloudflare Pages. |
+| Test — unit | **Vitest 4.1** + **happy-dom** for DOM environment |
+| Test — E2E | **Playwright 1.59** (Chromium) |
+| TypeScript | **6.0** via `astro check` |
 
 ## Commands
 
-```
-# placeholder — fill in once scaffolded
-# npm install
-# npm run dev
-# npm run build
-# npm run lint
+```bash
+npm install            # install dependencies
+npm run dev            # start dev server at localhost:4321
+npm run build          # static export to dist/
+npm run preview        # preview production build
+npm run typecheck      # astro check (TypeScript)
+npm run test           # vitest run (unit tests)
+npm run test:e2e       # playwright test (E2E, starts dev server automatically)
 ```
 
-No test runner planned (visual-first demo).
+Playwright requires browser binaries: `npx playwright install --with-deps chromium`.
 
 ## Read these on demand
 
