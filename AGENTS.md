@@ -19,6 +19,18 @@ Independent codebases; no shared deps, no monorepo tooling. Run dev servers sepa
 
 Per-subproject. Both empty — commands TBD until the stack is chosen.
 
+## Branching
+
+Git-flow always.
+
+- `main` — latest stable. No direct commits.
+- `develop` — integration branch. Default merge target.
+- `feature/<name>` — off `develop`, back to `develop` via PR.
+- `release/<version>` — off `develop`, merged to both `main` and `develop`.
+- `hotfix/<name>` — off `main`, merged to both `main` and `develop`.
+
+Work happens on `feature/*`. Never commit straight to `main` or `develop`.
+
 ## Read these on demand
 
 - [`docs/signals.md`](./docs/signals.md) — canonical signal taxonomy + trust contract (every signal must link to source conversations)
