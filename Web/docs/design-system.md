@@ -13,18 +13,23 @@ Dark, calm, serious. The visual register of a research tool, not a SaaS catalog.
 - **Type does the heavy lifting.** A confident type pairing carries more weight here than ornament. Pick one display face and one body face; commit.
 - **Honesty over polish theatre.** No invented social proof, no fake testimonials, no faked metrics outside the brief's labelled illustrations.
 
-## Token shape (to be filled on scaffold)
+## Tokens
 
-| Token | Decision | Locked? |
+Defined in `src/styles/global.css` via Tailwind v4 `@theme`. Use Tailwind utilities (`bg-background`, `text-accent`, `font-display`, etc.) — never hard-code hex values.
+
+| Token | Value | Tailwind utility |
 |---|---|---|
-| Background | Deep neutral (near-black or rich navy) | direction set, exact value TBD |
-| Foreground | High-contrast off-white | direction set, exact value TBD |
-| Accent | One warm hue (amber / copper / signal-orange) for CTAs and signal callouts | direction set, exact value TBD |
-| Muted text | Dimmed off-white at ~60% contrast for secondary copy | direction set, exact value TBD |
-| Display type | Geometric or modern sans, optional serif for editorial headlines | TBD |
-| Body type | Highly-legible sans, designed for screen body | TBD |
-| Numerals | Monospaced numeric variant of the body face (or dedicated mono for metrics) | TBD |
-| Radius / shadow | Minimal — flat-with-edges, not skeuomorphic | direction set |
+| Background | `#0B0F1A` (deep navy, near-black) | `bg-background` |
+| Foreground | `#F0F0F2` (high-contrast off-white) | `text-foreground` |
+| Accent | `#D4763C` (warm copper) — CTAs and signal callouts only | `text-accent`, `bg-accent` |
+| Muted text | `#7A7D85` (~60% contrast) | `text-muted` |
+| Display type | Plus Jakarta Sans 600/700/800 | `font-display` |
+| Body type | Inter 400/500/600 | `font-body` |
+| Monospace | JetBrains Mono 400/500 (tabular numerals for metrics) | `font-mono` |
+| Spacing scale | 0.25rem (4px) base — Tailwind default grid | `p-{n}`, `m-{n}`, `gap-{n}` |
+| Radius / shadow | Minimal — flat-with-edges, not skeuomorphic | — |
+
+Fonts loaded via Google Fonts in `Layout.astro` `<head>`.
 
 ## Component shape (to be filled as built)
 
