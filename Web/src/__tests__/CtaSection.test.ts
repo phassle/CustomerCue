@@ -54,7 +54,7 @@ describe("CtaSection", () => {
     expect(match![0]).toContain("border");
   });
 
-  it("contains a placeholder slot for conversations form", () => {
-    expect(html).toContain("conversations-form-slot");
+  it("renders the ConversationsUploadForm island", () => {
+    expect(html).toContain("astro-island");
   });
 });

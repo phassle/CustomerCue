@@ -1,5 +1,6 @@
 ---
 import { DemoRequestForm } from "./DemoRequestForm";
+import { ConversationsUploadForm } from "./ConversationsUploadForm";
 ---
 
 <section id="cta" class="mx-auto max-w-4xl px-6 py-24 text-center md:px-10">
@@ -22,9 +23,7 @@ import { DemoRequestForm } from "./DemoRequestForm";
       <h3 class="mb-6 font-display text-lg font-semibold">
         <span class="inline-flex items-center justify-center rounded-lg border border-foreground/20 px-6 py-3 text-base font-semibold text-foreground">Send us 1,000 conversations</span>
       </h3>
-      <div id="conversations-form-slot">
-        <!-- Placeholder: ConversationsUploadForm built in next slice -->
-      </div>
+      <ConversationsUploadForm client:visible />
     </div>
   </div>
 </section>
