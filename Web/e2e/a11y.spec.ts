@@ -44,8 +44,8 @@ test.describe("Accessibility", () => {
   test("page has header, main, and footer landmarks", async ({ page }) => {
     await page.goto("/");
     await expect(page.getByRole("banner")).toBeVisible();
-    await expect(page.locator("main")).toBeVisible();
-    await expect(page.locator("footer")).toBeVisible();
+    await expect(page.getByRole("main")).toBeVisible();
+    await expect(page.getByRole("contentinfo")).toBeVisible();
   });
 
   test("all form inputs have associated labels", async ({ page }) => {

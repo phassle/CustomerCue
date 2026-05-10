@@ -2,6 +2,7 @@
 import Wordmark from "./Wordmark.astro";
 
 const year = new Date().getFullYear();
+const LINK_CLASS = "text-sm text-muted hover:text-foreground transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded-sm";
 ---
 
 <footer class="border-t border-muted/20 px-6 py-12 md:px-10 mt-20">
@@ -10,26 +11,26 @@ const year = new Date().getFullYear();
       <div>
         <h3 class="text-sm font-display font-semibold text-foreground mb-3">Product</h3>
         <ul class="space-y-2">
-          <li><a href="#signals" class="text-sm text-muted hover:text-foreground transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded-sm">Signals</a></li>
+          <li><a href="#signals" class={LINK_CLASS}>Signals</a></li>
         </ul>
       </div>
       <div>
         <h3 class="text-sm font-display font-semibold text-foreground mb-3">Company</h3>
         <ul class="space-y-2">
-          <li><a href="#" class="text-sm text-muted hover:text-foreground transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded-sm">About</a></li>
+          <li><a href="#" class={LINK_CLASS}>About</a></li>
         </ul>
       </div>
       <div>
         <h3 class="text-sm font-display font-semibold text-foreground mb-3">Legal</h3>
         <ul class="space-y-2">
-          <li><a href="#" class="text-sm text-muted hover:text-foreground transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded-sm">Privacy</a></li>
-          <li><a href="#" class="text-sm text-muted hover:text-foreground transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded-sm">Terms</a></li>
+          <li><a href="#" class={LINK_CLASS}>Privacy</a></li>
+          <li><a href="#" class={LINK_CLASS}>Terms</a></li>
         </ul>
       </div>
       <div>
         <h3 class="text-sm font-display font-semibold text-foreground mb-3">Contact</h3>
         <ul class="space-y-2">
-          <li><a href="mailto:hello@customercue.com" class="text-sm text-muted hover:text-foreground transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded-sm">hello@customercue.com</a></li>
+          <li><a href="mailto:hello@customercue.com" class={LINK_CLASS}>hello@customercue.com</a></li>
         </ul>
       </div>
     </div>

@@ -25,43 +25,48 @@ test.describe("Keyboard navigation", () => {
       { role: "link", name: /hello@customercue\.com/i },
     ];
 
-    const visited: string[] = [];
-
     for (const expected of expectedOrder) {
       await page.keyboard.press("Tab");
 
       const focused = page.locator(":focus");
       await expect(focused).toBeVisible();
 
-      if (expected.role === "link") {
-        const role = await focused.getAttribute("role");
-        const tag = await focused.evaluate((el) => el.tagName.toLowerCase());
-        expect(role === "link" || tag === "a").toBeTruthy();
-        const text = await focused.textContent();
-        expect(text).toMatch(expected.name);
-      } else if (expected.role === "textbox") {
-        const tag = await focused.evaluate((el) => el.tagName.toLowerCase());
-        expect(tag).toBe("input");
-        const id = await focused.getAttribute("id");
-        expect(id).toBeTruthy();
-        const label = page.locator(`label[for="${id}"]`);
-        const labelText = await label.textContent();
-        expect(labelText).toMatch(expected.name);
-      } else if (expected.role === "button") {
-        const tag = await focused.evaluate((el) => el.tagName.toLowerCase());
-        expect(tag).toBe("button");
-        const text = await focused.textContent();
-        expect(text).toMatch(expected.name);
-      } else if (expected.role === "file") {
-        const type = await focused.getAttribute("type");
-        expect(type).toBe("file");
+      switch (expected.role) {
+        case "link": {
+          const role = await focused.getAttribute("role");
+          const tag = await focused.evaluate((el) => el.tagName.toLowerCase());
+          expect(role === "link" || tag === "a").toBeTruthy();
+          const text = await focused.textContent();
+          expect(text).toMatch(expected.name);
+          break;
+        }
+        case "textbox": {
+          const tag = await focused.evaluate((el) => el.tagName.toLowerCase());
+          expect(tag).toBe("input");
+          const id = await focused.getAttribute("id");
+          expect(id).toBeTruthy();
+          const label = page.locator(`label[for="${id}"]`);
+          const labelText = await label.textContent();
+          expect(labelText).toMatch(expected.name);
+          break;
+        }
+        case "button": {
+          const tag = await focused.evaluate((el) => el.tagName.toLowerCase());
+          expect(tag).toBe("button");
+          const text = await focused.textContent();
+          expect(text).toMatch(expected.name);
+          break;
+        }
+        case "file": {
+          const type = await focused.getAttribute("type");
+          expect(type).toBe("file");
+          break;
+        }
       }
 
       const ring = await focused.evaluate((el) => {
         const style = getComputedStyle(el);
-        const outline = style.outline;
-        const boxShadow = style.boxShadow;
-        return { outline, boxShadow };
+        return { outline: style.outline, boxShadow: style.boxShadow };
       });
       const hasVisibleFocus =
         (ring.outline && ring.outline !== "none" && !ring.outline.includes("0px")) ||
@@ -70,13 +75,7 @@ test.describe("Keyboard navigation", () => {
         hasVisibleFocus,
         `No visible focus ring on element with text: "${await focused.textContent()}"`
       ).toBeTruthy();
-
-      visited.push(
-        `${expected.role}: ${expected.name}`
-      );
     }
-
-    expect(visited).toHaveLength(expectedOrder.length);
   });
 
   test("demo form can be submitted by keyboard alone", async ({ page }) => {
