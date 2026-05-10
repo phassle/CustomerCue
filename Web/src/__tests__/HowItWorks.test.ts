@@ -1,5 +1,5 @@
 // @vitest-environment node
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, beforeAll } from "vitest";
 import { experimental_AstroContainer as AstroContainer } from "astro/container";
 import HowItWorks from "../components/HowItWorks.astro";
 
@@ -11,11 +11,14 @@ describe("HowItWorks", () => {
   let html: string;
   let text: string;
 
-  // Render once, assert many
-  it("renders without error", async () => {
+  beforeAll(async () => {
     const container = await AstroContainer.create();
     html = await container.renderToString(HowItWorks);
     text = stripTags(html);
+  });
+
+  it("renders without error", () => {
+    expect(html).toBeTruthy();
   });
 
   it("shows the how-it-works section heading", () => {
@@ -35,10 +38,8 @@ describe("HowItWorks", () => {
   });
 
   it("every example card has EXAMPLE — fictional label", () => {
-    // Count occurrences — one per card
     const matches = html.match(/EXAMPLE\s*—\s*fictional/g);
-    expect(matches).not.toBeNull();
-    expect(matches!.length).toBe(3);
+    expect(matches).toHaveLength(3);
   });
 
   it("renders signal type names from signalCatalog", () => {
@@ -49,9 +50,7 @@ describe("HowItWorks", () => {
   });
 
   it("renders metric values with font-mono class", () => {
-    // Metric values should be wrapped in an element with font-mono
-    const monoMatches = html.match(/font-mono/g);
-    expect(monoMatches).not.toBeNull();
-    expect(monoMatches!.length).toBeGreaterThanOrEqual(3);
+    const monoMatches = html.match(/font-mono/g) ?? [];
+    expect(monoMatches.length).toBeGreaterThanOrEqual(3);
   });
 });
