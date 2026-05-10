@@ -1,10 +1,14 @@
 ---
 import Layout from "../layouts/Layout.astro";
+import Wordmark from "../components/Wordmark.astro";
 import "../styles/global.css";
 ---
 
 <Layout title="CustomerCue">
+  <header class="flex items-center px-6 py-5 md:px-10">
+    <Wordmark />
+  </header>
   <main>
-    <h1 class="text-4xl font-bold">CustomerCue</h1>
+    <h1 class="sr-only">CustomerCue</h1>
   </main>
 </Layout>
