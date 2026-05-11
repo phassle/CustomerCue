@@ -79,8 +79,9 @@ describe("SampleDigest", () => {
     expect(text).toContain("step-3 cluster");
   });
 
-  it("renders glyphs with aria-label attributes", () => {
+  it("renders glyphs with role=img and aria-label attributes", () => {
     for (const entry of digestFixture.entries) {
+      expect(html).toContain(`role="img"`);
       expect(html).toContain(`aria-label="${entry.glyphLabel}"`);
     }
   });
