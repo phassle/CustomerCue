@@ -8,7 +8,7 @@ Public marketing site for CustomerCue. A single focused landing page — hero, h
 |---|---|
 | Framework | **Astro 6.3** — see [`../docs/adr/0001-astro-for-web.md`](../docs/adr/0001-astro-for-web.md) |
 | Styling | **Tailwind CSS 4.3** via `@tailwindcss/vite` |
-| Hosting | Static export (`output: "static"`) — deploy to Vercel or Cloudflare Pages |
+| Hosting | Static for the marketing page + `@astrojs/node` SSR for `/api/lead` (opted in via `prerender = false`). Requires a Node-capable host (Vercel, Railway, Render). Cloudflare Pages static-only would 404 on form submission unless the API route is moved to Cloudflare Workers with `@astrojs/cloudflare`. |
 
 ## Getting started
 

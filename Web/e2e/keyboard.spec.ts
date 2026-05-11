@@ -19,9 +19,7 @@ test.describe("Keyboard navigation", () => {
       { role: "file", name: /Conversations file/i },
       // Submit button is disabled (no file selected) — skipped in tab order
       { role: "link", name: /Signals/i },
-      { role: "link", name: /About/i },
-      { role: "link", name: /Privacy/i },
-      { role: "link", name: /Terms/i },
+      // About / Privacy / Terms render as non-link placeholders — skipped in tab order
       { role: "link", name: /hello@customercue\.com/i },
     ];
 

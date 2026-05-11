@@ -17,9 +17,11 @@ describe("Footer", () => {
     }
   });
 
-  it("renders at least one link per section", () => {
+  it("renders an entry under every section", () => {
     expect(html).toContain('href="#signals"');
-    expect(html).toContain('href="#"');
+    expect(html).toContain("About");
+    expect(html).toContain("Privacy");
+    expect(html).toContain("Terms");
     expect(html).toContain('href="mailto:hello@customercue.com"');
   });
 
@@ -28,13 +30,11 @@ describe("Footer", () => {
     expect(html).toContain('href="#signals"');
   });
 
-  it("renders About link under Company", () => {
-    expect(html).toContain("About");
-  });
-
-  it("renders Privacy and Terms links under Legal", () => {
-    expect(html).toContain("Privacy");
-    expect(html).toContain("Terms");
+  it("renders About, Privacy, Terms as non-link placeholders (no dead href)", () => {
+    expect(html).not.toContain('href="#"');
+    expect(html).toMatch(/About.*coming soon/);
+    expect(html).toMatch(/Privacy.*coming soon/);
+    expect(html).toMatch(/Terms.*coming soon/);
   });
 
   it("renders the contact email as a mailto link", () => {
