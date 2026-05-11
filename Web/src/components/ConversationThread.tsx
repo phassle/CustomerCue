@@ -3,6 +3,7 @@ import type {
   Message,
   Annotation,
 } from "../data/conversation-fixtures/types";
+import type { SignalType } from "../lib/signal-catalog";
 import { signalColor } from "../lib/signal-colors";
 
 type Segment =
@@ -45,10 +46,12 @@ function AnnotatedBody({
   body,
   annotations,
   onAnnotationClick,
+  hiddenSignalTypes,
 }: {
   body: string;
   annotations: Annotation[];
   onAnnotationClick?: (annotation: Annotation) => void;
+  hiddenSignalTypes?: Set<SignalType>;
 }) {
   const segments = buildSegments(body, annotations);
 
@@ -63,6 +66,7 @@ function AnnotatedBody({
             data-annotation-id={seg.annotation.id}
             data-signal-type={seg.annotation.signalType}
             aria-label={`highlight: ${seg.annotation.signalType}`}
+            hidden={hiddenSignalTypes?.has(seg.annotation.signalType) ?? false}
             style={{
               backgroundColor: signalColor(seg.annotation.signalType),
               cursor: onAnnotationClick ? "pointer" : undefined,
@@ -85,10 +89,12 @@ function MessageBubble({
   message,
   annotations,
   onAnnotationClick,
+  hiddenSignalTypes,
 }: {
   message: Message;
   annotations: Annotation[];
   onAnnotationClick?: (annotation: Annotation) => void;
+  hiddenSignalTypes?: Set<SignalType>;
 }) {
   const alignment =
     message.author === "customer"
@@ -110,6 +116,7 @@ function MessageBubble({
         body={message.body}
         annotations={annotations}
         onAnnotationClick={onAnnotationClick}
+        hiddenSignalTypes={hiddenSignalTypes}
       />
     </article>
   );
@@ -118,9 +125,11 @@ function MessageBubble({
 export function ConversationThread({
   conversation,
   onAnnotationClick,
+  hiddenSignalTypes,
 }: {
   conversation: Conversation;
   onAnnotationClick?: (annotation: Annotation) => void;
+  hiddenSignalTypes?: Set<SignalType>;
 }) {
   const annotationsByMessage = new Map<string, Annotation[]>();
   for (const ann of conversation.annotations) {
@@ -154,6 +163,7 @@ export function ConversationThread({
             message={msg}
             annotations={annotationsByMessage.get(msg.id) ?? []}
             onAnnotationClick={onAnnotationClick}
+            hiddenSignalTypes={hiddenSignalTypes}
           />
         ))}
       </div>

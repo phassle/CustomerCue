@@ -1,6 +1,6 @@
 import type { SignalType } from "./signal-catalog";
 
-export const HIGHLIGHT_PALETTE = [
+const HIGHLIGHT_PALETTE = [
   "rgba(212, 118, 60, 0.25)",
   "rgba(60, 162, 212, 0.25)",
   "rgba(162, 212, 60, 0.25)",
