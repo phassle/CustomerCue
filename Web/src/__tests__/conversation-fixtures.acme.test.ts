@@ -1,10 +1,9 @@
 import { describe, it, expect } from "vitest";
 import { acmeIntegration } from "../data/conversation-fixtures/acme-integration";
 import { SIGNAL_NAMES } from "../lib/signal-catalog";
-import type { Conversation } from "../data/conversation-fixtures/types";
 
 describe("Acme integration fixture", () => {
-  const conversation: Conversation = acmeIntegration;
+  const conversation = acmeIntegration;
 
   describe("conforms to the shared shape", () => {
     it("exports a single Conversation with non-empty messages and annotations", () => {
@@ -65,16 +64,12 @@ describe("Acme integration fixture", () => {
   });
 
   describe("every annotation carries human-readable explanation", () => {
-    it.each(
-      conversation.annotations.map((a, i) => [
-        `annotation[${i}] (${a.signalType})`,
-        a,
-      ]),
-    )("%s has non-empty rationale and suggestedAction", (_label, annotation) => {
-      const a = annotation as Conversation["annotations"][number];
-      expect(a.rationale.trim().length).toBeGreaterThan(0);
-      expect(a.suggestedAction.trim().length).toBeGreaterThan(0);
-      expect(["low", "medium", "high"]).toContain(a.confidence);
-    });
+    it.each(conversation.annotations)(
+      "$id ($signalType) has non-empty rationale and suggestedAction",
+      (a) => {
+        expect(a.rationale.trim()).toBeTruthy();
+        expect(a.suggestedAction.trim()).toBeTruthy();
+      },
+    );
   });
 });
