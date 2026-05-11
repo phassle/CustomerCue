@@ -18,7 +18,7 @@ const CONFIDENCE_DOTS: Record<Annotation["confidence"], string> = {
 
 function ConfidenceIndicator({ level }: { level: Annotation["confidence"] }) {
   return (
-    <span class="mt-1 inline-block text-sm" aria-label={`confidence: ${level}`}>
+    <span class="mt-1 inline-block text-sm" role="img" aria-label={`confidence: ${level}`}>
       <span aria-hidden="true">{CONFIDENCE_DOTS[level]}</span>
     </span>
   );

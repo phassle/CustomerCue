@@ -68,7 +68,7 @@ function AnnotatedBody({
             data-signal-type={seg.annotation.signalType}
             aria-label={`highlight: ${seg.annotation.signalType}`}
             hidden={hiddenSignalTypes?.has(seg.annotation.signalType) ?? false}
-            class="rounded-sm outline-none focus:ring-2 focus:ring-accent"
+            class="rounded-sm text-inherit outline-none focus:ring-2 focus:ring-accent"
             style={{
               backgroundColor: signalColor(seg.annotation.signalType),
               cursor: onAnnotationClick ? "pointer" : undefined,
@@ -112,7 +112,7 @@ function MessageBubble({
         <span class="font-display text-sm font-semibold text-foreground">
           {message.authorName}
         </span>
-        <span class="font-mono text-xs text-muted">{message.timestamp}</span>
+        <span class="font-mono text-xs text-foreground/60">{message.timestamp}</span>
       </div>
       <AnnotatedBody
         body={message.body}

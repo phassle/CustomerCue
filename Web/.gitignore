@@ -4,3 +4,4 @@ playwright-report/
 
 # Astro
 .astro/
+.playwright-libs/
