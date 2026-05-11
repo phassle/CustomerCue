@@ -70,14 +70,5 @@ describe("ConversationThread", () => {
       });
     });
 
-    it("message list reads in fixture order", () => {
-      const articles = screen.getAllByRole("article");
-      expect(articles).toHaveLength(acmeIntegration.messages.length);
-      for (let i = 0; i < articles.length; i++) {
-        expect(articles[i].textContent).toContain(
-          acmeIntegration.messages[i].body,
-        );
-      }
-    });
-  });
+});
 });

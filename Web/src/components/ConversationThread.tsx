@@ -1,16 +1,15 @@
 import type { Conversation, Message } from "../data/conversation-fixtures/types";
 
 function MessageBubble({ message }: { message: Message }) {
-  const isCustomer = message.author === "customer";
+  const alignment =
+    message.author === "customer"
+      ? "border-foreground/15 bg-foreground/5 self-start"
+      : "border-accent/20 bg-accent/5 self-end";
 
   return (
     <article
       aria-label={`Message from ${message.authorName}`}
-      class={`rounded-lg border px-4 py-3 ${
-        isCustomer
-          ? "border-foreground/15 bg-foreground/5 self-start"
-          : "border-accent/20 bg-accent/5 self-end"
-      }`}
+      class={`rounded-lg border px-4 py-3 ${alignment}`}
     >
       <div class="mb-1 flex items-baseline gap-2">
         <span class="font-display text-sm font-semibold text-foreground">
