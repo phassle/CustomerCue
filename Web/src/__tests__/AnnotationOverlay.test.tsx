@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
-import { render, screen, cleanup } from "@testing-library/preact";
+import { render, cleanup } from "@testing-library/preact";
 import { ConversationThread } from "../components/ConversationThread";
 import { acmeIntegration } from "../data/conversation-fixtures/acme-integration";
 import { nordicpayEnterprise } from "../data/conversation-fixtures/nordicpay-enterprise";

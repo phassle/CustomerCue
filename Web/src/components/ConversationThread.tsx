@@ -5,11 +5,6 @@ import type {
 } from "../data/conversation-fixtures/types";
 import type { SignalType } from "../lib/signal-catalog";
 
-
-/*
- * Four-hue highlight palette derived from accent #D4763C.
- * Each signal type maps deterministically to one hue via hash.
- */
 const HIGHLIGHT_PALETTE = [
   "rgba(212, 118, 60, 0.25)",
   "rgba(60, 162, 212, 0.25)",
