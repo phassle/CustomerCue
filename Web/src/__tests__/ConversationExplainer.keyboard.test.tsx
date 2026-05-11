@@ -126,7 +126,7 @@ describe("ConversationExplainer — keyboard navigation", () => {
       const allMarks = getMarks();
       allMarks.forEach((mark) => {
         if (mark.getAttribute("data-signal-type") === "documentation gap") {
-          (mark as HTMLElement).hidden = true;
+          mark.hidden = true;
         }
       });
 

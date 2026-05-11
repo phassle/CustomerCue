@@ -43,41 +43,53 @@ export function ConversationExplainer() {
     const container = containerRef.current;
     if (!container) return;
 
-    if (e.key === "j" || e.key === "k") {
-      e.preventDefault();
-      const marks = getVisibleMarks(container);
-      if (marks.length === 0) return;
+    switch (e.key) {
+      case "j":
+      case "k": {
+        e.preventDefault();
+        const marks = getVisibleMarks(container);
+        if (marks.length === 0) return;
 
-      const currentIndex = marks.indexOf(document.activeElement as HTMLElement);
+        const currentIndex = marks.indexOf(
+          document.activeElement as HTMLElement,
+        );
 
-      let nextIndex: number;
-      if (e.key === "j") {
-        nextIndex =
-          currentIndex === -1 ? 0 : (currentIndex + 1) % marks.length;
-      } else {
-        nextIndex =
-          currentIndex === -1
-            ? marks.length - 1
-            : (currentIndex - 1 + marks.length) % marks.length;
+        let nextIndex: number;
+        if (e.key === "j") {
+          nextIndex =
+            currentIndex === -1 ? 0 : (currentIndex + 1) % marks.length;
+        } else {
+          nextIndex =
+            currentIndex === -1
+              ? marks.length - 1
+              : (currentIndex - 1 + marks.length) % marks.length;
+        }
+
+        marks[nextIndex].focus();
+        break;
       }
 
-      marks[nextIndex].focus();
-    } else if (e.key === "Enter") {
-      const active = document.activeElement as HTMLElement;
-      if (active?.hasAttribute("data-annotation-id")) {
-        e.preventDefault();
-        setRationaleAnnotationId(
-          active.getAttribute("data-annotation-id"),
-        );
+      case "Enter": {
+        const active = document.activeElement as HTMLElement;
+        if (active?.hasAttribute("data-annotation-id")) {
+          e.preventDefault();
+          setRationaleAnnotationId(
+            active.getAttribute("data-annotation-id"),
+          );
+        }
+        break;
       }
-    } else if (e.key === "Escape") {
-      if (rationaleAnnotationId) {
-        e.preventDefault();
-        const mark = container.querySelector<HTMLElement>(
-          `mark[data-annotation-id="${rationaleAnnotationId}"]`,
-        );
-        setRationaleAnnotationId(null);
-        mark?.focus();
+
+      case "Escape": {
+        if (rationaleAnnotationId) {
+          e.preventDefault();
+          const mark = container.querySelector<HTMLElement>(
+            `mark[data-annotation-id="${rationaleAnnotationId}"]`,
+          );
+          setRationaleAnnotationId(null);
+          mark?.focus();
+        }
+        break;
       }
     }
   }
