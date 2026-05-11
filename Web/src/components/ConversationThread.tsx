@@ -106,7 +106,11 @@ function MessageBubble({
         </span>
         <span class="font-mono text-xs text-muted">{message.timestamp}</span>
       </div>
-      <AnnotatedBody body={message.body} annotations={annotations} onAnnotationClick={onAnnotationClick} />
+      <AnnotatedBody
+        body={message.body}
+        annotations={annotations}
+        onAnnotationClick={onAnnotationClick}
+      />
     </article>
   );
 }
