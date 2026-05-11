@@ -73,9 +73,11 @@ function AnnotatedBody({
         ) : (
           <mark
             key={seg.annotation.id}
+            tabindex={0}
             data-annotation-id={seg.annotation.id}
             data-signal-type={seg.annotation.signalType}
             aria-label={`highlight: ${seg.annotation.signalType}`}
+            class="rounded-sm outline-none focus:ring-2 focus:ring-accent"
             style={{ backgroundColor: signalColor(seg.annotation.signalType) }}
           >
             {seg.text}
