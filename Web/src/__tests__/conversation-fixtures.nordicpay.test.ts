@@ -59,7 +59,7 @@ describe("NordicPay enterprise fixture", () => {
   });
 
   describe("annotations carry rationale and action", () => {
-    it.each(nordicpayEnterprise.annotations)(
+    it.each(conversation.annotations)(
       "$id ($signalType) has non-empty rationale and suggestedAction",
       (a) => {
         expect(a.rationale.trim()).toBeTruthy();
