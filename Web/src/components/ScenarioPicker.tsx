@@ -1,4 +1,5 @@
 import { useRef } from "preact/hooks";
+import type { JSX } from "preact";
 import type { Conversation } from "../data/conversation-fixtures/types";
 
 export function ScenarioPicker({
@@ -12,7 +13,7 @@ export function ScenarioPicker({
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
 
-  function handleKeyDown(e: KeyboardEvent, index: number) {
+  function handleKeyDown(e: JSX.TargetedKeyboardEvent<HTMLButtonElement>, index: number) {
     let next: number | null = null;
 
     if (e.key === "ArrowRight") {
@@ -28,7 +29,7 @@ export function ScenarioPicker({
     if (next !== null) {
       e.preventDefault();
       const buttons = containerRef.current?.querySelectorAll("button");
-      (buttons?.[next] as HTMLButtonElement)?.focus();
+      buttons?.[next]?.focus();
     }
   }
 
@@ -45,7 +46,7 @@ export function ScenarioPicker({
               : "border-foreground/15 bg-foreground/5 text-muted hover:border-foreground/30 hover:text-foreground"
           }`}
           onClick={() => onSelect(i)}
-          onKeyDown={(e) => handleKeyDown(e as unknown as KeyboardEvent, i)}
+          onKeyDown={(e) => handleKeyDown(e, i)}
         >
           {scenario.scenarioLabel}
         </button>

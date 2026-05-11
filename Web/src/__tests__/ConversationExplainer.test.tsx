@@ -43,12 +43,12 @@ describe("ConversationExplainer", () => {
     });
   });
 
-  describe("clicking a chip switches scenarios", () => {
-    function getChips() {
-      const group = screen.getByRole("group", { name: /scenario picker/i });
-      return group.querySelectorAll("button");
-    }
+  function getChips() {
+    const group = screen.getByRole("group", { name: /scenario picker/i });
+    return group.querySelectorAll("button");
+  }
 
+  describe("clicking a chip switches scenarios", () => {
     it("clicking NordicPay chip renders NordicPay conversation", () => {
       fireEvent.click(getChips()[1]);
       const banner = screen.getByRole("banner");
@@ -69,11 +69,6 @@ describe("ConversationExplainer", () => {
   });
 
   describe("all four scenarios are reachable", () => {
-    function getChips() {
-      const group = screen.getByRole("group", { name: /scenario picker/i });
-      return group.querySelectorAll("button");
-    }
-
     it("step-3 onboarding scenario renders its conversation", () => {
       fireEvent.click(getChips()[2]);
       const banner = screen.getByRole("banner");
