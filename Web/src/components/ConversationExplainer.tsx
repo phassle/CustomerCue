@@ -9,6 +9,21 @@ import { ScenarioPicker } from "./ScenarioPicker";
 import { ConversationThread } from "./ConversationThread";
 import { SignalTypeFilter } from "./SignalTypeFilter";
 
+const CONFIDENCE_DOTS: Record<"low" | "medium" | "high", [string, string, string]> = {
+  low: ["●", "○", "○"],
+  medium: ["●", "●", "○"],
+  high: ["●", "●", "●"],
+};
+
+function ConfidenceIndicator({ level }: { level: "low" | "medium" | "high" }) {
+  const dots = CONFIDENCE_DOTS[level];
+  return (
+    <span class="mt-1 inline-block text-sm" aria-label={`confidence: ${level}`}>
+      <span aria-hidden="true">{dots.join("")}</span>
+    </span>
+  );
+}
+
 const scenarios = [
   acmeIntegration,
   nordicpayEnterprise,
@@ -162,12 +177,18 @@ export function ConversationExplainer() {
           <h4 class="font-display text-sm font-semibold capitalize text-accent">
             {activeAnnotation.signalType}
           </h4>
-          <p class="mt-1 font-body text-sm leading-relaxed text-foreground/90">
+          <ConfidenceIndicator level={activeAnnotation.confidence} />
+          <p class="mt-2 font-body text-sm leading-relaxed text-foreground/90">
             {activeAnnotation.rationale}
           </p>
-          <p class="mt-2 font-body text-sm leading-relaxed text-muted">
-            {activeAnnotation.suggestedAction}
-          </p>
+          <div class="mt-3 rounded border border-accent/20 bg-accent/5 px-3 py-2">
+            <span class="font-mono text-xs font-semibold uppercase tracking-wide text-accent">
+              Suggested action
+            </span>
+            <p class="mt-1 font-body text-sm leading-relaxed text-foreground/80">
+              {activeAnnotation.suggestedAction}
+            </p>
+          </div>
         </aside>
       )}
     </section>

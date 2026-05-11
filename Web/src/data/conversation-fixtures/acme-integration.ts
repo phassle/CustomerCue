@@ -85,7 +85,7 @@ export const acmeIntegration: Conversation = {
       id: "ann-4",
       range: { messageId: "msg-4", start: 62, end: 180 },
       signalType: "bug cluster",
-      confidence: "high",
+      confidence: "low",
       rationale:
         "Agent reproduces the 502 and identifies a specific serialisation bug in the Salesforce adapter affecting large opportunity amounts.",
       suggestedAction:

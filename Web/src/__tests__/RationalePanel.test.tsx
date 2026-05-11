@@ -92,4 +92,81 @@ describe("RationalePanel", () => {
       expect(getPanel()).toBeNull();
     });
   });
+
+  describe("Scenario: Confidence indicator reflects the annotation", () => {
+    it("shows aria-label matching the annotation confidence level", () => {
+      const mediumAnn = ordered.find((a) => a.confidence === "medium")!;
+      const marks = document.querySelectorAll("mark");
+      const mediumMark = Array.from(marks).find(
+        (m) => m.getAttribute("data-annotation-id") === mediumAnn.id,
+      )!;
+      fireEvent.click(mediumMark);
+      const indicator = getPanel()!.querySelector(
+        '[aria-label="confidence: medium"]',
+      );
+      expect(indicator).not.toBeNull();
+    });
+
+    it("renders two filled and one empty dot for medium confidence", () => {
+      const mediumAnn = ordered.find((a) => a.confidence === "medium")!;
+      const marks = document.querySelectorAll("mark");
+      const mediumMark = Array.from(marks).find(
+        (m) => m.getAttribute("data-annotation-id") === mediumAnn.id,
+      )!;
+      fireEvent.click(mediumMark);
+      const indicator = getPanel()!.querySelector(
+        '[aria-label="confidence: medium"]',
+      );
+      expect(indicator!.textContent).toBe("●●○");
+    });
+  });
+
+  describe("Scenario: Suggested-action block renders the annotation's action", () => {
+    it("displays suggestedAction inside a labelled callout", () => {
+      const marks = document.querySelectorAll("mark");
+      fireEvent.click(marks[0]);
+      const panel = getPanel()!;
+      expect(panel.textContent).toContain("Suggested action");
+      expect(panel.textContent).toContain(ordered[0].suggestedAction);
+    });
+  });
+
+  describe("Scenario: Confidence levels visually differ", () => {
+    it("low, medium, and high produce distinct dot patterns", () => {
+      const lowAnn = ordered.find((a) => a.confidence === "low")!;
+      const medAnn = ordered.find((a) => a.confidence === "medium")!;
+      const highAnn = ordered.find((a) => a.confidence === "high")!;
+      const marks = document.querySelectorAll("mark");
+
+      const clickAndGetDots = (ann: Annotation) => {
+        const mark = Array.from(marks).find(
+          (m) => m.getAttribute("data-annotation-id") === ann.id,
+        )!;
+        fireEvent.click(mark);
+        return getPanel()!.querySelector(`[aria-label="confidence: ${ann.confidence}"]`)!
+          .textContent;
+      };
+
+      const lowDots = clickAndGetDots(lowAnn);
+      const medDots = clickAndGetDots(medAnn);
+      const highDots = clickAndGetDots(highAnn);
+
+      expect(lowDots).toBe("●○○");
+      expect(medDots).toBe("●●○");
+      expect(highDots).toBe("●●●");
+      expect(new Set([lowDots, medDots, highDots]).size).toBe(3);
+    });
+  });
+
+  describe("Scenario: Accessibility — confidence is announced once", () => {
+    it("decorative dots are aria-hidden", () => {
+      const marks = document.querySelectorAll("mark");
+      fireEvent.click(marks[0]);
+      const indicator = getPanel()!.querySelector(
+        `[aria-label="confidence: ${ordered[0].confidence}"]`,
+      );
+      const dots = indicator!.querySelector('[aria-hidden="true"]');
+      expect(dots).not.toBeNull();
+    });
+  });
 });
