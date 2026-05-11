@@ -124,9 +124,16 @@ export function ConversationExplainer() {
       ref={containerRef}
       tabindex={-1}
       aria-label="Signal explainer"
-      class="mx-auto max-w-4xl px-4 outline-none"
+      class="mx-auto max-w-5xl px-6 py-24 outline-none md:px-10"
       onKeyDown={handleKeyDown}
     >
+      <h2 class="mb-4 font-display text-2xl font-bold md:text-3xl">
+        Watch a support conversation become a signal.
+      </h2>
+      <p class="mb-12 max-w-2xl text-muted">
+        Click any highlight to see the rationale. Switch scenarios to see four
+        signal types in action.
+      </p>
       <ScenarioPicker
         scenarios={scenarios}
         activeIndex={activeIndex}
