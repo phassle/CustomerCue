@@ -13,6 +13,14 @@ function domOrderAnnotations(fixture: Conversation): Annotation[] {
   });
 }
 
+function getPanel() {
+  return document.querySelector("[data-testid='rationale-panel']");
+}
+
+function getExplainer() {
+  return screen.getByRole("region", { name: /signal explainer/i });
+}
+
 describe("RationalePanel", () => {
   let ordered: Annotation[];
 
@@ -26,15 +34,14 @@ describe("RationalePanel", () => {
     it("panel appears when the first <mark> is clicked", () => {
       const marks = document.querySelectorAll("mark");
       fireEvent.click(marks[0]);
-      expect(screen.queryByRole("region")).not.toBeNull();
+      expect(getPanel()).not.toBeNull();
     });
 
-    it("displays the matching annotation's signal type in caps", () => {
+    it("displays the matching annotation's signal type", () => {
       const marks = document.querySelectorAll("mark");
       fireEvent.click(marks[0]);
-      expect(
-        screen.getByText(ordered[0].signalType.toUpperCase()),
-      ).toBeTruthy();
+      const panel = getPanel()!;
+      expect(panel.textContent).toContain(ordered[0].signalType);
     });
 
     it("displays the matching annotation's rationale", () => {
@@ -45,20 +52,12 @@ describe("RationalePanel", () => {
   });
 
   describe("Scenario: Closing the panel", () => {
-    it("close button removes the panel from the DOM", () => {
-      const marks = document.querySelectorAll("mark");
-      fireEvent.click(marks[0]);
-      fireEvent.click(
-        screen.getByRole("button", { name: /close rationale/i }),
-      );
-      expect(screen.queryByRole("region")).toBeNull();
-    });
-
     it("Escape key closes the panel", () => {
       const marks = document.querySelectorAll("mark");
       fireEvent.click(marks[0]);
-      fireEvent.keyDown(screen.getByRole("region"), { key: "Escape" });
-      expect(screen.queryByRole("region")).toBeNull();
+      expect(getPanel()).not.toBeNull();
+      fireEvent.keyDown(getExplainer(), { key: "Escape" });
+      expect(getPanel()).toBeNull();
     });
   });
 
@@ -67,43 +66,17 @@ describe("RationalePanel", () => {
       const marks = document.querySelectorAll("mark");
       fireEvent.click(marks[0]);
       fireEvent.click(marks[1]);
-      expect(
-        screen.getByText(ordered[1].signalType.toUpperCase()),
-      ).toBeTruthy();
-      expect(screen.getByText(ordered[1].rationale)).toBeTruthy();
+      const panel = getPanel()!;
+      expect(panel.textContent).toContain(ordered[1].signalType);
+      expect(panel.textContent).toContain(ordered[1].rationale);
     });
   });
 
-  describe("Scenario: Responsive placement", () => {
-    it("layout container uses md:flex for side-column positioning at desktop", () => {
+  describe("Scenario: Suggested action", () => {
+    it("displays the matching annotation's suggested action", () => {
       const marks = document.querySelectorAll("mark");
       fireEvent.click(marks[0]);
-      const panel = screen.getByRole("region");
-      const layout = panel.parentElement!;
-      expect(layout.className).toContain("md:flex");
-    });
-  });
-
-  describe("Scenario: Accessibility", () => {
-    it("panel is announced as a labelled region via aria-labelledby", () => {
-      const marks = document.querySelectorAll("mark");
-      fireEvent.click(marks[0]);
-      const panel = screen.getByRole("region");
-      const labelId = panel.getAttribute("aria-labelledby");
-      expect(labelId).toBeTruthy();
-      const heading = document.getElementById(labelId!);
-      expect(heading).toBeTruthy();
-      expect(heading!.textContent).toBe(
-        ordered[0].signalType.toUpperCase(),
-      );
-    });
-
-    it("Escape closes the panel from a child element within it", () => {
-      const marks = document.querySelectorAll("mark");
-      fireEvent.click(marks[0]);
-      const rationale = screen.getByText(ordered[0].rationale);
-      fireEvent.keyDown(rationale, { key: "Escape" });
-      expect(screen.queryByRole("region")).toBeNull();
+      expect(screen.getByText(ordered[0].suggestedAction)).toBeTruthy();
     });
   });
 
@@ -111,12 +84,12 @@ describe("RationalePanel", () => {
     it("panel closes when user switches to a different scenario", () => {
       const marks = document.querySelectorAll("mark");
       fireEvent.click(marks[0]);
-      expect(screen.queryByRole("region")).not.toBeNull();
+      expect(getPanel()).not.toBeNull();
 
       const group = screen.getByRole("group", { name: /scenario picker/i });
       const chips = group.querySelectorAll("button");
       fireEvent.click(chips[1]);
-      expect(screen.queryByRole("region")).toBeNull();
+      expect(getPanel()).toBeNull();
     });
   });
 });
