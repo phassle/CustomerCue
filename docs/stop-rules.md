@@ -9,7 +9,7 @@ When to stop and ask the user before acting. If unsure, stop.
 ## Commits and PRs
 
 - Don't commit. Don't open PRs. Don't push. Wait for an explicit request each time. Approval once is approval once — not standing authorization.
-- Default branch is `main`. Switch to git-flow only if the project grows multiple parallel tracks (mirroring sibling demos).
+- Git-flow always — see [`../AGENTS.md`](../AGENTS.md). Never commit straight to `main` or `develop`; work on a `feature/*` branch.
 
 ## Product surface
 
