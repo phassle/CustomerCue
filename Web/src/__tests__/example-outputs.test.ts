@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { exampleOutputs, type ExampleOutput } from "../data/example-outputs";
-import { signalCatalog } from "../data/signal-catalog";
+import { SIGNAL_NAMES } from "../lib/signal-catalog";
 
 describe("exampleOutputs", () => {
   it("contains exactly three examples", () => {
@@ -35,7 +35,7 @@ describe("exampleOutputs", () => {
   it("every signal type matches a canonical name from signalCatalog", () => {
     for (const ex of exampleOutputs) {
       for (const st of ex.signalType) {
-        expect(signalCatalog).toContain(st);
+        expect(SIGNAL_NAMES).toContain(st);
       }
     }
   });

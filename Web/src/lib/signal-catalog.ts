@@ -1,20 +1,22 @@
+export const SIGNAL_NAMES = [
+  "churn risk",
+  "expansion intent",
+  "product friction",
+  "bug cluster",
+  "onboarding issue",
+  "feature request",
+  "negative sentiment",
+  "strategic account escalation",
+  "documentation gap",
+  "repeated manual workaround",
+] as const;
+
+export type SignalType = (typeof SIGNAL_NAMES)[number];
+
 export interface Signal {
-  name: string;
+  name: SignalType;
 }
 
-const SIGNALS: Signal[] = [
-  { name: "churn risk" },
-  { name: "expansion intent" },
-  { name: "product friction" },
-  { name: "bug cluster" },
-  { name: "onboarding issue" },
-  { name: "feature request" },
-  { name: "negative sentiment" },
-  { name: "strategic account escalation" },
-  { name: "documentation gap" },
-  { name: "repeated manual workaround" },
-];
-
 export function getAllSignals(): Signal[] {
-  return [...SIGNALS];
+  return SIGNAL_NAMES.map((name) => ({ name }));
 }

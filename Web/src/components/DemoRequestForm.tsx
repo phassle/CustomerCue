@@ -1,13 +1,12 @@
 import { useState } from "preact/hooks";
-
-type FormState =
-  | { status: "idle" }
-  | { status: "pending" }
-  | { status: "success"; id: string }
-  | { status: "error"; message: string };
-
-const INPUT_CLASS =
-  "w-full rounded-lg border border-foreground/20 bg-background px-4 py-2.5 text-foreground placeholder:text-muted/60 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background";
+import { submitLead } from "../lib/lead-capture";
+import {
+  type FormState,
+  INPUT_CLASS,
+  FOCUS_RING_ACCENT,
+  SuccessCard,
+  ErrorAlert,
+} from "./form-primitives";
 
 export function DemoRequestForm() {
   const [state, setState] = useState<FormState>({ status: "idle" });
@@ -18,47 +17,21 @@ export function DemoRequestForm() {
   async function handleSubmit(e: Event) {
     e.preventDefault();
     setState({ status: "pending" });
-
-    try {
-      const res = await fetch("/api/lead", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ kind: "demo", name, email, company }),
-      });
-      const data = await res.json();
-      if (data.ok) {
-        setState({ status: "success", id: data.id });
-      } else {
-        setState({ status: "error", message: data.error });
-      }
-    } catch {
-      setState({
-        status: "error",
-        message: "Something went wrong. Please try again.",
-      });
-    }
+    const res = await submitLead({ kind: "demo", name, email, company });
+    setState(
+      res.ok
+        ? { status: "success", id: res.id }
+        : { status: "error", message: res.error },
+    );
   }
 
   if (state.status === "success") {
-    return (
-      <div role="status" aria-live="polite" class="rounded-lg border border-accent/30 bg-accent/10 p-6 text-center">
-        <p class="font-display text-lg font-semibold text-foreground">
-          Thanks — we'll be in touch.
-        </p>
-        <p class="mt-2 text-sm text-muted">
-          Reference: <span class="font-mono">{state.id}</span>
-        </p>
-      </div>
-    );
+    return <SuccessCard headline="Thanks — we'll be in touch." id={state.id} />;
   }
 
   return (
     <form onSubmit={handleSubmit} class="space-y-4 text-left" noValidate>
-      {state.status === "error" && (
-        <div role="alert" aria-live="assertive" class="rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-400">
-          {state.message}
-        </div>
-      )}
+      {state.status === "error" && <ErrorAlert message={state.message} />}
 
       <div>
         <label for="demo-name" class="mb-1 block text-sm font-medium text-foreground">
@@ -111,7 +84,7 @@ export function DemoRequestForm() {
       <button
         type="submit"
         disabled={state.status === "pending"}
-        class="w-full rounded-lg bg-accent px-6 py-3 font-display text-base font-semibold text-background transition-colors hover:bg-accent/90 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:opacity-60"
+        class={`w-full rounded-lg bg-accent px-6 py-3 font-display text-base font-semibold text-background transition-colors hover:bg-accent/90 ${FOCUS_RING_ACCENT} disabled:opacity-60`}
       >
         {state.status === "pending" ? "Submitting…" : "Book a demo"}
       </button>

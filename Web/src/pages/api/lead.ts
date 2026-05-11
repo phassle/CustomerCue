@@ -25,5 +25,5 @@ export async function POST({ request }: APIContext): Promise<Response> {
 }
 
 export function ALL(_ctx: APIContext): Response {
-  return new Response(null, { status: 405 });
+  return new Response(null, { status: 405, headers: { Allow: "POST" } });
 }

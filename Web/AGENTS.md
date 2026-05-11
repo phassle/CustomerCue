@@ -9,7 +9,7 @@ Public marketing site for **CustomerCue**. A single focused landing page — her
 | Framework | **Astro 6.3** — static-first delivery. See [`../docs/adr/0001-astro-for-web.md`](../docs/adr/0001-astro-for-web.md). |
 | Styling | **Tailwind CSS 4.3** via `@tailwindcss/vite` |
 | Island framework | **Preact** via `@astrojs/preact` — used for interactive form islands (`DemoRequestForm`, `ConversationsUploadForm`). `tsconfig.json` sets `jsxImportSource: "preact"`. |
-| Hosting | **Static export** (`output: "static"` in astro.config). Deploy to Vercel or Cloudflare Pages. |
+| Hosting | **Static with one server-rendered route.** `output: "static"` + `@astrojs/node` (standalone mode); `/api/lead` opts in to server rendering via `export const prerender = false;`. Deploy to any Node-capable host (Vercel, Railway, Render). A pure-static target like Cloudflare Pages would 404 on form submission unless the API route is moved to the host's serverless platform. |
 | Test — unit | **Vitest 4.1** + **happy-dom** for DOM environment |
 | Test — E2E | **Playwright 1.59** (Chromium Headless Shell) — switched from WebKit which had missing system libs (`libatk-1.0.so.0` etc.) in newer Playwright versions. Chromium Headless Shell's deps can be resolved via manual `.deb` extraction (see `docs/retros/web-1-0-landing.md`). |
 | TypeScript | **6.0** via `astro check` |

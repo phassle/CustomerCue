@@ -10,6 +10,19 @@ export type LeadResponse =
   | { ok: true; id: string }
   | { ok: false; error: string };
 
+export async function submitLead(body: LeadSubmission): Promise<LeadResponse> {
+  try {
+    const res = await fetch("/api/lead", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+    return (await res.json()) as LeadResponse;
+  } catch {
+    return { ok: false, error: "Something went wrong. Please try again." };
+  }
+}
+
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export function validateLead(body: unknown): string | null {

@@ -1,13 +1,12 @@
 import { useState } from "preact/hooks";
-
-type FormState =
-  | { status: "idle" }
-  | { status: "pending" }
-  | { status: "success"; id: string }
-  | { status: "error"; message: string };
-
-const INPUT_CLASS =
-  "w-full rounded-lg border border-foreground/20 bg-background px-4 py-2.5 text-foreground placeholder:text-muted/60 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background";
+import { submitLead } from "../lib/lead-capture";
+import {
+  type FormState,
+  INPUT_CLASS,
+  FOCUS_RING_ACCENT,
+  SuccessCard,
+  ErrorAlert,
+} from "./form-primitives";
 
 export function ConversationsUploadForm() {
   const [state, setState] = useState<FormState>({ status: "idle" });
@@ -19,30 +18,17 @@ export function ConversationsUploadForm() {
     e.preventDefault();
     if (!file) return;
     setState({ status: "pending" });
-
-    try {
-      const res = await fetch("/api/lead", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          kind: "conversations",
-          name,
-          email,
-          fileMeta: { name: file.name, size: file.size, type: file.type },
-        }),
-      });
-      const data = await res.json();
-      if (data.ok) {
-        setState({ status: "success", id: data.id });
-      } else {
-        setState({ status: "error", message: data.error });
-      }
-    } catch {
-      setState({
-        status: "error",
-        message: "Something went wrong. Please try again.",
-      });
-    }
+    const res = await submitLead({
+      kind: "conversations",
+      name,
+      email,
+      fileMeta: { name: file.name, size: file.size, type: file.type },
+    });
+    setState(
+      res.ok
+        ? { status: "success", id: res.id }
+        : { status: "error", message: res.error },
+    );
   }
 
   function handleFileChange(e: Event) {
@@ -52,14 +38,10 @@ export function ConversationsUploadForm() {
 
   if (state.status === "success") {
     return (
-      <div role="status" aria-live="polite" class="rounded-lg border border-accent/30 bg-accent/10 p-6 text-center">
-        <p class="font-display text-lg font-semibold text-foreground">
-          Got it — report inbound within 48 hours.
-        </p>
-        <p class="mt-2 text-sm text-muted">
-          Reference: <span class="font-mono">{state.id}</span>
-        </p>
-      </div>
+      <SuccessCard
+        headline="Got it — report inbound within 48 hours."
+        id={state.id}
+      />
     );
   }
 
@@ -84,11 +66,7 @@ export function ConversationsUploadForm() {
       </dl>
 
       <form onSubmit={handleSubmit} class="space-y-4" noValidate>
-        {state.status === "error" && (
-          <div role="alert" aria-live="assertive" class="rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-400">
-            {state.message}
-          </div>
-        )}
+        {state.status === "error" && <ErrorAlert message={state.message} />}
 
         <div>
           <label for="conv-name" class="mb-1 block text-sm font-medium text-foreground">
@@ -139,7 +117,7 @@ export function ConversationsUploadForm() {
         <button
           type="submit"
           disabled={isSubmitDisabled}
-          class="w-full rounded-lg border border-foreground/20 bg-transparent px-6 py-3 font-display text-base font-semibold text-foreground transition-colors hover:bg-foreground/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:opacity-60"
+          class={`w-full rounded-lg border border-foreground/20 bg-transparent px-6 py-3 font-display text-base font-semibold text-foreground transition-colors hover:bg-foreground/10 ${FOCUS_RING_ACCENT} disabled:opacity-60`}
         >
           {isPending ? "Submitting…" : "Send conversations"}
         </button>

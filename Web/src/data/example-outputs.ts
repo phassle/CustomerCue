@@ -1,4 +1,4 @@
-import type { SignalType } from "./signal-catalog";
+import type { SignalType } from "../lib/signal-catalog";
 
 export interface ExampleOutput {
   id: string;
