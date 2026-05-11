@@ -57,11 +57,11 @@ describe("Step-3 onboarding fixture", () => {
   });
 
   describe("suggested actions target product, not support", () => {
-    it.each(
-      conversation.annotations.filter(
-        (a) => a.signalType === "onboarding issue",
-      ),
-    )(
+    const onboardingAnnotations = conversation.annotations.filter(
+      (a) => a.signalType === "onboarding issue",
+    );
+
+    it.each(onboardingAnnotations)(
       "$id suggestedAction mentions product/PM/feature-team escalation",
       (a) => {
         expect(a.suggestedAction).toMatch(
@@ -70,11 +70,7 @@ describe("Step-3 onboarding fixture", () => {
       },
     );
 
-    it.each(
-      conversation.annotations.filter(
-        (a) => a.signalType === "onboarding issue",
-      ),
-    )(
+    it.each(onboardingAnnotations)(
       "$id suggestedAction does not resolve the ticket — it routes the pattern",
       (a) => {
         expect(a.suggestedAction).not.toMatch(
