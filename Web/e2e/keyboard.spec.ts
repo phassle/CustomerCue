@@ -10,6 +10,9 @@ test.describe("Keyboard navigation", () => {
     const expectedOrder = [
       { role: "link", name: /Book a demo/i },
       { role: "link", name: /Send us 1,000 conversations/i },
+      { role: "summary", name: /View 6 source conversations/i },
+      { role: "summary", name: /View 4 source conversations/i },
+      { role: "summary", name: /View 37 source conversations/i },
       { role: "textbox", name: /^Name$/i, form: "demo" },
       { role: "textbox", name: /Work email/i, form: "demo" },
       { role: "textbox", name: /Company/i },
@@ -58,6 +61,13 @@ test.describe("Keyboard navigation", () => {
         case "file": {
           const type = await focused.getAttribute("type");
           expect(type).toBe("file");
+          break;
+        }
+        case "summary": {
+          const tag = await focused.evaluate((el) => el.tagName.toLowerCase());
+          expect(tag).toBe("summary");
+          const text = await focused.textContent();
+          expect(text).toMatch(expected.name);
           break;
         }
       }
