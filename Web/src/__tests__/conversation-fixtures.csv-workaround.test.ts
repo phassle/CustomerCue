@@ -72,9 +72,7 @@ describe("CSV workaround fixture", () => {
         .filter((m) => m.author === "agent")
         .map((m) => m.body.toLowerCase())
         .join(" ");
-      const mentionsMissing =
-        /documentation/.test(agentBodies) || /missing/.test(agentBodies);
-      expect(mentionsMissing).toBe(true);
+      expect(agentBodies).toMatch(/documentation|missing/);
     });
   });
 
