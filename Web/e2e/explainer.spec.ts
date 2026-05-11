@@ -113,7 +113,7 @@ test.describe("Explainer", () => {
       await expect(page.locator(RATIONALE)).toBeVisible();
 
       const results = await new AxeBuilder({ page })
-        .include('section[aria-label="Signal explainer"]')
+        .include(EXPLAINER)
         .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
         .analyze();
 
