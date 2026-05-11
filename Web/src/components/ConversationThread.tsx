@@ -3,22 +3,7 @@ import type {
   Message,
   Annotation,
 } from "../data/conversation-fixtures/types";
-import type { SignalType } from "../lib/signal-catalog";
-
-const HIGHLIGHT_PALETTE = [
-  "rgba(212, 118, 60, 0.25)",
-  "rgba(60, 162, 212, 0.25)",
-  "rgba(162, 212, 60, 0.25)",
-  "rgba(212, 60, 162, 0.25)",
-];
-
-function signalColor(signalType: SignalType): string {
-  let hash = 0;
-  for (let i = 0; i < signalType.length; i++) {
-    hash = (hash * 31 + signalType.charCodeAt(i)) | 0;
-  }
-  return HIGHLIGHT_PALETTE[Math.abs(hash) % HIGHLIGHT_PALETTE.length];
-}
+import { signalColor } from "../lib/signal-colors";
 
 type Segment =
   | { type: "text"; text: string }
@@ -59,9 +44,11 @@ function buildSegments(
 function AnnotatedBody({
   body,
   annotations,
+  onAnnotationClick,
 }: {
   body: string;
   annotations: Annotation[];
+  onAnnotationClick?: (annotation: Annotation) => void;
 }) {
   const segments = buildSegments(body, annotations);
 
@@ -76,7 +63,15 @@ function AnnotatedBody({
             data-annotation-id={seg.annotation.id}
             data-signal-type={seg.annotation.signalType}
             aria-label={`highlight: ${seg.annotation.signalType}`}
-            style={{ backgroundColor: signalColor(seg.annotation.signalType) }}
+            style={{
+              backgroundColor: signalColor(seg.annotation.signalType),
+              cursor: onAnnotationClick ? "pointer" : undefined,
+            }}
+            onClick={
+              onAnnotationClick
+                ? () => onAnnotationClick(seg.annotation)
+                : undefined
+            }
           >
             {seg.text}
           </mark>
@@ -89,9 +84,11 @@ function AnnotatedBody({
 function MessageBubble({
   message,
   annotations,
+  onAnnotationClick,
 }: {
   message: Message;
   annotations: Annotation[];
+  onAnnotationClick?: (annotation: Annotation) => void;
 }) {
   const alignment =
     message.author === "customer"
@@ -109,15 +106,17 @@ function MessageBubble({
         </span>
         <span class="font-mono text-xs text-muted">{message.timestamp}</span>
       </div>
-      <AnnotatedBody body={message.body} annotations={annotations} />
+      <AnnotatedBody body={message.body} annotations={annotations} onAnnotationClick={onAnnotationClick} />
     </article>
   );
 }
 
 export function ConversationThread({
   conversation,
+  onAnnotationClick,
 }: {
   conversation: Conversation;
+  onAnnotationClick?: (annotation: Annotation) => void;
 }) {
   const annotationsByMessage = new Map<string, Annotation[]>();
   for (const ann of conversation.annotations) {
@@ -150,6 +149,7 @@ export function ConversationThread({
             key={msg.id}
             message={msg}
             annotations={annotationsByMessage.get(msg.id) ?? []}
+            onAnnotationClick={onAnnotationClick}
           />
         ))}
       </div>
