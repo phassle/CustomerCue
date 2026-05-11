@@ -4,21 +4,7 @@ import type {
   Annotation,
 } from "../data/conversation-fixtures/types";
 import type { SignalType } from "../lib/signal-catalog";
-
-const HIGHLIGHT_PALETTE = [
-  "rgba(212, 118, 60, 0.25)",
-  "rgba(60, 162, 212, 0.25)",
-  "rgba(162, 212, 60, 0.25)",
-  "rgba(212, 60, 162, 0.25)",
-];
-
-export function signalColor(signalType: SignalType): string {
-  let hash = 0;
-  for (let i = 0; i < signalType.length; i++) {
-    hash = (hash * 31 + signalType.charCodeAt(i)) | 0;
-  }
-  return HIGHLIGHT_PALETTE[Math.abs(hash) % HIGHLIGHT_PALETTE.length];
-}
+import { signalColor } from "../lib/signal-colors";
 
 type Segment =
   | { type: "text"; text: string }
@@ -63,7 +49,7 @@ function AnnotatedBody({
 }: {
   body: string;
   annotations: Annotation[];
-  hiddenSignalTypes?: Set<string>;
+  hiddenSignalTypes?: Set<SignalType>;
 }) {
   const segments = buildSegments(body, annotations);
 
@@ -96,7 +82,7 @@ function MessageBubble({
 }: {
   message: Message;
   annotations: Annotation[];
-  hiddenSignalTypes?: Set<string>;
+  hiddenSignalTypes?: Set<SignalType>;
 }) {
   const alignment =
     message.author === "customer"
@@ -124,7 +110,7 @@ export function ConversationThread({
   hiddenSignalTypes,
 }: {
   conversation: Conversation;
-  hiddenSignalTypes?: Set<string>;
+  hiddenSignalTypes?: Set<SignalType>;
 }) {
   const annotationsByMessage = new Map<string, Annotation[]>();
   for (const ann of conversation.annotations) {

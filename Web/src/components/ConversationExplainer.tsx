@@ -15,6 +15,8 @@ const scenarios = [
   csvWorkaround,
 ];
 
+const SIGNAL_NAME_ORDER = new Map(SIGNAL_NAMES.map((name, i) => [name, i]));
+
 export function ConversationExplainer() {
   const [activeIndex, setActiveIndex] = useState(0);
   const [hiddenSignalTypes, setHiddenSignalTypes] = useState<Set<SignalType>>(new Set());
@@ -23,8 +25,7 @@ export function ConversationExplainer() {
 
   const activeSignalTypes = useMemo(() => {
     const types = [...new Set(conversation.annotations.map((a) => a.signalType))];
-    const order = new Map(SIGNAL_NAMES.map((name, i) => [name, i]));
-    return types.sort((a, b) => (order.get(a) ?? 0) - (order.get(b) ?? 0));
+    return types.sort((a, b) => (SIGNAL_NAME_ORDER.get(a) ?? 0) - (SIGNAL_NAME_ORDER.get(b) ?? 0));
   }, [conversation]);
 
   function handleScenarioChange(index: number) {

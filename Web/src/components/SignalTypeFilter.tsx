@@ -1,6 +1,6 @@
 import { useState } from "preact/hooks";
 import type { SignalType } from "../lib/signal-catalog";
-import { signalColor } from "./ConversationThread";
+import { signalColor } from "../lib/signal-colors";
 
 export function SignalTypeFilter({
   activeSignalTypes,
