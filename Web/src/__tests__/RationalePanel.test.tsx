@@ -17,6 +17,14 @@ function getPanel() {
   return document.querySelector("[data-testid='rationale-panel']");
 }
 
+function clickMarkFor(ann: Annotation) {
+  const mark = Array.from(document.querySelectorAll("mark")).find(
+    (m) => m.getAttribute("data-annotation-id") === ann.id,
+  )!;
+  fireEvent.click(mark);
+  return mark;
+}
+
 function getExplainer() {
   return screen.getByRole("region", { name: /signal explainer/i });
 }
@@ -96,11 +104,7 @@ describe("RationalePanel", () => {
   describe("Scenario: Confidence indicator reflects the annotation", () => {
     it("shows aria-label matching the annotation confidence level", () => {
       const mediumAnn = ordered.find((a) => a.confidence === "medium")!;
-      const marks = document.querySelectorAll("mark");
-      const mediumMark = Array.from(marks).find(
-        (m) => m.getAttribute("data-annotation-id") === mediumAnn.id,
-      )!;
-      fireEvent.click(mediumMark);
+      clickMarkFor(mediumAnn);
       const indicator = getPanel()!.querySelector(
         '[aria-label="confidence: medium"]',
       );
@@ -109,11 +113,7 @@ describe("RationalePanel", () => {
 
     it("renders two filled and one empty dot for medium confidence", () => {
       const mediumAnn = ordered.find((a) => a.confidence === "medium")!;
-      const marks = document.querySelectorAll("mark");
-      const mediumMark = Array.from(marks).find(
-        (m) => m.getAttribute("data-annotation-id") === mediumAnn.id,
-      )!;
-      fireEvent.click(mediumMark);
+      clickMarkFor(mediumAnn);
       const indicator = getPanel()!.querySelector(
         '[aria-label="confidence: medium"]',
       );
@@ -136,25 +136,16 @@ describe("RationalePanel", () => {
       const lowAnn = ordered.find((a) => a.confidence === "low")!;
       const medAnn = ordered.find((a) => a.confidence === "medium")!;
       const highAnn = ordered.find((a) => a.confidence === "high")!;
-      const marks = document.querySelectorAll("mark");
 
-      const clickAndGetDots = (ann: Annotation) => {
-        const mark = Array.from(marks).find(
-          (m) => m.getAttribute("data-annotation-id") === ann.id,
-        )!;
-        fireEvent.click(mark);
+      const dotsFor = (ann: Annotation) => {
+        clickMarkFor(ann);
         return getPanel()!.querySelector(`[aria-label="confidence: ${ann.confidence}"]`)!
           .textContent;
       };
 
-      const lowDots = clickAndGetDots(lowAnn);
-      const medDots = clickAndGetDots(medAnn);
-      const highDots = clickAndGetDots(highAnn);
-
-      expect(lowDots).toBe("●○○");
-      expect(medDots).toBe("●●○");
-      expect(highDots).toBe("●●●");
-      expect(new Set([lowDots, medDots, highDots]).size).toBe(3);
+      expect(dotsFor(lowAnn)).toBe("●○○");
+      expect(dotsFor(medAnn)).toBe("●●○");
+      expect(dotsFor(highAnn)).toBe("●●●");
     });
   });
 

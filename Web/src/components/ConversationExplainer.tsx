@@ -4,22 +4,22 @@ import { acmeIntegration } from "../data/conversation-fixtures/acme-integration"
 import { nordicpayEnterprise } from "../data/conversation-fixtures/nordicpay-enterprise";
 import { step3Onboarding } from "../data/conversation-fixtures/step3-onboarding";
 import { csvWorkaround } from "../data/conversation-fixtures/csv-workaround";
+import type { Annotation } from "../data/conversation-fixtures/types";
 import { SIGNAL_NAMES, type SignalType } from "../lib/signal-catalog";
 import { ScenarioPicker } from "./ScenarioPicker";
 import { ConversationThread } from "./ConversationThread";
 import { SignalTypeFilter } from "./SignalTypeFilter";
 
-const CONFIDENCE_DOTS: Record<"low" | "medium" | "high", [string, string, string]> = {
-  low: ["●", "○", "○"],
-  medium: ["●", "●", "○"],
-  high: ["●", "●", "●"],
+const CONFIDENCE_DOTS: Record<Annotation["confidence"], string> = {
+  low: "●○○",
+  medium: "●●○",
+  high: "●●●",
 };
 
-function ConfidenceIndicator({ level }: { level: "low" | "medium" | "high" }) {
-  const dots = CONFIDENCE_DOTS[level];
+function ConfidenceIndicator({ level }: { level: Annotation["confidence"] }) {
   return (
     <span class="mt-1 inline-block text-sm" aria-label={`confidence: ${level}`}>
-      <span aria-hidden="true">{dots.join("")}</span>
+      <span aria-hidden="true">{CONFIDENCE_DOTS[level]}</span>
     </span>
   );
 }
