@@ -5,7 +5,7 @@
 ## Sections (in order)
 
 1. **Hero** — tagline *"Turn support conversations into customer revenue signals."* Sub-positioning weaves in the differentiator (AI revenue intelligence on top of Intercom/Zendesk, not another support bot) and the ICP hint (B2B SaaS with a CS team). Primary CTA inline.
-2. **How it works** — three to four steps from "connect Intercom/Zendesk" to "weekly revenue signals in Slack/email." Use the brief's example outputs (Acme Corp / NordicPay / step-3 cluster) as illustrations. Label them as fictional.
+2. **Explainer** — interactive conversation-to-signal explainer. Heading: *"Watch a support conversation become a signal."* Four switchable scenarios (Acme Corp, NordicPay, step-3 onboarding, CSV workaround) with annotated conversation threads showing how signals are extracted from real support conversations.
 3. **Signals** — the 10 canonical signal types as a grid/list. Names verbatim. See [`../../docs/signals.md`](../../docs/signals.md).
 4. **CTA section** — the close. Primary + secondary CTA, repeated from hero.
 5. **Footer** — standard minimal B2B footer (product, company, legal, contact).

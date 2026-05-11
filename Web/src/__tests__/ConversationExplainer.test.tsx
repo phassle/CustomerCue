@@ -82,6 +82,24 @@ describe("ConversationExplainer", () => {
     });
   });
 
+  describe("section heading and intro", () => {
+    it("heading reads 'Watch a support conversation become a signal.'", () => {
+      const heading = screen.getByRole("heading", { level: 2 });
+      expect(heading.textContent).toBe(
+        "Watch a support conversation become a signal."
+      );
+    });
+
+    it("intro mentions clicking highlights and switching scenarios", () => {
+      expect(screen.getByText(/Click any highlight to see the rationale/));
+      expect(
+        screen.getByText(
+          /Switch scenarios to see four signal types in action/
+        )
+      );
+    });
+  });
+
   describe("scenario switch resets to clean state", () => {
     it("switching back to Acme after visiting NordicPay re-renders Acme", () => {
       const group = screen.getByRole("group", { name: /scenario picker/i });
