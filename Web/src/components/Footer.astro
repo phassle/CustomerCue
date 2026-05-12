@@ -3,7 +3,7 @@ import Wordmark from "./Wordmark.astro";
 
 const year = new Date().getFullYear();
 const LINK_CLASS = "text-sm text-muted hover:text-foreground transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded-sm";
-const PLACEHOLDER_CLASS = "text-sm text-muted/60";
+const PLACEHOLDER_CLASS = "text-sm text-muted";
 ---
 
 <footer class="border-t border-muted/20 px-6 py-12 md:px-10 mt-20">
@@ -36,7 +36,7 @@ const PLACEHOLDER_CLASS = "text-sm text-muted/60";
       </div>
     </div>
     <div class="mt-12 flex flex-col items-center gap-4 md:flex-row md:justify-between">
-      <div class="opacity-60">
+      <div class="opacity-80">
         <Wordmark />
       </div>
       <p class="text-sm text-muted">&copy; {year} CustomerCue</p>
