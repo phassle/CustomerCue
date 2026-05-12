@@ -8,7 +8,10 @@ It's not another support bot. It's an intelligence layer on top of your support 
 
 ## Status
 
-Monterro / InfuseAI live agentic-development workshop demo. **Visual-first, mocked data, no production deployment.** Both subprojects are empty scaffolds — stack choices are still open.
+Monterro / InfuseAI live agentic-development workshop demo. **Visual-first, mocked data, no production deployment.**
+
+- **[`Web/`](./Web/)** — v1.0 marketing landing page is built and running. Astro 6.3 + Tailwind v4 + Preact form islands; `POST /api/lead` is a mock endpoint that validates and returns a synthetic id (stores nothing). See [`Web/README.md`](./Web/README.md).
+- **[`Saas/`](./Saas/)** — still an empty scaffold; the signed-in product hasn't started. Stack TBD.
 
 ## Repo layout
 
@@ -24,7 +27,18 @@ Monterro / InfuseAI live agentic-development workshop demo. **Visual-first, mock
 
 ## Getting started
 
-Nothing to run yet — pick a stack per subproject first. See [`Web/README.md`](./Web/README.md) and [`Saas/README.md`](./Saas/README.md).
+`Web/` is runnable:
+
+```bash
+cd Web
+npm install
+npm run dev            # http://localhost:4321
+npm run test           # vitest (unit + component)
+npm run test:e2e       # playwright (E2E, Chromium)
+npm run build          # static export + Node SSR for /api/lead
+```
+
+`Saas/` has no code yet — see [`Saas/README.md`](./Saas/README.md).
 
 ## The MVP wedge
 

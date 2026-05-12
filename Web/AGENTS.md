@@ -30,7 +30,7 @@ Playwright requires browser binaries: `npx playwright install chromium`. On the 
 
 ## Cache strategy
 
-HTML pages use `<meta http-equiv>` cache-busting headers (`Cache-Control: no-cache, no-store, must-revalidate`, `Pragma: no-cache`, `Expires: 0`). These prevent browsers and CDN edge nodes from serving stale HTML after a redeploy. Static assets (JS/CSS/images) are fingerprinted by Astro's build pipeline and can be cached indefinitely by the hosting platform (Vercel / Cloudflare Pages handle this automatically via their default immutable-asset caching).
+HTML pages set `<meta http-equiv>` directives (`Cache-Control: no-cache, no-store, must-revalidate`, `Pragma: no-cache`, `Expires: 0`). **These only influence the user's browser** — they do not affect CDN/edge caches, which honour HTTP response headers from the origin. To prevent edge-cached stale HTML after a redeploy, configure the host: Vercel's `vercel.json` `headers` section, Cloudflare Pages' `_headers` file, or equivalent. Until that's wired up, the meta tags are belt-and-suspenders for browser-only freshness. Static assets (JS/CSS/images) are fingerprinted by Astro's build pipeline and the host's default immutable-asset caching handles them automatically.
 
 ## Performance baseline
 

@@ -53,6 +53,8 @@ Be extremely concise; sacrifice grammar for concision. End each plan with unreso
 
 ## Agent skills
 
+Repo agent instructions are shared across agents and models. `AGENTS.md` is canonical; `CLAUDE.md` is only a compatibility symlink. Shared skills live in `.agents/skills`; provider-specific skill folders should mirror those skills rather than fork behavior. Repo memory/context belongs in `brief.md`, `docs/`, `AGENTS.md`, or `.agents/skills`, not model-local instructions.
+
 ### Issue tracker
 
 Issues live in GitHub Issues on `phassle/CustomerCue`, accessed via the `gh` CLI. See [`docs/agents/issue-tracker.md`](./docs/agents/issue-tracker.md).
