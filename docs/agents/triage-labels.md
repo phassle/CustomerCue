@@ -25,3 +25,21 @@ When triaging an **implementation issue** (not a PRD), `ready-for-agent` is only
 If any check fails, leave the issue on `needs-triage` (or apply `needs-info`) and comment what's missing. Don't quietly upgrade an under-specified issue to `ready-for-agent`.
 
 PRDs are exempt from check 2 — PRDs describe intent, not behaviour. The implementation issues that the PRD produces carry the BDD requirement.
+
+## Merge-gate dimension: `human-review-required`
+
+Orthogonal to "who implements" (`ready-for-agent` / `ready-for-human`) is **"who merges the PR"**. The default is that agent review (Copilot, `/ultrareview`, automated checks) suffices. Apply the `human-review-required` label when the code area demands a human reviewer regardless of who implemented the slice.
+
+Apply `human-review-required` at triage time when any is true:
+
+- Slice will touch auth, secrets, billing, infra, or CI/CD pipelines.
+- Slice modifies public copy that must match `brief.md` verbatim (vocabulary correctness is judgment-heavy).
+- Slice changes a domain ADR or its associated invariants.
+- Slice touches a code path the team has explicitly stewarded (e.g. signal taxonomy, ADR-touching changes).
+- Prior incident or retro mandates a human checkpoint for the area.
+
+The label is independent of state and category — an issue can carry `enhancement` + `ready-for-agent` + `human-review-required` simultaneously. The agent will build it; a human must approve the PR before merge.
+
+Enforcement: the workflow `.github/workflows/human-review-gate.yml` runs on every PR. It scans the PR body and title for `#<issue-number>` references, fetches each linked issue, and if any carry `human-review-required` the PR's status check fails until an approving review is recorded by a user (not a bot) on the PR's current HEAD commit. Force-pushing dismisses stale approvals — the gate then refails until a new approval is recorded.
+
+If the slice's PR is *not* linked to any labelled issue, the gate passes by default. Link issues with `#<number>` in the PR body so the gate can find them.
