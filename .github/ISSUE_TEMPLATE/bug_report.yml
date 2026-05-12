@@ -1,0 +1,69 @@
+name: Bug report
+description: Something in the demo behaves wrong.
+title: "[bug] "
+labels: ["bug", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to file a bug. Implementation issues need a BDD section (Given / When / Then). PRDs are exempt — but this isn't a PRD.
+  - type: dropdown
+    id: subproject
+    attributes:
+      label: Subproject
+      description: Where does the bug live?
+      options:
+        - Web/
+        - Saas/
+        - docs/ or tooling
+        - Unsure
+    validations:
+      required: true
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: One or two sentences. What broke?
+    validations:
+      required: true
+  - type: textarea
+    id: bdd
+    attributes:
+      label: Acceptance criteria (Given / When / Then)
+      description: BDD scenarios that describe the bug and what "fixed" looks like.
+      placeholder: |
+        Given I am on the landing page
+        When I submit the lead form with an invalid email
+        Then I see an inline validation error and the form is not submitted
+      render: gherkin
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to reproduce
+      description: Numbered list. Include the URL or command if relevant.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected vs actual
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Browser, OS, branch, commit SHA, anything else relevant.
+    validations:
+      required: false
+  - type: checkboxes
+    id: pre-flight
+    attributes:
+      label: Pre-flight
+      options:
+        - label: I've read [brief.md](https://github.com/phassle/CustomerCue/blob/main/brief.md) and this bug is in scope for the demo.
+          required: true
+        - label: I've checked existing issues and this isn't a duplicate.
+          required: true

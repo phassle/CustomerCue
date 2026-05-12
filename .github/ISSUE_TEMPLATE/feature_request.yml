@@ -1,0 +1,62 @@
+name: Feature / implementation request
+description: Propose a slice of work — feature, refactor, or improvement.
+title: "[feat] "
+labels: ["enhancement", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Implementation issues need a BDD section (Given / When / Then). PRDs are exempt — file PRDs separately and link them here.
+  - type: dropdown
+    id: subproject
+    attributes:
+      label: Subproject
+      options:
+        - Web/
+        - Saas/
+        - docs/ or tooling
+        - Cross-cutting
+    validations:
+      required: true
+  - type: textarea
+    id: motivation
+    attributes:
+      label: Why
+      description: What problem does this solve? Link the brief.md section or PRD this traces to.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed change
+      description: What should the slice do? Keep it to one slice.
+    validations:
+      required: true
+  - type: textarea
+    id: bdd
+    attributes:
+      label: Acceptance criteria (Given / When / Then)
+      description: BDD scenarios. Required for implementation issues.
+      placeholder: |
+        Given a signed-in user with one connected inbox
+        When the weekly signals job runs
+        Then the user sees a digest with at least one signal linked to source conversations
+      render: gherkin
+    validations:
+      required: true
+  - type: textarea
+    id: out-of-scope
+    attributes:
+      label: Out of scope
+      description: What this slice will explicitly NOT do.
+    validations:
+      required: false
+  - type: checkboxes
+    id: pre-flight
+    attributes:
+      label: Pre-flight
+      options:
+        - label: I've read [brief.md](https://github.com/phassle/CustomerCue/blob/main/brief.md) and this traces back to it.
+          required: true
+        - label: This is one slice, not a multi-slice initiative (those go in a PRD).
+          required: true
