@@ -1,0 +1,2103 @@
+<!doctype html>
+<!--
+  PROTOTYPE — throwaway. Delete or fold winning variant into the real Saas app.
+  Question: What should the CustomerCue signed-in product look like for the MVP wedge
+  ("weekly revenue signals from your support inbox")?
+  Variants: A=Triage Inbox  B=Executive Brief  C=Account Portfolio
+  Switch with ?variant=A|B|C, the floating bar, or ← / → keys.
+  Data is fictional. Canonical signal names (docs/signals.md) used verbatim. Every
+  signal renders with linked source conversations (trust contract).
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>CustomerCue — Prototype</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600&family=Geist:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        fontFamily: {
+          sans: ['Inter', 'system-ui', 'sans-serif'],
+          mono: ['JetBrains Mono', 'ui-monospace', 'monospace'],
+        },
+        colors: {
+          ink: {
+            900: '#0b1020',
+            800: '#10162c',
+            700: '#1a2140',
+            600: '#2b3354',
+          },
+          cue: {
+            50: '#eef4ff',
+            100: '#dbe7ff',
+            300: '#8fb1ff',
+            500: '#3d6bff',
+            600: '#2851e6',
+            700: '#1d3fb8',
+          },
+        },
+      },
+    },
+  };
+</script>
+<style>
+  html, body { font-family: 'Inter', system-ui, sans-serif; }
+  .mono { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+  /* tiny sparkline path animation just so the prototype feels alive */
+  .spark path { stroke-dasharray: 600; stroke-dashoffset: 600; animation: dash 1.6s ease-out forwards; }
+  @keyframes dash { to { stroke-dashoffset: 0; } }
+
+  /* =================================================================== */
+  /* Variant A — Editorial Triage Inbox. Scoped to .va so B/C stay clean. */
+  /* =================================================================== */
+  .va {
+    --paper:        #F7F3EC;
+    --paper-deep:   #EFE7D5;
+    --paper-tint:   #FBF8F2;
+    --surface:      #FFFFFF;
+    --ink:          #1B1916;
+    --ink-soft:     #3D372F;
+    --ink-mute:     #847C70;
+    --ink-faint:    #B5AC9E;
+    --rule:         #E5DFD3;
+    --rule-strong:  #C9C0AE;
+    --risk:         #8C2D2D;
+    --risk-soft:    #F4E5DE;
+    --expand:       #2A5D3C;
+    --expand-soft:  #DDE9DD;
+    --accent:       #B8893C;
+    --accent-soft:  #F0E1C4;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Geist', system-ui, sans-serif;
+    font-feature-settings: 'ss01','cv11';
+    letter-spacing: -0.003em;
+    height: calc(100vh - 32px);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  .va * { box-sizing: border-box; }
+  .va button { font-family: inherit; cursor: pointer; border: none; background: none; padding: 0; color: inherit; }
+  .va .serif { font-family: 'Fraunces', Georgia, 'Times New Roman', serif; font-variation-settings: 'opsz' 48, 'SOFT' 50; }
+  .va .mono  { font-family: 'JetBrains Mono', ui-monospace, monospace; letter-spacing: 0; }
+  .va kbd {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9.5px;
+    padding: 1px 5px;
+    background: var(--paper);
+    border: 1px solid var(--rule-strong);
+    border-bottom-width: 2px;
+    border-radius: 3px;
+    color: var(--ink-soft);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    line-height: 1.4;
+  }
+  .va .text-risk   { color: var(--risk); }
+  .va .text-expand { color: var(--expand); }
+
+  /* topbar ----------------------------------------------------------- */
+  .va-topbar {
+    flex-shrink: 0;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto auto auto;
+    align-items: center;
+    gap: 22px;
+    padding: 0 24px;
+    height: 56px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--rule);
+  }
+  .va-brand { display: flex; align-items: center; gap: 10px; }
+  .va-brand-mark {
+    font-family: 'Fraunces', serif;
+    font-variation-settings: 'opsz' 40;
+    font-weight: 600;
+    font-size: 16px;
+    letter-spacing: -0.02em;
+    background: var(--ink);
+    color: var(--paper);
+    width: 28px; height: 28px;
+    display: grid; place-items: center;
+    border-radius: 4px;
+  }
+  .va-brand-name {
+    font-family: 'Fraunces', serif;
+    font-variation-settings: 'opsz' 24;
+    font-weight: 500;
+    font-size: 15.5px;
+    letter-spacing: -0.018em;
+    color: var(--ink);
+  }
+  .va-brand-workspace {
+    font-size: 10.5px;
+    color: var(--ink-mute);
+    padding-left: 12px;
+    margin-left: 4px;
+    border-left: 1px solid var(--rule);
+    letter-spacing: 0.04em;
+  }
+  .va-search {
+    display: flex; align-items: center; gap: 10px;
+    height: 32px;
+    padding: 0 12px;
+    background: var(--paper);
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    color: var(--ink-mute);
+    font-size: 12.5px;
+    max-width: 380px;
+    transition: border-color .15s;
+    cursor: text;
+  }
+  .va-search:hover { border-color: var(--rule-strong); }
+  .va-search-icon { color: var(--ink-faint); font-size: 13px; }
+  .va-search > kbd { margin-left: auto; }
+  .va-kbd-hints { display: flex; gap: 14px; font-size: 10.5px; color: var(--ink-mute); }
+  .va-kbd-hints span { display: inline-flex; align-items: center; gap: 4px; letter-spacing: 0.02em; }
+  .va-sync { font-size: 10.5px; color: var(--ink-mute); display: flex; align-items: center; gap: 5px; }
+  .va-sync::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--expand); box-shadow: 0 0 0 2px var(--expand-soft); }
+  .va-avatar {
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    background: var(--ink);
+    color: var(--paper);
+    display: grid; place-items: center;
+    font-size: 10.5px; font-weight: 600; letter-spacing: 0.06em;
+  }
+
+  /* grid ------------------------------------------------------------- */
+  .va-grid {
+    flex: 1;
+    min-height: 0;
+    display: grid;
+    grid-template-columns: 56px 380px minmax(0, 1fr);
+    overflow: hidden;
+  }
+
+  /* icon rail */
+  .va-iconrail {
+    background: var(--surface);
+    border-right: 1px solid var(--rule);
+    padding: 12px 0;
+    display: flex; flex-direction: column;
+    align-items: center;
+    gap: 2px;
+  }
+  .va-icon {
+    width: 38px; height: 38px;
+    border-radius: 6px;
+    color: var(--ink-mute);
+    font-size: 16px;
+    display: grid; place-items: center;
+    transition: background .15s, color .15s;
+  }
+  .va-icon:hover { background: var(--paper); color: var(--ink); }
+  .va-icon.is-active { background: var(--ink); color: var(--paper); }
+  .va-iconrail-spacer { flex: 1; }
+
+  /* queue ------------------------------------------------------------ */
+  .va-queue {
+    background: var(--surface);
+    border-right: 1px solid var(--rule);
+    display: flex; flex-direction: column;
+    min-height: 0;
+  }
+  .va-queue-header {
+    display: flex; align-items: flex-end; justify-content: space-between;
+    gap: 12px;
+    padding: 18px 20px 14px;
+    border-bottom: 1px solid var(--rule);
+  }
+  .va-eyebrow {
+    font-size: 9.5px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--ink-mute);
+    font-weight: 600;
+  }
+  .va-queue-title {
+    font-family: 'Fraunces', serif;
+    font-variation-settings: 'opsz' 72;
+    font-size: 26px;
+    font-weight: 400;
+    letter-spacing: -0.028em;
+    margin: 4px 0 0 0;
+    color: var(--ink);
+    line-height: 1;
+  }
+  .va-queue-meta {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 11px;
+    color: var(--ink-mute);
+  }
+  .va-queue-meta strong { color: var(--ink); font-weight: 600; font-family: 'JetBrains Mono', monospace; font-size: 12px; }
+  .va-queue-meta .text-risk strong { color: var(--risk); }
+  .va-dot { width: 3px; height: 3px; border-radius: 50%; background: var(--ink-faint); display: inline-block; }
+
+  .va-queue-toolbar {
+    display: flex; align-items: center; gap: 4px;
+    padding: 8px 14px;
+    border-bottom: 1px solid var(--rule);
+    background: var(--paper-tint);
+  }
+  .va-queue-toolbar button {
+    font-size: 11px;
+    padding: 4px 9px;
+    border-radius: 3px;
+    color: var(--ink-soft);
+    transition: background .12s, color .12s;
+  }
+  .va-queue-toolbar button:hover { color: var(--ink); }
+  .va-queue-toolbar button.is-active {
+    background: var(--surface);
+    color: var(--ink);
+    box-shadow: inset 0 0 0 1px var(--rule-strong);
+  }
+  .va-queue-sort {
+    margin-left: auto;
+    font-size: 10px;
+    color: var(--ink-mute);
+    letter-spacing: 0.04em;
+  }
+
+  .va-queue-list {
+    list-style: none; padding: 0; margin: 0;
+    overflow-y: auto; flex: 1; min-height: 0;
+  }
+  .va-item {
+    display: grid;
+    grid-template-columns: 26px 1fr;
+    gap: 12px;
+    padding: 14px 18px 14px 14px;
+    border-bottom: 1px solid var(--rule);
+    cursor: pointer;
+    position: relative;
+    transition: background .15s;
+    animation: vaItemIn 0.4s ease-out backwards;
+    animation-delay: calc(var(--i, 0) * 22ms);
+  }
+  @keyframes vaItemIn {
+    from { opacity: 0; transform: translateY(4px); }
+    to   { opacity: 1; transform: none; }
+  }
+  .va-item:hover { background: var(--paper-tint); }
+  .va-item.is-active { background: var(--paper); }
+  .va-item.is-active::before {
+    content: ''; position: absolute;
+    left: 0; top: 0; bottom: 0; width: 3px;
+    background: var(--tone, var(--ink));
+  }
+  .va-item-rank {
+    font-size: 10.5px;
+    color: var(--ink-faint);
+    padding-top: 3px;
+    text-align: right;
+    font-weight: 500;
+  }
+  .va-item.is-active .va-item-rank { color: var(--ink-soft); }
+  .va-item-row1 { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+  .va-type { display: inline-flex; align-items: center; gap: 6px; }
+  .va-type-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+  .va-type-name {
+    font-size: 11px;
+    color: var(--ink-soft);
+    letter-spacing: -0.005em;
+    font-weight: 500;
+  }
+  .va-item-time {
+    margin-left: auto;
+    font-size: 10px;
+    color: var(--ink-faint);
+  }
+  .va-item-account {
+    font-family: 'Fraunces', serif;
+    font-variation-settings: 'opsz' 28, 'SOFT' 40;
+    font-size: 17px;
+    font-weight: 500;
+    letter-spacing: -0.018em;
+    color: var(--ink);
+    line-height: 1.08;
+  }
+  .va-item-meta {
+    font-size: 10.5px;
+    color: var(--ink-mute);
+    margin-top: 4px;
+    letter-spacing: 0;
+  }
+  .va-item-summary {
+    font-size: 12.5px;
+    color: var(--ink-soft);
+    margin-top: 7px;
+    line-height: 1.42;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .va-item-foot {
+    display: flex; align-items: center;
+    gap: 8px; margin-top: 9px;
+  }
+  .va-urgency {
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    font-weight: 600;
+    padding: 2px 7px;
+    border-radius: 2px;
+  }
+  .va-urgency.u-high   { color: var(--risk);     background: var(--risk-soft); }
+  .va-urgency.u-medium { color: var(--accent);   background: var(--accent-soft); }
+  .va-urgency.u-low    { color: var(--ink-mute); background: var(--paper-deep); }
+  .va-item-tix { font-size: 10.5px; color: var(--ink-mute); }
+  .va-item-current {
+    margin-left: auto;
+    font-size: 10px;
+    color: var(--ink);
+    letter-spacing: 0.04em;
+    font-weight: 600;
+  }
+
+  /* detail ----------------------------------------------------------- */
+  .va-detail {
+    overflow-y: auto;
+    background: var(--paper);
+    background-image:
+      radial-gradient(ellipse at top right, rgba(255,255,255,0.6), transparent 50%),
+      radial-gradient(ellipse at bottom left, rgba(184,137,60,0.035), transparent 60%);
+  }
+  .va-detail-inner {
+    max-width: 880px;
+    padding: 36px 56px 80px;
+    margin: 0 auto;
+    animation: vaFadeIn 0.5s ease-out backwards;
+    animation-delay: 0.08s;
+  }
+  @keyframes vaFadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: none; }
+  }
+
+  .va-trail {
+    display: flex; gap: 10px;
+    font-size: 11px;
+    color: var(--ink-mute);
+    letter-spacing: 0.04em;
+    margin-bottom: 24px;
+    align-items: center;
+  }
+  .va-trail-sep { color: var(--ink-faint); }
+  .va-trail-current { color: var(--ink); }
+
+  .va-headline-row {
+    display: flex; align-items: center;
+    gap: 10px; flex-wrap: wrap;
+    margin-bottom: 18px;
+  }
+  .va-type-tag {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 5px 14px 5px 11px;
+    background: var(--surface);
+    border: 1px solid var(--rule-strong);
+    border-radius: 999px;
+    font-size: 11.5px;
+    color: var(--ink);
+    font-weight: 500;
+  }
+  .va-detected { font-size: 11px; color: var(--ink-mute); }
+  .va-pill-btn {
+    font-size: 11.5px;
+    padding: 5px 12px;
+    background: transparent;
+    border: 1px solid var(--rule-strong);
+    border-radius: 4px;
+    color: var(--ink-soft);
+    transition: background .15s, color .15s, border-color .15s;
+  }
+  .va-pill-btn:hover { background: var(--surface); color: var(--ink); border-color: var(--ink); }
+  .va-pill-btn.va-share { margin-left: auto; }
+
+  .va-headline {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(48px, 5.4vw, 76px);
+    font-weight: 400;
+    letter-spacing: -0.042em;
+    line-height: 0.94;
+    font-variation-settings: 'opsz' 144, 'SOFT' 30;
+    color: var(--ink);
+    margin: 0;
+  }
+
+  .va-meta-strip {
+    display: flex; align-items: baseline;
+    gap: 18px;
+    margin: 18px 0 32px;
+    flex-wrap: wrap;
+    font-size: 13px;
+    color: var(--ink);
+  }
+  .va-meta-strip > span:not(.va-meta-rule) {
+    display: inline-flex; align-items: baseline; gap: 8px;
+  }
+  .va-meta-strip em {
+    font-style: normal;
+    color: var(--ink-mute);
+    text-transform: uppercase;
+    font-size: 9.5px;
+    letter-spacing: 0.14em;
+    font-weight: 600;
+  }
+  .va-meta-strip strong {
+    font-weight: 500;
+    font-family: 'Fraunces', serif;
+    font-variation-settings: 'opsz' 24;
+    font-size: 15px;
+    letter-spacing: -0.015em;
+  }
+  .va-meta-rule { width: 1px; height: 12px; background: var(--rule-strong); align-self: center; }
+
+  .va-pullquote {
+    margin: 32px 0 4px;
+    padding: 14px 0 14px 24px;
+    border-left: 2px solid var(--ink);
+  }
+  .va-pullquote .va-eyebrow { margin-bottom: 8px; }
+  .va-pullquote p {
+    font-family: 'Fraunces', serif;
+    font-variation-settings: 'opsz' 48, 'SOFT' 50;
+    font-size: 22px;
+    font-weight: 350;
+    line-height: 1.42;
+    margin: 0;
+    color: var(--ink);
+    letter-spacing: -0.018em;
+  }
+
+  .va-stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    margin: 36px 0;
+    border-top: 1px solid var(--ink);
+    border-bottom: 1px solid var(--ink);
+  }
+  .va-stat {
+    padding: 18px 18px 18px;
+    border-right: 1px solid var(--rule);
+    background: var(--paper-tint);
+  }
+  .va-stat:last-child { border-right: 0; }
+  .va-stat-label {
+    font-size: 9.5px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-mute);
+    font-weight: 600;
+  }
+  .va-stat-row { display: flex; align-items: center; gap: 10px; }
+  .va-stat-value {
+    font-family: 'Fraunces', serif;
+    font-size: 34px;
+    font-weight: 400;
+    letter-spacing: -0.038em;
+    line-height: 1;
+    margin-top: 10px;
+    font-variation-settings: 'opsz' 96;
+    color: var(--ink);
+  }
+  .va-stat-sub {
+    font-size: 10.5px;
+    color: var(--ink-mute);
+    margin-top: 8px;
+    letter-spacing: 0.02em;
+  }
+  .va-sparkline { width: 70px; height: 22px; margin-top: 14px; opacity: 0.9; flex-shrink: 0; }
+  .va-stat-impact { background: var(--risk-soft); }
+  .va-stat-impact .va-stat-label { color: var(--risk); }
+  .va-stat-impact .va-stat-value { color: var(--risk); }
+
+  .va-sources { margin-top: 44px; }
+  .va-section-header {
+    display: flex; justify-content: space-between;
+    align-items: flex-end;
+    padding-bottom: 12px;
+    border-bottom: 2px solid var(--ink);
+    margin-bottom: 0;
+    gap: 16px;
+  }
+  .va-section-subtitle {
+    font-size: 12.5px;
+    color: var(--ink-mute);
+    margin: 4px 0 0;
+    font-style: italic;
+    font-family: 'Fraunces', serif;
+    font-variation-settings: 'opsz' 18, 'ital' 1;
+    font-weight: 350;
+  }
+  .va-section-subtitle .mono { font-style: normal; }
+
+  .va-source-list { list-style: none; padding: 0; margin: 0; }
+  .va-source-row {
+    display: grid;
+    grid-template-columns: 110px minmax(0, 1fr) 90px 20px;
+    gap: 18px;
+    padding: 16px 12px;
+    border-bottom: 1px solid var(--rule);
+    align-items: start;
+    transition: background .15s;
+    cursor: pointer;
+    margin: 0 -12px;
+  }
+  .va-source-row:hover { background: var(--surface); }
+  .va-source-meta { display: flex; flex-direction: column; gap: 4px; padding-top: 2px; }
+  .va-source-channel {
+    font-size: 9.5px;
+    letter-spacing: 0.18em;
+    color: var(--ink);
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+  .va-source-id {
+    font-size: 10px;
+    color: var(--ink-faint);
+    letter-spacing: 0.02em;
+  }
+  .va-source-subject {
+    font-size: 14.5px;
+    color: var(--ink);
+    font-weight: 500;
+    letter-spacing: -0.012em;
+    line-height: 1.3;
+  }
+  .va-source-snippet {
+    font-size: 12.5px;
+    color: var(--ink-mute);
+    margin-top: 5px;
+    line-height: 1.5;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .va-source-date {
+    font-size: 11px;
+    color: var(--ink-mute);
+    padding-top: 3px;
+    text-align: right;
+  }
+  .va-source-arrow {
+    color: var(--ink-faint);
+    font-size: 14px;
+    transition: transform .2s, color .2s;
+    padding-top: 2px;
+  }
+  .va-source-row:hover .va-source-arrow {
+    color: var(--ink);
+    transform: translate(2px, -2px);
+  }
+
+  /* actions ---------------------------------------------------------- */
+  .va-actions {
+    margin-top: 44px;
+    padding: 22px 24px 22px;
+    background: var(--surface);
+    border: 1px solid var(--ink);
+    position: relative;
+  }
+  .va-actions::before {
+    content: '';
+    position: absolute;
+    top: -1px; left: -1px; right: -1px;
+    height: 4px;
+    background: var(--ink);
+  }
+  .va-actions-head {
+    display: flex; align-items: baseline;
+    justify-content: space-between;
+    flex-wrap: wrap; gap: 12px;
+  }
+  .va-actions-sub {
+    font-size: 11.5px;
+    color: var(--ink-mute);
+    margin: 0;
+    font-family: 'Fraunces', serif;
+    font-variation-settings: 'opsz' 18, 'ital' 1;
+    font-weight: 350;
+    font-style: italic;
+  }
+  .va-action-buttons {
+    display: flex; flex-wrap: wrap;
+    gap: 6px; margin-top: 16px;
+  }
+  .va-action-buttons button {
+    display: inline-flex; align-items: center;
+    gap: 10px;
+    font-size: 12.5px;
+    padding: 9px 14px;
+    border-radius: 2px;
+    transition: background .15s, color .15s, border-color .15s;
+    font-weight: 500;
+  }
+  .va-action-primary {
+    background: var(--ink); color: var(--paper);
+  }
+  .va-action-primary kbd {
+    background: rgba(247,243,236,.14);
+    border-color: rgba(247,243,236,.22);
+    color: var(--paper);
+    border-bottom-width: 1px;
+  }
+  .va-action-primary:hover { background: var(--ink-soft); }
+  .va-action-secondary {
+    background: var(--paper);
+    box-shadow: inset 0 0 0 1px var(--rule-strong);
+    color: var(--ink);
+  }
+  .va-action-secondary:hover { background: var(--surface); box-shadow: inset 0 0 0 1px var(--ink); }
+  .va-action-ghost {
+    background: transparent;
+    color: var(--ink-mute);
+    margin-left: auto;
+    font-weight: 400;
+  }
+  .va-action-ghost:hover { color: var(--ink); }
+
+  /* listing switcher (inside queue toolbar) -------------------------- */
+  .va-listing-tabs {
+    display: inline-flex;
+    background: var(--surface);
+    border: 1px solid var(--rule-strong);
+    border-radius: 4px;
+    padding: 2px;
+  }
+  .va-listing-tab {
+    display: inline-flex; align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    color: var(--ink-soft);
+    padding: 4px 9px;
+    border-radius: 3px;
+    transition: background .15s, color .15s;
+    font-weight: 500;
+  }
+  .va-listing-tab:hover { color: var(--ink); }
+  .va-listing-tab.is-active {
+    background: var(--ink);
+    color: var(--paper);
+  }
+  .va-listing-tab kbd {
+    font-size: 8.5px;
+    padding: 0 4px;
+    background: transparent;
+    border: 1px solid var(--rule-strong);
+    border-bottom-width: 1px;
+    color: var(--ink-faint);
+    border-radius: 2px;
+    line-height: 1.5;
+  }
+  .va-listing-tab.is-active kbd {
+    background: rgba(247,243,236,.10);
+    border-color: rgba(247,243,236,.22);
+    color: rgba(247,243,236,.72);
+  }
+
+  /* sort dropdown ---------------------------------------------------- */
+  .va-sort {
+    position: relative;
+    margin-left: auto;
+  }
+  .va-sort > summary {
+    list-style: none;
+    display: inline-flex; align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    color: var(--ink-soft);
+    padding: 5px 8px 5px 10px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background .15s, color .15s, box-shadow .15s;
+    letter-spacing: 0.02em;
+    font-weight: 500;
+    user-select: none;
+  }
+  .va-sort > summary::-webkit-details-marker { display: none; }
+  .va-sort > summary::marker { display: none; content: ''; }
+  .va-sort > summary:hover { color: var(--ink); background: var(--surface); }
+  .va-sort[open] > summary {
+    background: var(--surface);
+    color: var(--ink);
+    box-shadow: inset 0 0 0 1px var(--ink);
+  }
+  .va-sort-arrow { color: var(--ink-mute); font-size: 11px; }
+  .va-sort[open] .va-sort-arrow { color: var(--ink); }
+  .va-sort-current { font-weight: 500; }
+  .va-sort-chev { font-size: 9px; color: var(--ink-mute); transition: transform .15s; }
+  .va-sort[open] .va-sort-chev { transform: rotate(180deg); color: var(--ink); }
+
+  .va-sort-menu {
+    position: absolute;
+    right: 0; top: calc(100% + 6px);
+    background: var(--surface);
+    border: 1px solid var(--ink);
+    border-radius: 4px;
+    min-width: 240px;
+    z-index: 30;
+    padding: 4px;
+    box-shadow: 0 10px 28px -10px rgba(27,25,22,.18),
+                0 2px 0 0 var(--ink);
+    animation: vaSortIn .15s ease-out;
+  }
+  @keyframes vaSortIn {
+    from { opacity: 0; transform: translateY(-4px); }
+    to   { opacity: 1; transform: none; }
+  }
+  .va-sort-eyebrow {
+    padding: 8px 10px 4px;
+    color: var(--ink-mute);
+  }
+  .va-sort-opt {
+    display: flex; flex-direction: column;
+    align-items: flex-start; gap: 2px;
+    width: 100%;
+    padding: 8px 10px 9px;
+    border-radius: 3px;
+    text-align: left;
+    cursor: pointer;
+    transition: background .12s;
+    position: relative;
+  }
+  .va-sort-opt:hover { background: var(--paper-tint); }
+  .va-sort-opt.is-active { background: var(--paper); }
+  .va-sort-opt.is-active::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 8px; bottom: 8px;
+    width: 2px;
+    background: var(--ink);
+    border-radius: 2px;
+  }
+  .va-sort-opt-label {
+    font-size: 12.5px;
+    color: var(--ink);
+    font-weight: 500;
+    letter-spacing: -0.005em;
+  }
+  .va-sort-opt-desc {
+    font-size: 10.5px;
+    color: var(--ink-mute);
+    letter-spacing: 0;
+  }
+
+  /* type divider (used in cards + ledger when sort=type) ------------- */
+  .va-type-divider {
+    display: grid;
+    grid-template-columns: 3px 1fr auto;
+    align-items: stretch;
+    background: var(--paper-tint);
+    border-top: 1px solid var(--rule-strong);
+    border-bottom: 1px solid var(--rule);
+    list-style: none;
+    cursor: default;
+  }
+  .va-type-divider:first-child { border-top: 0; }
+  .va-type-divider-bar { background: var(--tone, var(--ink)); }
+  .va-type-divider-label {
+    font-size: 10px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--ink);
+    font-weight: 600;
+    padding: 9px 0 9px 14px;
+    display: flex; align-items: center;
+  }
+  .va-type-divider-count {
+    font-size: 10.5px;
+    color: var(--ink-mute);
+    padding: 0 14px;
+    display: flex; align-items: center;
+  }
+  .va-type-divider--thin .va-type-divider-label { padding-top: 6px; padding-bottom: 6px; font-size: 9.5px; letter-spacing: 0.18em; }
+  .va-type-divider--thin .va-type-divider-count { font-size: 10px; }
+
+  /* listing 2 — ledger ----------------------------------------------- */
+  .va-list-ledger {
+    list-style: none; padding: 0; margin: 0;
+    overflow-y: auto; flex: 1; min-height: 0;
+  }
+  .va-ledger-row {
+    display: grid;
+    grid-template-columns: 22px 6px minmax(0, 1fr) auto 18px 32px;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 16px 8px 12px;
+    border-bottom: 1px solid var(--rule);
+    cursor: pointer;
+    position: relative;
+    transition: background .15s;
+    animation: vaItemIn 0.35s ease-out backwards;
+    animation-delay: calc(var(--i, 0) * 14ms);
+  }
+  .va-ledger-row:hover { background: var(--paper-tint); }
+  .va-ledger-row.is-active { background: var(--paper); }
+  .va-ledger-row.is-active::before {
+    content: ''; position: absolute;
+    left: 0; top: 0; bottom: 0; width: 3px;
+    background: var(--tone, var(--ink));
+  }
+  .va-ledger-rank {
+    font-size: 10.5px;
+    color: var(--ink-faint);
+    text-align: right;
+    font-weight: 500;
+  }
+  .va-ledger-row.is-active .va-ledger-rank { color: var(--ink-soft); }
+  .va-ledger-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    justify-self: center;
+  }
+  .va-ledger-account {
+    font-family: 'Fraunces', serif;
+    font-variation-settings: 'opsz' 22;
+    font-size: 14.5px;
+    font-weight: 500;
+    letter-spacing: -0.015em;
+    color: var(--ink);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .va-ledger-arr {
+    font-size: 11px;
+    color: var(--ink-soft);
+    font-weight: 600;
+    text-align: right;
+    letter-spacing: 0.01em;
+  }
+  .va-ledger-urgency {
+    font-size: 9.5px;
+    font-weight: 700;
+    width: 18px; height: 16px;
+    display: grid; place-items: center;
+    border-radius: 2px;
+    letter-spacing: 0;
+  }
+  .va-ledger-urgency.u-high   { background: var(--risk);       color: var(--paper); }
+  .va-ledger-urgency.u-medium { background: var(--accent);     color: var(--paper); }
+  .va-ledger-urgency.u-low    { background: var(--paper-deep); color: var(--ink-mute); }
+  .va-ledger-time {
+    font-size: 10px;
+    color: var(--ink-mute);
+    text-align: right;
+    letter-spacing: 0;
+  }
+
+  /* listing 3 — grouped by signal type ------------------------------- */
+  .va-list-grouped {
+    list-style: none; padding: 0; margin: 0;
+    overflow-y: auto; flex: 1; min-height: 0;
+  }
+  .va-group {
+    border-bottom: 1px solid var(--rule);
+    animation: vaItemIn 0.4s ease-out backwards;
+    animation-delay: calc(var(--gi, 0) * 50ms);
+  }
+  .va-group-header {
+    display: grid;
+    grid-template-columns: 4px 1fr auto auto;
+    align-items: stretch;
+    background: var(--paper-tint);
+    border-bottom: 1px solid var(--rule);
+    cursor: pointer;
+    min-height: 34px;
+  }
+  .va-group-bar {
+    background: var(--tone, var(--ink));
+    align-self: stretch;
+  }
+  .va-group-name {
+    font-size: 10.5px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    font-weight: 600;
+    padding: 10px 0 10px 14px;
+    color: var(--ink);
+    display: flex;
+    align-items: center;
+  }
+  .va-group-count {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--ink-mute);
+    padding: 0 10px;
+    display: flex;
+    align-items: center;
+  }
+  .va-group-toggle {
+    width: 28px;
+    color: var(--ink-mute);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px;
+  }
+  .va-group-items {
+    list-style: none; padding: 0; margin: 0;
+    background: var(--surface);
+  }
+  .va-group-item {
+    display: grid;
+    grid-template-columns: 24px 1fr;
+    gap: 12px;
+    padding: 12px 18px 12px 14px;
+    border-bottom: 1px solid var(--rule);
+    cursor: pointer;
+    position: relative;
+    transition: background .15s;
+  }
+  .va-group-item:last-child { border-bottom: 0; }
+  .va-group-item:hover { background: var(--paper-tint); }
+  .va-group-item.is-active { background: var(--paper); }
+  .va-group-item.is-active::before {
+    content: ''; position: absolute;
+    left: 0; top: 0; bottom: 0; width: 3px;
+    background: var(--tone, var(--ink));
+  }
+  .va-group-item-rank {
+    font-size: 10.5px;
+    color: var(--ink-faint);
+    padding-top: 3px;
+    text-align: right;
+    font-weight: 500;
+  }
+  .va-group-item-head {
+    display: flex; align-items: baseline;
+    gap: 10px; margin-bottom: 5px;
+  }
+  .va-group-item-account {
+    font-family: 'Fraunces', serif;
+    font-variation-settings: 'opsz' 24;
+    font-size: 15px;
+    font-weight: 500;
+    letter-spacing: -0.014em;
+    color: var(--ink);
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .va-group-item-arr {
+    font-size: 10.5px;
+    color: var(--ink-mute);
+    font-weight: 500;
+  }
+  .va-group-item-time {
+    font-size: 10px;
+    color: var(--ink-faint);
+  }
+  .va-group-item-summary {
+    font-size: 12px;
+    color: var(--ink-soft);
+    line-height: 1.42;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .va-group-item-foot {
+    display: flex; align-items: center;
+    gap: 10px; margin-top: 6px;
+  }
+
+  /* status bar ------------------------------------------------------- */
+  .va-statusbar {
+    flex-shrink: 0;
+    display: flex; align-items: center;
+    gap: 14px;
+    height: 30px;
+    padding: 0 20px;
+    background: var(--ink);
+    color: rgba(247,243,236,.72);
+    font-size: 10.5px;
+    letter-spacing: 0.04em;
+  }
+  .va-statusbar-dot {
+    width: 3px; height: 3px; border-radius: 50%;
+    background: rgba(247,243,236,.3);
+  }
+  .va-statusbar-fill { flex: 1; }
+  .va-statusbar-cta {
+    color: var(--accent);
+    letter-spacing: 0.08em;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 10px;
+  }
+</style>
+</head>
+<body class="bg-slate-50 text-slate-900 antialiased">
+
+<div id="banner" class="bg-amber-100 text-amber-900 text-xs px-4 py-1.5 text-center border-b border-amber-200">
+  <span class="font-medium">Prototype — fictional data.</span>
+  Three radically different UI variants of the same signals view. Switch with the bar at the bottom or <span class="mono">?variant=A|B|C</span>.
+</div>
+
+<div id="app"></div>
+
+<!-- Floating variant switcher -->
+<div class="fixed bottom-5 left-1/2 -translate-x-1/2 z-50">
+  <div class="flex items-center gap-2 bg-ink-900 text-white rounded-full pl-2 pr-2 py-2 shadow-2xl ring-1 ring-white/10">
+    <button id="prev" class="w-8 h-8 rounded-full hover:bg-white/10 flex items-center justify-center" aria-label="Previous variant">←</button>
+    <div class="px-3 min-w-[180px] text-center text-sm">
+      <span class="mono text-cue-300" id="vkey">A</span>
+      <span class="text-white/80"> — </span>
+      <span id="vname">Triage Inbox</span>
+    </div>
+    <button id="next" class="w-8 h-8 rounded-full hover:bg-white/10 flex items-center justify-center" aria-label="Next variant">→</button>
+  </div>
+  <div class="text-[10px] text-slate-500 text-center mt-1.5 mono">← → to cycle</div>
+</div>
+
+<script>
+/* ------------------------------------------------------------------ */
+/* Mocked seed data — fictional, see Saas/docs/demo-data.md            */
+/* ------------------------------------------------------------------ */
+const accounts = [
+  { id: 'acme',      name: 'Acme Corp',      arr: 42000,  plan: 'Growth',     segment: 'Mid-market', owner: 'Maja Lindberg' },
+  { id: 'nordicpay', name: 'NordicPay',      arr: 84000,  plan: 'Growth',     segment: 'Mid-market', owner: 'Felix Andersson' },
+  { id: 'orbit',     name: 'Orbit Systems',  arr: 120000, plan: 'Enterprise', segment: 'Enterprise', owner: 'Sara Nyström' },
+  { id: 'helios',    name: 'Helios Labs',    arr: 18000,  plan: 'Starter',    segment: 'SMB',        owner: 'Per Bergström' },
+  { id: 'kovacs',    name: 'Kovacs & Co',    arr: 7500,   plan: 'Starter',    segment: 'SMB',        owner: 'Per Bergström' },
+  { id: 'lumen',     name: 'Lumen Health',   arr: 96000,  plan: 'Enterprise', segment: 'Enterprise', owner: 'Sara Nyström' },
+  { id: 'tundra',    name: 'Tundra Freight', arr: 31000,  plan: 'Growth',     segment: 'Mid-market', owner: 'Maja Lindberg' },
+  { id: 'pelago',    name: 'Pelago Studio',  arr: 11000,  plan: 'Starter',    segment: 'SMB',        owner: 'Felix Andersson' },
+  { id: 'voltari',   name: 'Voltari Energy', arr: 210000, plan: 'Enterprise', segment: 'Enterprise', owner: 'Sara Nyström' },
+  { id: 'mossrose',  name: 'Mossrose Retail',arr: 26000,  plan: 'Growth',     segment: 'Mid-market', owner: 'Felix Andersson' },
+];
+
+/* signal.type values are the CANONICAL TAXONOMY, verbatim from docs/signals.md.
+   Do not invent synonyms. */
+const signals = [
+  { id: 's1',  type: 'churn risk',                    accountId: 'acme',      summary: '6 tickets in 14 days about Stripe integration, sentiment declining',                     sentiment: -0.42, urgency: 'high',   detectedAt: '2 days ago',  ticketIds: ['t1','t2','t3','t4','t5','t6'] },
+  { id: 's2',  type: 'expansion intent',              accountId: 'nordicpay', summary: 'Repeated questions about SSO, audit logs, admin roles — classic enterprise signals',     sentiment: 0.08,  urgency: 'medium', detectedAt: '5 days ago',  ticketIds: ['t10','t11','t12','t13'] },
+  { id: 's3',  type: 'onboarding issue',              accountId: 'orbit',     summary: '37 tickets across 11 customers stuck on setup step 3 (data import mapping)',             sentiment: -0.18, urgency: 'high',   detectedAt: '1 week ago',  ticketIds: ['t20','t21','t22','t23','t24'] },
+  { id: 's4',  type: 'bug cluster',                   accountId: 'orbit',     summary: 'CSV importer drops rows when first column is blank — 9 reports, 4 ICP accounts',          sentiment: -0.31, urgency: 'high',   detectedAt: '3 days ago',  ticketIds: ['t30','t31','t32'] },
+  { id: 's5',  type: 'product friction',              accountId: 'lumen',     summary: 'Three admins escalated about session timeout being too aggressive on the dashboard',     sentiment: -0.22, urgency: 'medium', detectedAt: '4 days ago',  ticketIds: ['t40','t41'] },
+  { id: 's6',  type: 'feature request',               accountId: 'voltari',   summary: 'Compliance team asks for SAML group sync — flagged twice in renewal conversations',      sentiment: 0.12,  urgency: 'medium', detectedAt: '6 days ago',  ticketIds: ['t50','t51'] },
+  { id: 's7',  type: 'negative sentiment',            accountId: 'kovacs',    summary: 'CSAT dropped sharply across 4 tickets — agent tone, response time mentioned by name',    sentiment: -0.55, urgency: 'medium', detectedAt: '1 day ago',   ticketIds: ['t60','t61'] },
+  { id: 's8',  type: 'strategic account escalation',  accountId: 'voltari',   summary: 'CISO escalated to support lead after security review backlog — top-3 account by ARR',    sentiment: -0.25, urgency: 'high',   detectedAt: 'yesterday',   ticketIds: ['t70'] },
+  { id: 's9',  type: 'documentation gap',             accountId: 'helios',    summary: 'API rate-limit headers not documented — 7 tickets across 5 accounts asking the same Q',  sentiment: -0.05, urgency: 'low',    detectedAt: '1 week ago',  ticketIds: ['t80','t81'] },
+  { id: 's10', type: 'repeated manual workaround',    accountId: 'mossrose',  summary: 'CSMs exporting CSV weekly to fake bulk-tag — third request for proper bulk endpoint',    sentiment: -0.1,  urgency: 'low',    detectedAt: '2 weeks ago', ticketIds: ['t90','t91','t92'] },
+  { id: 's11', type: 'expansion intent',              accountId: 'lumen',     summary: 'Procurement asked about per-seat vs platform pricing on 3 calls + 2 tickets',            sentiment: 0.18,  urgency: 'medium', detectedAt: '3 days ago',  ticketIds: ['t100','t101'] },
+  { id: 's12', type: 'churn risk',                    accountId: 'tundra',    summary: 'Champion left, replacement asking "what does this do for us again" — renewal in 38 days', sentiment: -0.3,  urgency: 'high',   detectedAt: '4 days ago',  ticketIds: ['t110','t111'] },
+  { id: 's13', type: 'product friction',              accountId: 'pelago',    summary: 'Mobile app sign-in loop — 3 tickets, all senior staff on iOS 18',                        sentiment: -0.2,  urgency: 'medium', detectedAt: '2 days ago',  ticketIds: ['t120'] },
+  { id: 's14', type: 'feature request',               accountId: 'nordicpay', summary: 'Customer wants Slack-as-a-channel for their support team — referenced 4 times this month', sentiment: 0.2,  urgency: 'low',    detectedAt: '6 days ago',  ticketIds: ['t130','t131'] },
+];
+
+const tickets = {
+  t1:   { id: 't1',   subject: 'Stripe webhook not firing on subscription renew',           channel: 'intercom', date: '2 days ago',    snippet: 'We have not received a single renew event since Tuesday and revenue reporting is now blocked.' },
+  t2:   { id: 't2',   subject: 'Re: Stripe integration — escalation',                       channel: 'intercom', date: '3 days ago',    snippet: 'This is the third time in two weeks we have had to manually reconcile. Looking at alternatives.' },
+  t3:   { id: 't3',   subject: 'Webhook signature mismatch',                                channel: 'intercom', date: '4 days ago',    snippet: 'Getting 401s on every call. Documentation says one secret but the dashboard shows two.' },
+  t4:   { id: 't4',   subject: 'No response on ticket #4421',                               channel: 'intercom', date: '5 days ago',    snippet: 'Still waiting for an update on the integration issue we raised last Thursday.' },
+  t5:   { id: 't5',   subject: 'Billing dashboard out of sync',                             channel: 'intercom', date: '7 days ago',    snippet: 'Numbers between Stripe and CustomerCue are off by 12%. Auditors flagged it.' },
+  t6:   { id: 't6',   subject: 'Considering pause on renewal',                              channel: 'intercom', date: '8 days ago',    snippet: 'Need to discuss before signing the renewal — this has cost my team 14 hours this month.' },
+  t10:  { id: 't10',  subject: 'Does CustomerCue support SAML SSO?',                        channel: 'zendesk',  date: '5 days ago',    snippet: 'Looking to roll this out to 80+ users — IT requires SSO and audit log export.' },
+  t11:  { id: 't11',  subject: 'Audit log retention question',                              channel: 'zendesk',  date: '6 days ago',    snippet: 'We need 7-year retention for compliance. Is that configurable per workspace?' },
+  t12:  { id: 't12',  subject: 'Admin role granularity',                                    channel: 'zendesk',  date: '7 days ago',    snippet: 'Can we have a read-only auditor role separate from billing admin?' },
+  t13:  { id: 't13',  subject: 'SCIM provisioning timeline?',                               channel: 'zendesk',  date: '9 days ago',    snippet: 'Procurement asked if SCIM is on the roadmap before we sign the larger contract.' },
+  t20:  { id: 't20',  subject: 'Cannot get past CSV column mapping step',                   channel: 'intercom', date: '6 days ago',    snippet: 'Step 3 keeps throwing "unknown header" even when columns match the template exactly.' },
+  t21:  { id: 't21',  subject: 'Setup wizard step 3 — stuck',                               channel: 'intercom', date: '7 days ago',    snippet: 'Cleared cache twice. The Continue button never enables.' },
+  t22:  { id: 't22',  subject: 'How do I skip the import?',                                 channel: 'intercom', date: '8 days ago',    snippet: 'Need to launch a pilot tomorrow — can we bypass step 3 and import later?' },
+  t23:  { id: 't23',  subject: 'Step 3 error: NaN in count',                                channel: 'intercom', date: '8 days ago',    snippet: 'Sample preview shows NaN for half the rows. CSV opens cleanly in Excel.' },
+  t24:  { id: 't24',  subject: 'Re: onboarding call follow-up',                             channel: 'intercom', date: '10 days ago',   snippet: 'Per our call — still blocked at step 3, this is now a launch risk on our side.' },
+  t30:  { id: 't30',  subject: 'CSV import drops first row',                                channel: 'zendesk',  date: '3 days ago',    snippet: 'If the first column is blank the row vanishes. Reproducible on the sample file.' },
+  t31:  { id: 't31',  subject: 'Missing rows after import',                                 channel: 'zendesk',  date: '4 days ago',    snippet: 'Imported 12,000 rows, see 11,847 in the dashboard. Spot-checked: blank leading column.' },
+  t32:  { id: 't32',  subject: 'Need a fix or workaround for CSV importer',                 channel: 'zendesk',  date: '5 days ago',    snippet: 'Customer-facing launch is in 6 days, this is blocking us.' },
+  t40:  { id: 't40',  subject: 'Session timeout is way too aggressive',                     channel: 'intercom', date: '4 days ago',    snippet: 'Logged out mid-form three times today. Can we get a config to extend?' },
+  t41:  { id: 't41',  subject: 'Dashboard kicks me out every 15 minutes',                   channel: 'intercom', date: '5 days ago',    snippet: 'Two of my admins refuse to use it now and have asked for read-only exports instead.' },
+  t50:  { id: 't50',  subject: 'SAML group → role sync?',                                   channel: 'zendesk',  date: '6 days ago',    snippet: 'Compliance is asking whether we can drive role assignment from our IdP groups.' },
+  t51:  { id: 't51',  subject: 'Group sync mentioned in renewal call',                      channel: 'zendesk',  date: '7 days ago',    snippet: 'Procurement put a hard requirement on group-based provisioning for the renewal.' },
+  t60:  { id: 't60',  subject: 'Disappointed with response times',                          channel: 'intercom', date: '1 day ago',     snippet: 'Three tickets in three days, all over 24h to first response. This is below what we expect.' },
+  t61:  { id: 't61',  subject: 'Agent tone follow-up',                                      channel: 'intercom', date: '2 days ago',    snippet: 'I appreciated the resolution but the messaging felt curt. Wanted to flag it.' },
+  t70:  { id: 't70',  subject: 'CISO escalation: security review backlog',                  channel: 'email',    date: 'yesterday',     snippet: 'Forwarded by procurement. Top-of-mind for renewal conversation next quarter.' },
+  t80:  { id: 't80',  subject: 'Where are the rate limit headers documented?',              channel: 'intercom', date: '1 week ago',    snippet: 'Searched docs, found nothing. Need to know X-RateLimit-Remaining behavior.' },
+  t81:  { id: 't81',  subject: 'API limits unclear',                                        channel: 'intercom', date: '2 weeks ago',   snippet: 'Hit a 429 with no Retry-After header. Is there a sliding window?' },
+  t90:  { id: 't90',  subject: 'Bulk tag accounts via CSV?',                                 channel: 'zendesk',  date: '2 weeks ago',   snippet: 'CSM team is exporting accounts, tagging in Excel, re-importing. Painful.' },
+  t91:  { id: 't91',  subject: 'Workaround for bulk update?',                                channel: 'zendesk',  date: '3 weeks ago',   snippet: 'Need to update 400 accounts. Manual UI clicks would take all day.' },
+  t92:  { id: 't92',  subject: 'API bulk-tag endpoint?',                                     channel: 'zendesk',  date: '4 weeks ago',   snippet: 'Would even take a daily-batch CSV upload — anything to avoid the weekly export dance.' },
+  t100: { id: 't100', subject: 'Pricing question — platform vs per-seat',                   channel: 'intercom', date: '3 days ago',    snippet: 'For 200+ seats, does platform pricing make sense? Procurement wants a quote.' },
+  t101: { id: 't101', subject: 'Renewal scoping call notes',                                channel: 'intercom', date: '4 days ago',    snippet: 'Customer asked for an enterprise tier breakdown, hinted at adding 3 BUs next year.' },
+  t110: { id: 't110', subject: 'New PM — onboarding to CustomerCue',                        channel: 'zendesk',  date: '4 days ago',    snippet: 'I just took over from Mira. Can we set up a refresher on what this tool does?' },
+  t111: { id: 't111', subject: 'Justifying renewal internally',                              channel: 'zendesk',  date: '5 days ago',    snippet: 'Need a 1-pager on outcomes to present to my CFO. Renewal is in late June.' },
+  t120: { id: 't120', subject: 'iOS app loops on sign-in',                                  channel: 'intercom', date: '2 days ago',    snippet: 'Enter creds, see spinner, back to sign-in. iOS 18.2. Three of us hit it today.' },
+  t130: { id: 't130', subject: 'Slack as a channel for customer support?',                  channel: 'zendesk',  date: '6 days ago',    snippet: 'Would love if CustomerCue could ingest our shared Slack channel with key customers.' },
+  t131: { id: 't131', subject: 'Re: Slack channel ingestion',                               channel: 'zendesk',  date: '8 days ago',    snippet: 'Following up — this came up again in our QBR yesterday.' },
+};
+
+/* ------------------------------------------------------------------ */
+/* Helpers                                                              */
+/* ------------------------------------------------------------------ */
+const fmtMoney = n => '$' + (n >= 1000 ? (n/1000).toFixed(n>=10000?0:1) + 'k' : n);
+const fmtMoneyFull = n => '$' + n.toLocaleString('en-US');
+const accountById = id => accounts.find(a => a.id === id);
+const signalsByAccount = id => signals.filter(s => s.accountId === id);
+const ticketsForSignal = s => s.ticketIds.map(id => tickets[id]).filter(Boolean);
+
+// signal type → colour family. Pure visual, not semantic — variants reuse this.
+const TYPE_TONE = {
+  'churn risk':                   { bg: 'bg-rose-100',    fg: 'text-rose-900',    dot: 'bg-rose-500' },
+  'expansion intent':             { bg: 'bg-emerald-100', fg: 'text-emerald-900', dot: 'bg-emerald-500' },
+  'product friction':             { bg: 'bg-amber-100',   fg: 'text-amber-900',   dot: 'bg-amber-500' },
+  'bug cluster':                  { bg: 'bg-orange-100',  fg: 'text-orange-900',  dot: 'bg-orange-500' },
+  'onboarding issue':             { bg: 'bg-sky-100',     fg: 'text-sky-900',     dot: 'bg-sky-500' },
+  'feature request':              { bg: 'bg-violet-100',  fg: 'text-violet-900',  dot: 'bg-violet-500' },
+  'negative sentiment':           { bg: 'bg-pink-100',    fg: 'text-pink-900',    dot: 'bg-pink-500' },
+  'strategic account escalation': { bg: 'bg-red-100',     fg: 'text-red-900',     dot: 'bg-red-500' },
+  'documentation gap':            { bg: 'bg-slate-200',   fg: 'text-slate-800',   dot: 'bg-slate-500' },
+  'repeated manual workaround':   { bg: 'bg-teal-100',    fg: 'text-teal-900',    dot: 'bg-teal-500' },
+};
+
+const URGENCY_TONE = {
+  high:   'bg-rose-50 text-rose-700 ring-rose-200',
+  medium: 'bg-amber-50 text-amber-700 ring-amber-200',
+  low:    'bg-slate-50 text-slate-600 ring-slate-200',
+};
+
+// Editorial colour map used only by variant A (paper/oxblood palette).
+// Same canonical type keys; harmonised to the cream background.
+const VA_TONE = {
+  'churn risk':                   '#8C2D2D',
+  'expansion intent':             '#2A5D3C',
+  'product friction':             '#B8893C',
+  'bug cluster':                  '#C25A1F',
+  'onboarding issue':             '#2D5C8C',
+  'feature request':              '#5A3C8C',
+  'negative sentiment':           '#8C2D5C',
+  'strategic account escalation': '#A02020',
+  'documentation gap':            '#4A453E',
+  'repeated manual workaround':   '#2D7C7C',
+};
+
+function ticketRef(t) {
+  const num = String(t.id.replace(/^t/, '')).padStart(3, '0');
+  const prefix = t.channel === 'intercom' ? 'IC' : t.channel === 'zendesk' ? 'ZD' : 'EM';
+  return `${prefix}·${num}`;
+}
+
+// Fake but stable 7-point sentiment trajectory ending near `sentiment`.
+function vaSparklinePoints(sentiment) {
+  const seed = Math.abs(Math.round(sentiment * 137));
+  const pts = [];
+  for (let i = 0; i < 7; i++) {
+    const noise = (((seed + i * 23) % 11) - 5) / 32;
+    const drift = sentiment * (i / 6);
+    const v = drift + noise;
+    const x = (i / 6) * 70;
+    const y = 11 - v * 14;
+    pts.push(`${i === 0 ? 'M' : 'L'}${x.toFixed(1)},${y.toFixed(1)}`);
+  }
+  return pts.join(' ');
+}
+
+// ARR-weighted urgency score for sorting (rough).
+const score = s => (s.urgency === 'high' ? 3 : s.urgency === 'medium' ? 2 : 1) * Math.log10(accountById(s.accountId).arr + 1);
+
+const escapeHtml = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+function typeBadge(type, size='sm') {
+  const t = TYPE_TONE[type];
+  const cls = size === 'xs' ? 'text-[10px] px-1.5 py-0.5' : 'text-xs px-2 py-0.5';
+  return `<span class="inline-flex items-center gap-1 rounded-full font-medium ${cls} ${t.bg} ${t.fg}">
+    <span class="inline-block w-1.5 h-1.5 rounded-full ${t.dot}"></span>${escapeHtml(type)}
+  </span>`;
+}
+
+function urgencyBadge(u) {
+  return `<span class="text-[10px] uppercase tracking-wide font-semibold px-1.5 py-0.5 rounded ring-1 ${URGENCY_TONE[u]}">${u}</span>`;
+}
+
+function channelIcon(channel) {
+  // Just a coloured pill — fictional placeholders, not real logos.
+  const map = { intercom: ['bg-blue-100 text-blue-700','Intercom'], zendesk: ['bg-green-100 text-green-700','Zendesk'], email: ['bg-slate-100 text-slate-700','Email'] };
+  const [cls, label] = map[channel] || ['bg-slate-100 text-slate-700', channel];
+  return `<span class="inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] font-medium ${cls}">${label}</span>`;
+}
+
+/* ------------------------------------------------------------------ */
+/* App state                                                            */
+/* ------------------------------------------------------------------ */
+const VARIANTS = [
+  { key: 'A', name: 'Triage Inbox' },
+  { key: 'B', name: 'Executive Brief' },
+  { key: 'C', name: 'Account Portfolio' },
+];
+
+const state = {
+  variant: 'A',
+  selectedSignalId: 's1',
+  selectedAccountId: null,
+  sortBy: 'arr',     // variant-C account table
+  sortDir: 'desc',   // variant-C account table
+  listing: 1,        // variant-A: 1=cards, 2=ledger, 3=grouped
+  sort: 'priority',  // variant-A: priority|arr|recent|urgency|type
+};
+
+const SORT_MODES = [
+  { key: 'priority', label: 'Priority', desc: 'ARR × urgency'           },
+  { key: 'arr',      label: 'ARR',      desc: 'Largest accounts first'  },
+  { key: 'recent',   label: 'Recent',   desc: 'Newest signals first'    },
+  { key: 'urgency',  label: 'Urgency',  desc: 'High → low'              },
+  { key: 'type',     label: 'Type',     desc: 'Grouped by signal type'  },
+];
+const SORT_KEYS = SORT_MODES.map(m => m.key);
+
+function sortLabel(key) {
+  return (SORT_MODES.find(m => m.key === key) || SORT_MODES[0]).label;
+}
+function urgencyRank(u) { return u === 'high' ? 3 : u === 'medium' ? 2 : 1; }
+function recencyHours(s) {
+  const t = (s.detectedAt || '').toLowerCase();
+  if (t === 'yesterday') return 24;
+  const m = t.match(/(\d+)\s*(hour|day|week|month)/);
+  if (!m) return 9999;
+  const n = parseInt(m[1], 10);
+  const u = m[2];
+  return n * (u === 'hour' ? 1 : u === 'day' ? 24 : u === 'week' ? 168 : 720);
+}
+function applySort(list) {
+  const copy = [...list];
+  switch (state.sort) {
+    case 'arr':      copy.sort((a,b) => accountById(b.accountId).arr - accountById(a.accountId).arr || score(b) - score(a)); break;
+    case 'recent':   copy.sort((a,b) => recencyHours(a) - recencyHours(b) || score(b) - score(a)); break;
+    case 'urgency':  copy.sort((a,b) => urgencyRank(b.urgency) - urgencyRank(a.urgency) || score(b) - score(a)); break;
+    case 'type':     copy.sort((a,b) => a.type.localeCompare(b.type) || score(b) - score(a)); break;
+    case 'priority':
+    default:         copy.sort((a,b) => score(b) - score(a));
+  }
+  return copy;
+}
+function countByType(list) {
+  const m = new Map();
+  for (const s of list) m.set(s.type, (m.get(s.type) || 0) + 1);
+  return m;
+}
+
+function setVariant(key) {
+  state.variant = key;
+  const url = new URL(window.location);
+  url.searchParams.set('variant', key);
+  window.history.replaceState({}, '', url);
+  render();
+}
+
+function readVariantFromUrl() {
+  const url = new URL(window.location);
+  const v = url.searchParams.get('variant');
+  if (v && VARIANTS.find(x => x.key === v.toUpperCase())) state.variant = v.toUpperCase();
+  const l = parseInt(url.searchParams.get('layout'), 10);
+  if (l >= 1 && l <= 3) state.listing = l;
+  const s = url.searchParams.get('sort');
+  if (s && SORT_KEYS.includes(s)) state.sort = s;
+}
+
+function persistListing() {
+  const url = new URL(window.location);
+  url.searchParams.set('layout', String(state.listing));
+  window.history.replaceState({}, '', url);
+}
+
+function persistSort() {
+  const url = new URL(window.location);
+  url.searchParams.set('sort', state.sort);
+  window.history.replaceState({}, '', url);
+}
+
+// "2 days ago" -> "2d", "1 week ago" -> "1w", "yesterday" -> "1d"
+function shortTime(s) {
+  if (!s) return '';
+  if (s === 'yesterday') return '1d';
+  const m = s.match(/(\d+)\s*(day|week|month|hour)/i);
+  if (m) return m[1] + m[2][0].toLowerCase();
+  return s;
+}
+
+/* ------------------------------------------------------------------ */
+/* Shared chrome                                                        */
+/* ------------------------------------------------------------------ */
+function topBar(active) {
+  const items = ['Signals','Accounts','Reports','Settings'];
+  return `
+  <div class="h-14 bg-white border-b border-slate-200 flex items-center px-5 gap-5">
+    <div class="flex items-center gap-2">
+      <div class="w-7 h-7 rounded-md bg-gradient-to-br from-cue-500 to-ink-700 flex items-center justify-center text-white text-sm font-bold">C</div>
+      <div class="font-semibold tracking-tight">CustomerCue</div>
+      <div class="hidden md:block ml-2 text-xs text-slate-400 mono">demo workspace · acme-trial</div>
+    </div>
+    <nav class="ml-6 flex items-center gap-1 text-sm">
+      ${items.map(i => `
+        <button class="px-3 py-1.5 rounded-md ${i===active ? 'bg-slate-100 text-slate-900 font-medium' : 'text-slate-600 hover:bg-slate-50'}">${i}</button>
+      `).join('')}
+    </nav>
+    <div class="ml-auto flex items-center gap-3">
+      <div class="relative">
+        <input class="w-72 pl-8 pr-3 py-1.5 bg-slate-100 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-cue-300" placeholder="Search signals, accounts, tickets…" />
+        <span class="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm">⌕</span>
+      </div>
+      <div class="w-8 h-8 rounded-full bg-cue-100 text-cue-700 flex items-center justify-center text-xs font-semibold ring-2 ring-white">FA</div>
+    </div>
+  </div>`;
+}
+
+/* ------------------------------------------------------------------ */
+/* Variant A — Editorial Triage Inbox                                   */
+/* Aesthetic: paper-cream "financial terminal" — Fraunces display +     */
+/* Geist UI + JetBrains mono meta. Oxblood for risk, forest for         */
+/* expansion. All styling under .va so B / C inherit nothing.           */
+/* ------------------------------------------------------------------ */
+function renderVariantA() {
+  const sorted = applySort(signals);
+  if (!sorted.find(s => s.id === state.selectedSignalId)) state.selectedSignalId = sorted[0].id;
+  const sel  = sorted.find(s => s.id === state.selectedSignalId);
+  const acct = accountById(sel.accountId);
+  const ts   = ticketsForSignal(sel);
+  const tone = VA_TONE[sel.type];
+  const highCount = sorted.filter(s => s.urgency === 'high').length;
+  const ownerInitials = acct.owner.split(' ').map(n => n[0]).join('').slice(0,2);
+  const sentimentClass = sel.sentiment < -0.2 ? 'text-risk' : sel.sentiment > 0.05 ? 'text-expand' : '';
+  const sparkColor = sel.sentiment < 0 ? '#8C2D2D' : '#2A5D3C';
+
+  return `
+  <div class="va">
+
+    <!-- top bar ------------------------------------------------------ -->
+    <header class="va-topbar">
+      <div class="va-brand">
+        <span class="va-brand-mark">CC</span>
+        <span class="va-brand-name">CustomerCue</span>
+        <span class="va-brand-workspace mono">acme-trial · prod</span>
+      </div>
+      <div class="va-search" role="search">
+        <span class="va-search-icon">⌕</span>
+        <span>Search signals, accounts, tickets…</span>
+        <kbd>/</kbd>
+      </div>
+      <div class="va-kbd-hints">
+        <span><kbd>J</kbd><kbd>K</kbd> nav</span>
+        <span><kbd>E</kbd> send</span>
+        <span><kbd>?</kbd> help</span>
+      </div>
+      <div class="va-sync mono">live · 4m ago</div>
+      <div class="va-avatar" title="Felix Andersson">${escapeHtml(ownerInitials)}</div>
+    </header>
+
+    <!-- main grid --------------------------------------------------- -->
+    <div class="va-grid">
+
+      <!-- icon rail -->
+      <nav class="va-iconrail" aria-label="Primary">
+        ${[
+          ['◎','Signals',true],
+          ['◵','Accounts',false],
+          ['▤','Reports',false],
+          ['⛁','Sources',false],
+          ['⚙','Settings',false],
+        ].map(([g,l,a]) => `<button class="va-icon ${a?'is-active':''}" title="${escapeHtml(l)}" aria-label="${escapeHtml(l)}">${g}</button>`).join('')}
+        <div class="va-iconrail-spacer"></div>
+        <button class="va-icon" title="Help" aria-label="Help">?</button>
+      </nav>
+
+      <!-- queue -->
+      <section class="va-queue" aria-label="Signals queue">
+        <header class="va-queue-header">
+          <div>
+            <div class="va-eyebrow">Queue · ARR-weighted</div>
+            <h2 class="va-queue-title">This week</h2>
+          </div>
+          <div class="va-queue-meta mono">
+            <span><strong>${sorted.length}</strong> open</span>
+            <span class="va-dot"></span>
+            <span class="text-risk"><strong>${highCount}</strong> high</span>
+          </div>
+        </header>
+        <div class="va-queue-toolbar">
+          ${renderListingTabs()}
+          ${renderSortDropdown()}
+        </div>
+        ${renderListingBody(sorted)}
+      </section>
+
+      <!-- detail canvas -->
+      <article class="va-detail">
+        <div class="va-detail-inner">
+
+          <nav class="va-trail mono" aria-label="Breadcrumb">
+            <span>SIGNALS</span>
+            <span class="va-trail-sep">/</span>
+            <span>${escapeHtml(acct.name).toUpperCase()}</span>
+            <span class="va-trail-sep">/</span>
+            <span class="va-trail-current">${escapeHtml(sel.type).toUpperCase()}</span>
+          </nav>
+
+          <div class="va-headline-row">
+            <span class="va-type-tag">
+              <span class="va-type-dot" style="background:${tone}"></span>
+              ${escapeHtml(sel.type)}
+            </span>
+            <span class="va-urgency u-${sel.urgency}">${sel.urgency} priority</span>
+            <span class="va-detected mono">detected ${escapeHtml(sel.detectedAt)}</span>
+            <button class="va-pill-btn va-share">⇪ Share</button>
+            <button class="va-pill-btn">★ Pin</button>
+          </div>
+
+          <h1 class="va-headline">${escapeHtml(acct.name)}</h1>
+
+          <div class="va-meta-strip">
+            <span><em>ARR</em><strong>${fmtMoneyFull(acct.arr)}</strong></span>
+            <span class="va-meta-rule"></span>
+            <span><em>Plan</em>${escapeHtml(acct.plan)}</span>
+            <span class="va-meta-rule"></span>
+            <span><em>Segment</em>${escapeHtml(acct.segment)}</span>
+            <span class="va-meta-rule"></span>
+            <span><em>Owner</em>${escapeHtml(acct.owner)}</span>
+            <span class="va-meta-rule"></span>
+            <span><em>Source</em>Intercom · Zendesk</span>
+          </div>
+
+          <blockquote class="va-pullquote">
+            <div class="va-eyebrow">Why we flagged this</div>
+            <p>${escapeHtml(sel.summary)}</p>
+          </blockquote>
+
+          <div class="va-stats">
+            <div class="va-stat">
+              <div class="va-stat-label">Sentiment</div>
+              <div class="va-stat-row">
+                <div class="va-stat-value ${sentimentClass}">${sel.sentiment.toFixed(2)}</div>
+                <svg class="va-sparkline" viewBox="0 0 70 22" preserveAspectRatio="none" aria-hidden="true">
+                  <path d="${vaSparklinePoints(sel.sentiment)}" fill="none" stroke="${sparkColor}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
+              <div class="va-stat-sub mono">trailing 14 days</div>
+            </div>
+            <div class="va-stat">
+              <div class="va-stat-label">Source tickets</div>
+              <div class="va-stat-value">${sel.ticketIds.length}</div>
+              <div class="va-stat-sub mono">linked evidence</div>
+            </div>
+            <div class="va-stat">
+              <div class="va-stat-label">Account ARR</div>
+              <div class="va-stat-value">${fmtMoney(acct.arr)}</div>
+              <div class="va-stat-sub mono">${escapeHtml(acct.segment.toLowerCase())} segment</div>
+            </div>
+            <div class="va-stat va-stat-impact">
+              <div class="va-stat-label">If this churns</div>
+              <div class="va-stat-value">−${fmtMoney(acct.arr)}</div>
+              <div class="va-stat-sub mono">annual recurring</div>
+            </div>
+          </div>
+
+          <section class="va-sources">
+            <header class="va-section-header">
+              <div>
+                <div class="va-eyebrow">Source conversations</div>
+                <p class="va-section-subtitle">Every signal links to its evidence. Trust contract from <span class="mono">docs/signals.md</span>.</p>
+              </div>
+              <button class="va-pill-btn">Open full thread →</button>
+            </header>
+            <ol class="va-source-list">
+              ${ts.map((t,i) => `
+                <li class="va-source-row" style="--i:${i}">
+                  <div class="va-source-meta">
+                    <span class="va-source-channel">${t.channel === 'email' ? 'EMAIL' : t.channel.toUpperCase()}</span>
+                    <span class="va-source-id mono">${ticketRef(t)}</span>
+                  </div>
+                  <div class="va-source-body">
+                    <div class="va-source-subject">${escapeHtml(t.subject)}</div>
+                    <div class="va-source-snippet">${escapeHtml(t.snippet)}</div>
+                  </div>
+                  <div class="va-source-date mono">${escapeHtml(t.date)}</div>
+                  <span class="va-source-arrow">↗</span>
+                </li>`).join('')}
+            </ol>
+          </section>
+
+          <footer class="va-actions">
+            <div class="va-actions-head">
+              <div class="va-eyebrow">Next action</div>
+              <p class="va-actions-sub">Routing is mocked. No external calls fire from this prototype.</p>
+            </div>
+            <div class="va-action-buttons">
+              <button class="va-action-primary">
+                <span>Send to ${escapeHtml(acct.owner.split(' ')[0])} via Slack</span>
+                <kbd>E</kbd>
+              </button>
+              <button class="va-action-secondary">Create CSM task <kbd>T</kbd></button>
+              <button class="va-action-secondary">Forward to Product <kbd>F</kbd></button>
+              <button class="va-action-ghost">Mark handled <kbd>X</kbd></button>
+            </div>
+          </footer>
+        </div>
+      </article>
+
+    </div>
+
+    <!-- status footer -------------------------------------------------- -->
+    <footer class="va-statusbar mono">
+      <span>1,284 conversations indexed · 7-day window</span>
+      <span class="va-statusbar-dot"></span>
+      <span>${signals.length} open signals · ${highCount} high priority</span>
+      <span class="va-statusbar-dot"></span>
+      <span>Intercom · Zendesk</span>
+      <span class="va-statusbar-dot"></span>
+      <span>classifier · v0.4-mock · 4m ago</span>
+      <span class="va-statusbar-fill"></span>
+      <span class="va-statusbar-cta">demo build · fictional data</span>
+    </footer>
+  </div>`;
+}
+
+function renderListingTabs() {
+  const opts = [
+    { n: 1, label: 'Cards',   desc: 'Editorial card stack' },
+    { n: 2, label: 'Ledger',  desc: 'Compact one-line rows' },
+    { n: 3, label: 'Grouped', desc: 'Grouped by signal type' },
+  ];
+  return `
+    <div class="va-listing-tabs" role="tablist" aria-label="Queue listing layout">
+      ${opts.map(o => `
+        <button class="va-listing-tab ${state.listing === o.n ? 'is-active' : ''}"
+                data-act="set-listing" data-id="${o.n}"
+                title="${escapeHtml(o.desc)}"
+                role="tab" aria-selected="${state.listing === o.n}">
+          <span>${o.label}</span>
+          <kbd>${o.n}</kbd>
+        </button>
+      `).join('')}
+    </div>`;
+}
+
+function renderSortDropdown() {
+  const current = sortLabel(state.sort);
+  return `
+    <details class="va-sort">
+      <summary class="va-sort-summary" aria-label="Sort signals">
+        <span class="va-sort-arrow mono">↓</span>
+        <span class="va-sort-current">${escapeHtml(current)}</span>
+        <span class="va-sort-chev">▾</span>
+      </summary>
+      <div class="va-sort-menu" role="menu">
+        <div class="va-sort-eyebrow va-eyebrow">Sort signals</div>
+        ${SORT_MODES.map(m => `
+          <button class="va-sort-opt ${state.sort === m.key ? 'is-active' : ''}"
+                  data-act="set-sort" data-id="${m.key}"
+                  role="menuitemradio" aria-checked="${state.sort === m.key}">
+            <span class="va-sort-opt-label">${escapeHtml(m.label)}</span>
+            <span class="va-sort-opt-desc">${escapeHtml(m.desc)}</span>
+          </button>
+        `).join('')}
+      </div>
+    </details>`;
+}
+
+function typeDividerHtml(type, count, variant /* 'cards' | 'ledger' */) {
+  const tone = VA_TONE[type];
+  const cls = variant === 'ledger' ? 'va-type-divider va-type-divider--thin' : 'va-type-divider';
+  return `
+    <li class="${cls}" role="presentation" style="--tone:${tone}">
+      <span class="va-type-divider-bar"></span>
+      <span class="va-type-divider-label">${escapeHtml(type)}</span>
+      <span class="va-type-divider-count mono">${count}</span>
+    </li>`;
+}
+
+function renderListingBody(sorted) {
+  if (state.listing === 2) return renderListingLedger(sorted);
+  if (state.listing === 3) return renderListingGrouped(sorted);
+  return renderListingCards(sorted);
+}
+
+function renderListingCards(sorted) {
+  const showDividers = state.sort === 'type';
+  const counts = showDividers ? countByType(sorted) : null;
+  let prevType = null;
+  const rows = [];
+  sorted.forEach((s, i) => {
+    if (showDividers && s.type !== prevType) {
+      rows.push(typeDividerHtml(s.type, counts.get(s.type), 'cards'));
+    }
+    const a = accountById(s.accountId);
+    const active = s.id === state.selectedSignalId;
+    const t = VA_TONE[s.type];
+    rows.push(`
+      <li class="va-item ${active?'is-active':''}" data-act="select-signal" data-id="${s.id}" style="--i:${i}; --tone:${t}">
+        <div class="va-item-rank mono">${String(i+1).padStart(2,'0')}</div>
+        <div class="va-item-body">
+          <div class="va-item-row1">
+            <span class="va-type">
+              <span class="va-type-dot" style="background:${t}"></span>
+              <span class="va-type-name">${escapeHtml(s.type)}</span>
+            </span>
+            <span class="va-item-time mono">${escapeHtml(s.detectedAt)}</span>
+          </div>
+          <div class="va-item-account">${escapeHtml(a.name)}</div>
+          <div class="va-item-meta mono">${fmtMoneyFull(a.arr)} · ${escapeHtml(a.plan)} · ${escapeHtml(a.owner)}</div>
+          <div class="va-item-summary">${escapeHtml(s.summary)}</div>
+          <div class="va-item-foot">
+            <span class="va-urgency u-${s.urgency}">${s.urgency}</span>
+            <span class="va-item-tix mono">${s.ticketIds.length} sources</span>
+            ${active ? '<span class="va-item-current mono">▸ OPEN</span>' : ''}
+          </div>
+        </div>
+      </li>`);
+    prevType = s.type;
+  });
+  return `<ul class="va-queue-list">${rows.join('')}</ul>`;
+}
+
+function renderListingLedger(sorted) {
+  const showDividers = state.sort === 'type';
+  const counts = showDividers ? countByType(sorted) : null;
+  let prevType = null;
+  const rows = [];
+  sorted.forEach((s, i) => {
+    if (showDividers && s.type !== prevType) {
+      rows.push(typeDividerHtml(s.type, counts.get(s.type), 'ledger'));
+    }
+    const a = accountById(s.accountId);
+    const active = s.id === state.selectedSignalId;
+    const t = VA_TONE[s.type];
+    const uLetter = s.urgency === 'high' ? 'H' : s.urgency === 'medium' ? 'M' : 'L';
+    rows.push(`
+      <li class="va-ledger-row ${active?'is-active':''}" data-act="select-signal" data-id="${s.id}" title="${escapeHtml(s.type)} · ${escapeHtml(s.summary)}" style="--i:${i}; --tone:${t}">
+        <span class="va-ledger-rank">${String(i+1).padStart(2,'0')}</span>
+        <span class="va-ledger-dot" style="background:${t}" aria-label="${escapeHtml(s.type)}"></span>
+        <span class="va-ledger-account">${escapeHtml(a.name)}</span>
+        <span class="va-ledger-arr">${fmtMoney(a.arr)}</span>
+        <span class="va-ledger-urgency u-${s.urgency}" aria-label="${escapeHtml(s.urgency)} priority">${uLetter}</span>
+        <span class="va-ledger-time">${escapeHtml(shortTime(s.detectedAt))}</span>
+      </li>`);
+    prevType = s.type;
+  });
+  return `<ul class="va-list-ledger">${rows.join('')}</ul>`;
+}
+
+function renderListingGrouped(sorted) {
+  // Preserve order: types appear in the order their first signal appears (already ARR-weighted).
+  const groups = new Map();
+  for (const s of sorted) {
+    if (!groups.has(s.type)) groups.set(s.type, []);
+    groups.get(s.type).push(s);
+  }
+  return `
+    <div class="va-list-grouped">
+      ${[...groups.entries()].map(([type, items], gi) => {
+        const tone = VA_TONE[type];
+        return `
+        <section class="va-group" style="--tone:${tone}; --gi:${gi}">
+          <header class="va-group-header">
+            <span class="va-group-bar"></span>
+            <span class="va-group-name">${escapeHtml(type)}</span>
+            <span class="va-group-count">${items.length}</span>
+            <span class="va-group-toggle">▾</span>
+          </header>
+          <ul class="va-group-items">
+            ${items.map((s,i) => {
+              const a = accountById(s.accountId);
+              const active = s.id === state.selectedSignalId;
+              return `
+              <li class="va-group-item ${active?'is-active':''}" data-act="select-signal" data-id="${s.id}" style="--tone:${tone}">
+                <div class="va-group-item-rank mono">${String(i+1).padStart(2,'0')}</div>
+                <div>
+                  <div class="va-group-item-head">
+                    <span class="va-group-item-account">${escapeHtml(a.name)}</span>
+                    <span class="va-group-item-arr mono">${fmtMoney(a.arr)}</span>
+                    <span class="va-group-item-time mono">${escapeHtml(s.detectedAt)}</span>
+                  </div>
+                  <div class="va-group-item-summary">${escapeHtml(s.summary)}</div>
+                  <div class="va-group-item-foot">
+                    <span class="va-urgency u-${s.urgency}">${s.urgency}</span>
+                    <span class="va-item-tix mono">${s.ticketIds.length} sources · ${escapeHtml(a.owner)}</span>
+                  </div>
+                </div>
+              </li>`;
+            }).join('')}
+          </ul>
+        </section>`;
+      }).join('')}
+    </div>`;
+}
+
+/* ------------------------------------------------------------------ */
+/* Variant B — Executive Brief                                          */
+/* ------------------------------------------------------------------ */
+function renderVariantB() {
+  const arrAtRisk = signals.filter(s => s.type === 'churn risk' || s.type === 'strategic account escalation')
+    .reduce((sum,s) => sum + accountById(s.accountId).arr, 0);
+  const expansionArr = signals.filter(s => s.type === 'expansion intent')
+    .reduce((sum,s) => sum + accountById(s.accountId).arr, 0);
+  const icpFlagged = signals.filter(s => accountById(s.accountId).segment !== 'SMB').length;
+
+  // Group by type for theme panel
+  const byType = {};
+  for (const s of signals) (byType[s.type] = byType[s.type] || []).push(s);
+  const typeRows = Object.entries(byType).sort((a,b) => b[1].length - a[1].length);
+
+  // Top 5 to act on this week — ARR × urgency
+  const top5 = [...signals].sort((a,b) => score(b) - score(a)).slice(0,5);
+
+  return `
+  ${topBar('Reports')}
+  <div class="bg-gradient-to-b from-ink-900 to-ink-800 text-white">
+    <div class="max-w-7xl mx-auto px-8 py-7">
+      <div class="flex items-end justify-between">
+        <div>
+          <div class="text-xs uppercase tracking-widest text-cue-300 mono mb-1">Weekly revenue signals</div>
+          <h1 class="text-3xl font-semibold tracking-tight">Week of May 12, 2026</h1>
+          <p class="text-white/60 mt-1 text-sm">From 1,284 support conversations across Intercom &amp; Zendesk</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <button class="px-3 py-2 bg-white/10 hover:bg-white/20 rounded-md text-sm">Share with leadership</button>
+          <button class="px-3 py-2 bg-cue-500 hover:bg-cue-600 rounded-md text-sm font-medium">Download PDF</button>
+        </div>
+      </div>
+      <div class="grid grid-cols-4 gap-4 mt-7">
+        ${[
+          { label:'ARR at risk',           value: fmtMoney(arrAtRisk),                                                          delta:'+18% w/w', tone:'text-rose-300' },
+          { label:'Expansion pipeline',    value: fmtMoney(expansionArr),                                                       delta:'+$76k w/w', tone:'text-emerald-300' },
+          { label:'Signals this week',     value: signals.length.toString(),                                                    delta:'+6 w/w',    tone:'text-cue-300' },
+          { label:'ICP-weighted issues',   value: icpFlagged.toString(),                                                        delta:'2 unique', tone:'text-amber-300' },
+        ].map(k => `
+          <div class="bg-white/5 ring-1 ring-white/10 rounded-xl p-4 backdrop-blur">
+            <div class="text-xs text-white/60 uppercase tracking-wide">${escapeHtml(k.label)}</div>
+            <div class="text-3xl font-semibold mt-1">${escapeHtml(k.value)}</div>
+            <div class="text-xs mt-1 ${k.tone}">${escapeHtml(k.delta)}</div>
+          </div>
+        `).join('')}
+      </div>
+      <div class="mt-6 bg-white/5 rounded-xl ring-1 ring-white/10 p-4">
+        <div class="flex items-center justify-between mb-2">
+          <div class="text-xs uppercase text-white/60 tracking-wide">Signal volume · last 6 weeks</div>
+          <div class="flex items-center gap-3 text-[10px] text-white/60">
+            <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-rose-400"></span>churn risk</span>
+            <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-emerald-400"></span>expansion intent</span>
+            <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-amber-400"></span>product friction</span>
+          </div>
+        </div>
+        <svg viewBox="0 0 600 120" class="w-full h-28 spark">
+          <defs>
+            <linearGradient id="ga" x1="0" x2="0" y1="0" y2="1">
+              <stop offset="0%" stop-color="#fb7185" stop-opacity="0.4"/>
+              <stop offset="100%" stop-color="#fb7185" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+          <path d="M0,80 L100,72 L200,55 L300,60 L400,42 L500,38 L600,30" fill="none" stroke="#fb7185" stroke-width="2"/>
+          <path d="M0,80 L100,72 L200,55 L300,60 L400,42 L500,38 L600,30 L600,120 L0,120 Z" fill="url(#ga)"/>
+          <path d="M0,95 L100,90 L200,92 L300,82 L400,84 L500,72 L600,68" fill="none" stroke="#34d399" stroke-width="2"/>
+          <path d="M0,105 L100,98 L200,96 L300,90 L400,88 L500,86 L600,80" fill="none" stroke="#fbbf24" stroke-width="2"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <div class="max-w-7xl mx-auto px-8 py-8 grid grid-cols-3 gap-6">
+    <!-- top 5 -->
+    <div class="col-span-2 bg-white rounded-xl border border-slate-200 p-5">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-lg font-semibold">Top 5 accounts to act on this week</h2>
+        <span class="text-xs text-slate-400 mono">ARR × urgency</span>
+      </div>
+      <ol class="space-y-3">
+        ${top5.map((s,i) => {
+          const a = accountById(s.accountId);
+          return `
+          <li class="flex items-start gap-4 p-3 rounded-lg hover:bg-slate-50">
+            <div class="w-8 h-8 rounded-full bg-ink-900 text-white flex items-center justify-center text-sm font-semibold flex-shrink-0">${i+1}</div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2 mb-1 flex-wrap">
+                <span class="font-semibold text-slate-900">${escapeHtml(a.name)}</span>
+                <span class="text-xs mono text-slate-500">${fmtMoneyFull(a.arr)} ARR</span>
+                ${typeBadge(s.type, 'xs')}
+              </div>
+              <div class="text-sm text-slate-600">${escapeHtml(s.summary)}</div>
+              <div class="text-xs text-slate-400 mt-1">
+                <span class="mono">${s.ticketIds.length} source tickets</span>
+                · owner ${escapeHtml(a.owner)}
+                · <a href="#" class="text-cue-600 hover:underline">view evidence →</a>
+              </div>
+            </div>
+          </li>`;
+        }).join('')}
+      </ol>
+    </div>
+
+    <!-- themes -->
+    <div class="bg-white rounded-xl border border-slate-200 p-5">
+      <h2 class="text-lg font-semibold mb-1">Themes</h2>
+      <div class="text-xs text-slate-500 mb-4">Signal types ranked by count</div>
+      <ul class="space-y-2">
+        ${typeRows.map(([type, list]) => `
+          <li>
+            <div class="flex items-center justify-between">
+              ${typeBadge(type)}
+              <span class="text-sm mono text-slate-500">${list.length}</span>
+            </div>
+            <div class="mt-1 h-1.5 bg-slate-100 rounded-full overflow-hidden">
+              <div class="h-full ${TYPE_TONE[type].dot}" style="width:${Math.min(100, list.length * 18)}%"></div>
+            </div>
+          </li>
+        `).join('')}
+      </ul>
+    </div>
+  </div>
+
+  <div class="max-w-7xl mx-auto px-8 pb-12">
+    <div class="bg-white rounded-xl border border-slate-200 p-5">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-lg font-semibold">For Product · friction &amp; bug clusters</h2>
+        <a href="#" class="text-sm text-cue-600 hover:underline">Open in product backlog →</a>
+      </div>
+      <div class="grid grid-cols-3 gap-4">
+        ${signals.filter(s => ['product friction','bug cluster','onboarding issue','documentation gap','repeated manual workaround','feature request'].includes(s.type)).slice(0,6).map(s => {
+          const a = accountById(s.accountId);
+          return `
+          <div class="border border-slate-200 rounded-lg p-3">
+            <div class="mb-2">${typeBadge(s.type, 'xs')}</div>
+            <div class="text-sm font-medium text-slate-900">${escapeHtml(a.name)}</div>
+            <div class="text-xs text-slate-600 mt-1 line-clamp-3">${escapeHtml(s.summary)}</div>
+            <div class="text-[11px] text-slate-400 mt-2 mono">${s.ticketIds.length} tickets · ${fmtMoneyFull(a.arr)} ARR</div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>
+  </div>`;
+}
+
+/* ------------------------------------------------------------------ */
+/* Variant C — Account Portfolio                                        */
+/* ------------------------------------------------------------------ */
+function renderVariantC() {
+  // Sort
+  const { sortBy, sortDir } = state;
+  const dir = sortDir === 'asc' ? 1 : -1;
+  const rows = [...accounts].sort((x,y) => {
+    if (sortBy === 'arr')     return (x.arr - y.arr) * dir;
+    if (sortBy === 'risk')    return (riskScore(x) - riskScore(y)) * dir;
+    if (sortBy === 'signals') return (signalsByAccount(x.id).length - signalsByAccount(y.id).length) * dir;
+    return String(x[sortBy]).localeCompare(String(y[sortBy])) * dir;
+  });
+
+  const drill = state.selectedAccountId ? accountById(state.selectedAccountId) : null;
+  const drillSignals = drill ? signalsByAccount(drill.id).sort((a,b) => score(b) - score(a)) : [];
+
+  const sortChevron = col => state.sortBy === col ? (state.sortDir === 'asc' ? '↑' : '↓') : '';
+
+  return `
+  ${topBar('Accounts')}
+  <div class="flex h-[calc(100vh-3.5rem-2rem)] bg-slate-50">
+    <!-- filters rail -->
+    <aside class="w-60 bg-white border-r border-slate-200 p-4 overflow-y-auto">
+      <div class="text-xs uppercase tracking-wide text-slate-500 font-semibold mb-3">Filters</div>
+      ${filterGroup('Segment', ['Enterprise','Mid-market','SMB'])}
+      ${filterGroup('Owner',   [...new Set(accounts.map(a=>a.owner))])}
+      ${filterGroup('Plan',    ['Enterprise','Growth','Starter'])}
+      ${filterGroup('Signal type', Object.keys(TYPE_TONE), true)}
+      <div class="mt-4 text-[11px] text-slate-400 mono">Filters are static in the prototype.</div>
+    </aside>
+
+    <!-- table -->
+    <div class="flex-1 overflow-y-auto">
+      <div class="px-6 py-5">
+        <div class="flex items-center justify-between mb-4">
+          <div>
+            <h1 class="text-xl font-semibold">Account portfolio</h1>
+            <p class="text-sm text-slate-500">${accounts.length} accounts · ${signals.length} open signals this week</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <button class="px-3 py-1.5 text-sm border border-slate-300 rounded-md bg-white hover:bg-slate-50">Export CSV</button>
+            <button class="px-3 py-1.5 text-sm bg-ink-900 text-white rounded-md hover:bg-ink-800">Bulk assign owner</button>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-lg border border-slate-200 overflow-hidden">
+          <table class="w-full text-sm">
+            <thead class="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
+              <tr>
+                ${sortHeader('name','Account')}
+                ${sortHeader('arr','ARR')}
+                ${sortHeader('plan','Plan')}
+                ${sortHeader('segment','Segment')}
+                ${sortHeader('owner','Owner')}
+                <th class="text-left font-medium px-3 py-2.5">Open signals</th>
+                ${sortHeader('risk','Risk')}
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+              ${rows.map(a => {
+                const ss = signalsByAccount(a.id);
+                const r = riskScore(a);
+                const risk = r >= 4 ? 'high' : r >= 2 ? 'med' : 'low';
+                const riskCls = risk === 'high' ? 'text-rose-700 bg-rose-50' : risk === 'med' ? 'text-amber-700 bg-amber-50' : 'text-slate-600 bg-slate-50';
+                const active = state.selectedAccountId === a.id;
+                return `
+                <tr data-act="select-account" data-id="${a.id}" class="cursor-pointer ${active ? 'bg-cue-50/50' : 'hover:bg-slate-50'}">
+                  <td class="px-3 py-3 font-medium text-slate-900">${escapeHtml(a.name)}</td>
+                  <td class="px-3 py-3 mono">${fmtMoneyFull(a.arr)}</td>
+                  <td class="px-3 py-3 text-slate-600">${escapeHtml(a.plan)}</td>
+                  <td class="px-3 py-3 text-slate-600">${escapeHtml(a.segment)}</td>
+                  <td class="px-3 py-3 text-slate-600">${escapeHtml(a.owner)}</td>
+                  <td class="px-3 py-3">
+                    <div class="flex flex-wrap gap-1">
+                      ${ss.length === 0 ? '<span class="text-xs text-slate-400">—</span>' : ss.map(s => typeBadge(s.type,'xs')).join('')}
+                    </div>
+                  </td>
+                  <td class="px-3 py-3">
+                    <span class="text-[10px] uppercase font-semibold px-2 py-0.5 rounded ${riskCls}">${risk}</span>
+                  </td>
+                </tr>`;
+              }).join('')}
+            </tbody>
+          </table>
+        </div>
+        <div class="mt-3 text-xs text-slate-400">Click a row to open the account drilldown.</div>
+      </div>
+    </div>
+
+    <!-- slide-in drilldown -->
+    ${drill ? `
+    <aside class="w-[420px] bg-white border-l border-slate-200 overflow-y-auto">
+      <div class="p-5 border-b border-slate-200 flex items-start justify-between">
+        <div>
+          <div class="text-xs uppercase tracking-wide text-slate-500 mb-1">Account</div>
+          <div class="text-lg font-semibold">${escapeHtml(drill.name)}</div>
+          <div class="text-sm text-slate-500 mono mt-0.5">${fmtMoneyFull(drill.arr)} · ${escapeHtml(drill.plan)} · ${escapeHtml(drill.segment)}</div>
+          <div class="text-xs text-slate-500 mt-2">owner <span class="font-medium text-slate-700">${escapeHtml(drill.owner)}</span></div>
+        </div>
+        <button data-act="close-drill" class="text-slate-400 hover:text-slate-700 text-xl leading-none">×</button>
+      </div>
+      <div class="p-5">
+        <div class="text-xs uppercase tracking-wide text-slate-500 mb-3">Open signals · ${drillSignals.length}</div>
+        ${drillSignals.length === 0 ? '<div class="text-sm text-slate-400">No open signals this week.</div>' : ''}
+        ${drillSignals.map(s => `
+          <div class="border border-slate-200 rounded-lg p-3 mb-3">
+            <div class="flex items-center gap-2 mb-1">
+              ${typeBadge(s.type,'xs')} ${urgencyBadge(s.urgency)}
+              <span class="ml-auto text-[11px] text-slate-400">${escapeHtml(s.detectedAt)}</span>
+            </div>
+            <div class="text-sm text-slate-800 mb-2">${escapeHtml(s.summary)}</div>
+            <div class="text-[11px] uppercase tracking-wide text-slate-500 mb-1">Source conversations</div>
+            <ul class="space-y-1.5">
+              ${ticketsForSignal(s).slice(0,3).map(t => `
+                <li class="flex items-start gap-2 text-xs">
+                  ${channelIcon(t.channel)}
+                  <span class="truncate flex-1 text-slate-700">${escapeHtml(t.subject)}</span>
+                  <span class="text-slate-400 whitespace-nowrap">${escapeHtml(t.date)}</span>
+                </li>`).join('')}
+              ${ticketsForSignal(s).length > 3 ? `<li class="text-[11px] text-cue-600 hover:underline cursor-pointer">+ ${ticketsForSignal(s).length - 3} more</li>` : ''}
+            </ul>
+          </div>
+        `).join('')}
+        <div class="mt-2 flex flex-wrap gap-2">
+          <button class="px-3 py-1.5 text-xs bg-ink-900 text-white rounded">Send digest to owner</button>
+          <button class="px-3 py-1.5 text-xs border border-slate-300 rounded">Open in CRM</button>
+        </div>
+      </div>
+    </aside>` : ''}
+  </div>`;
+}
+
+function filterGroup(title, items, expanded=false) {
+  return `
+    <div class="mb-4">
+      <div class="text-[11px] uppercase tracking-wide text-slate-500 font-semibold mb-1.5">${escapeHtml(title)}</div>
+      <div class="${expanded ? '' : 'max-h-32 overflow-hidden'}">
+        ${items.map(i => `
+          <label class="flex items-center gap-2 py-0.5 text-sm text-slate-700 cursor-pointer hover:text-slate-900">
+            <input type="checkbox" class="rounded border-slate-300 text-cue-500 focus:ring-cue-300" />
+            <span class="truncate">${escapeHtml(i)}</span>
+          </label>
+        `).join('')}
+      </div>
+    </div>`;
+}
+
+function sortHeader(col, label) {
+  const active = state.sortBy === col;
+  const ch = state.sortBy === col ? (state.sortDir === 'asc' ? '↑' : '↓') : '';
+  return `<th data-act="sort" data-col="${col}" class="text-left font-medium px-3 py-2.5 cursor-pointer select-none ${active ? 'text-slate-900' : ''}">${escapeHtml(label)} <span class="mono ml-0.5 text-slate-400">${ch}</span></th>`;
+}
+
+function riskScore(a) {
+  // Mocked: high-urgency churn risk or strategic escalation = 2 each, others = 1.
+  return signalsByAccount(a.id).reduce((sum,s) => {
+    if (['churn risk','strategic account escalation'].includes(s.type) && s.urgency === 'high') return sum + 2;
+    if (['churn risk','strategic account escalation'].includes(s.type)) return sum + 1.5;
+    if (s.urgency === 'high') return sum + 1;
+    return sum + 0.5;
+  }, 0);
+}
+
+/* ------------------------------------------------------------------ */
+/* Variant switching footer / chrome                                    */
+/* ------------------------------------------------------------------ */
+function render() {
+  const cur = VARIANTS.find(v => v.key === state.variant);
+  document.getElementById('vkey').textContent = cur.key;
+  document.getElementById('vname').textContent = cur.name;
+
+  const app = document.getElementById('app');
+  if (state.variant === 'A') app.innerHTML = renderVariantA();
+  if (state.variant === 'B') app.innerHTML = renderVariantB();
+  if (state.variant === 'C') app.innerHTML = renderVariantC();
+}
+
+document.addEventListener('click', e => {
+  // close any open sort popover when clicking outside of it
+  if (!e.target.closest('.va-sort')) {
+    document.querySelectorAll('.va-sort[open]').forEach(d => d.removeAttribute('open'));
+  }
+  const t = e.target.closest('[data-act]');
+  if (!t) return;
+  const act = t.getAttribute('data-act');
+  if (act === 'select-signal')  { state.selectedSignalId = t.getAttribute('data-id'); render(); }
+  if (act === 'select-account') { state.selectedAccountId = t.getAttribute('data-id'); render(); }
+  if (act === 'close-drill')    { state.selectedAccountId = null; render(); }
+  if (act === 'set-listing')    { state.listing = parseInt(t.getAttribute('data-id'), 10); persistListing(); render(); }
+  if (act === 'set-sort')       { state.sort = t.getAttribute('data-id'); persistSort(); render(); }
+  if (act === 'sort') {
+    const col = t.getAttribute('data-col');
+    if (state.sortBy === col) state.sortDir = state.sortDir === 'asc' ? 'desc' : 'asc';
+    else { state.sortBy = col; state.sortDir = 'desc'; }
+    render();
+  }
+});
+
+document.getElementById('prev').addEventListener('click', () => cycle(-1));
+document.getElementById('next').addEventListener('click', () => cycle(1));
+function cycle(d) {
+  const idx = VARIANTS.findIndex(v => v.key === state.variant);
+  const next = VARIANTS[(idx + d + VARIANTS.length) % VARIANTS.length];
+  setVariant(next.key);
+}
+
+document.addEventListener('keydown', e => {
+  const tag = (e.target.tagName || '').toLowerCase();
+  if (tag === 'input' || tag === 'textarea' || e.target.isContentEditable) return;
+  // variant-A-only: 1/2/3 cycles the listing layout
+  if (state.variant === 'A' && (e.key === '1' || e.key === '2' || e.key === '3')) {
+    state.listing = parseInt(e.key, 10);
+    persistListing();
+    render();
+    return;
+  }
+  if (e.key === 'ArrowLeft')  cycle(-1);
+  if (e.key === 'ArrowRight') cycle(1);
+});
+
+readVariantFromUrl();
+render();
+</script>
+</body>
+</html>
