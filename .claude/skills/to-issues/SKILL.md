@@ -33,12 +33,15 @@ A slice spec is well-formed when an executor can implement it without ever openi
 
 Break the plan into **tracer bullet** issues. Each issue is a thin vertical slice that cuts through ALL integration layers end-to-end, NOT a horizontal slice of one layer.
 
-Slices may be 'HITL' or 'AFK'. HITL slices require human interaction, such as an architectural decision or a design review. AFK slices can be implemented and merged without human interaction. Prefer AFK over HITL where possible.
+Slices may be 'HITL' or 'AFK'. HITL slices require human interaction *during execution* — architectural decisions, design review, manual visual QA, credentials only humans have. AFK slices can be implemented without human interaction. Prefer AFK over HITL where possible.
+
+**Independent dimension — merge-gate.** Implementation type (`HITL` / `AFK`, mapped to `ready-for-agent` / `ready-for-human`) is separate from who must approve the PR. The `human-review-required` label, applied at triage time, marks a slice whose PR must receive an approving review from a non-bot user before merge — regardless of who built it. Apply it when the slice will touch auth / secrets / billing / infra / CI / public copy / ADR-bound invariants. See `docs/agents/triage-labels.md` for the full trigger list and the workflow that enforces it.
 
 <vertical-slice-rules>
 - Each slice delivers a narrow but COMPLETE path through every layer (schema, API, UI, tests)
 - A completed slice is demoable or verifiable on its own
 - Prefer many thin slices over few thick ones
+- Decide per slice whether `human-review-required` applies — file area, not implementation difficulty, is the trigger
 </vertical-slice-rules>
 
 ### 4. Quiz the user
@@ -56,6 +59,7 @@ Ask the user:
 - Are the dependency relationships correct?
 - Should any slices be merged or split further?
 - Are the correct slices marked as HITL and AFK?
+- Which slices need `human-review-required` on the PR-merge gate?
 
 Iterate until the user approves the breakdown.
 
