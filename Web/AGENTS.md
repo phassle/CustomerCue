@@ -1,58 +1,57 @@
 # AGENTS — Web
 
-A conventional sales-oriented marketing website for **CustomerCue** — the kind of site a B2B SaaS visitor would expect: hero, value props, how-it-works, signals, differentiation, pricing, social proof, "book a demo" / "try it" CTAs. Nothing experimental. No signed-in experience — that lives in `../Saas/` (the app itself).
+Public marketing site for **CustomerCue**. A single focused landing page — hero, how-it-works, signals, CTA, footer. No signed-in experience (that's `../Saas/`). Page scope locked in [`docs/page-scope.md`](./docs/page-scope.md).
 
-> Status: empty directory. Stack not yet chosen. Fill in this file as decisions are made — don't leave stale placeholders.
-> Product positioning, taglines, ICP, and differentiation copy live in `../brief.md`. Pull from there; do not invent.
+## Stack
 
-## Stack (decide before first commit)
-
-- Framework: _TBD_ (Next.js App Router or Astro for static-first)
-- Styling: _TBD_ (Tailwind expected, matching sibling demos)
-- Hosting: _TBD_ (Vercel / static export)
-
-Once chosen, record exact versions and rationale here.
+| | |
+|---|---|
+| Framework | **Astro 6.3** — static-first delivery. See [`../docs/adr/0001-astro-for-web.md`](../docs/adr/0001-astro-for-web.md). |
+| Styling | **Tailwind CSS 4.3** via `@tailwindcss/vite` |
+| Island framework | **Preact** via `@astrojs/preact` — used for interactive form islands (`DemoRequestForm`, `ConversationsUploadForm`). `tsconfig.json` sets `jsxImportSource: "preact"`. |
+| Hosting | **Static with one server-rendered route.** `output: "static"` + `@astrojs/node` (standalone mode); `/api/lead` opts in to server rendering via `export const prerender = false;`. Deploy to any Node-capable host (Vercel, Railway, Render). A pure-static target like Cloudflare Pages would 404 on form submission unless the API route is moved to the host's serverless platform. |
+| Test — unit | **Vitest 4.1** + **happy-dom** for DOM environment |
+| Test — E2E | **Playwright 1.59** (Chromium Headless Shell) — switched from WebKit which had missing system libs (`libatk-1.0.so.0` etc.) in newer Playwright versions. Chromium Headless Shell's deps can be resolved via manual `.deb` extraction (see `docs/retros/web-1-0-landing.md`). |
+| TypeScript | **6.0** via `astro check` |
 
 ## Commands
 
+```bash
+npm install            # install dependencies
+npm run dev            # start dev server at localhost:4321
+npm run build          # static export to dist/
+npm run preview        # preview production build
+npm run typecheck      # astro check (TypeScript)
+npm run test           # vitest run (unit tests)
+npm run test:e2e       # playwright test (E2E, starts dev server automatically)
 ```
-# placeholder — fill in once scaffolded
-# npm install
-# npm run dev
-# npm run build
-# npm run lint
-```
 
-No test runner planned — visual-first demo site.
+Playwright requires browser binaries: `npx playwright install chromium`. On the Sandcastle Docker image, Chromium Headless Shell also needs ~13 system libs extracted from `.deb` packages into an `LD_LIBRARY_PATH` directory (see retro for the full list).
 
-## Page scope (driven by `../brief.md`)
+## Cache strategy
 
-A standard B2B SaaS marketing site — these sections are the baseline; add/remove as the design evolves:
+HTML pages set `<meta http-equiv>` directives (`Cache-Control: no-cache, no-store, must-revalidate`, `Pragma: no-cache`, `Expires: 0`). **These only influence the user's browser** — they do not affect CDN/edge caches, which honour HTTP response headers from the origin. To prevent edge-cached stale HTML after a redeploy, configure the host: Vercel's `vercel.json` `headers` section, Cloudflare Pages' `_headers` file, or equivalent. Until that's wired up, the meta tags are belt-and-suspenders for browser-only freshness. Static assets (JS/CSS/images) are fingerprinted by Astro's build pipeline and the host's default immutable-asset caching handles them automatically.
 
-- **Hero / landing** — tagline *"Turn support conversations into customer revenue signals."* Sub-positioning: AI revenue intelligence on top of Intercom/Zendesk, not another support bot. Primary CTA (e.g. "Book a demo" or "Start free trial").
-- **How it works** — three to four steps from "connect Intercom/Zendesk" to "weekly revenue signals in Slack/email." Use brief's example outputs (Acme Corp, NordicPay, onboarding-step-3 cluster) as illustrations.
-- **Signals** — the 10 canonical signal types from the brief. Use the exact names.
-- **Differentiation** — vs Intercom Fin, Zendesk AI, Gainsight. *Resolution* vs *revenue meaning*.
-- **Who it's for / ICP** — VP CS as primary buyer; B2B SaaS 50–500 employees; recurring revenue.
-- **Pricing** — Starter / Growth / Enterprise tiers per brief's hypothesis (treat as draft; don't promise a price-locked SKU).
-- **Social proof / trust** — logos / testimonials / case-study slots (placeholder content until real customers exist), plus security/trust signals.
-- **Footer** — standard B2B footer (product, company, legal, contact).
+## Performance baseline
 
-Optional secondary CTA: "Send us 1,000 support conversations, get your report in 48 hours" (the brief's validation offer) — fine as a secondary lead magnet, but the primary CTA should be the conventional "book a demo" / "try it" ask.
+Measured on the Sandcastle Docker image (dev server, not production build). These are informational baselines — the build does not gate on them.
 
-Auth, dashboards, in-app data → **NOT here**. Belongs in `../Saas/` (the app).
+| Metric | Value | Notes |
+|---|---|---|
+| Page load (dev, CI) | < 2 s | Asserted in E2E test (`e2e/performance.spec.ts`) |
+| LCP (fast-3G) | TBD | Measure after first production deploy; PRD stretch target is < 1 s |
+| CLS | TBD | Measure after first production deploy |
+| TTI (fast-3G) | TBD | Informational — document after first production deploy |
 
-## Conventions
+Production numbers require a deployed build + Lighthouse or WebPageTest run. The dev server is not representative for LCP/CLS/TTI.
 
-- Use the brief's vocabulary verbatim — same signal names, same tagline, same MVP wedge phrasing. No synonyms.
-- All copy is mocked / draft until the user signs off — flag claims (logos, customer counts, ROI numbers) that need approval before they go on-screen.
-- Forms (1,000-conversations CTA, contact, demo-request) post to a mock endpoint — no real CRM/email/HubSpot integration in this repo.
-- Images and assets under `public/` (or framework equivalent); avoid binary blobs > 1 MB.
-- Don't import from `../Saas/` — the website and the product are independent codebases.
+## Read these on demand
 
-## Stop rules
-
-- No stack choice without confirming with the user.
-- No real third-party integrations (analytics, CRM, email, calendar) without explicit ask.
-- No invented logos, testimonials, or customer counts. The brief's example outputs (Acme Corp, NordicPay) are explicitly fictional — fine to use as illustrations, label them as such.
-- Pricing numbers are a hypothesis in the brief — don't present them as committed pricing without confirmation.
+- [`docs/page-scope.md`](./docs/page-scope.md) — page-level scope and CTA hierarchy
+- [`docs/design-system.md`](./docs/design-system.md) — editorial-analytical visual direction and tokens
+- [`../docs/signals.md`](../docs/signals.md) — canonical signal taxonomy (use names verbatim in copy)
+- [`../docs/conventions.md`](../docs/conventions.md) — mocked-data and vocabulary rules
+- [`../docs/stop-rules.md`](../docs/stop-rules.md) — when to ask before acting
+- [`../docs/adr/`](../docs/adr/) — Astro choice (0001), visual direction (0002)
+- [`../brief.md`](../brief.md) — positioning, ICP, differentiation copy
+- [`../docs/retros/web-1-0-landing.md`](../docs/retros/web-1-0-landing.md) — **read before starting any slice on this PRD**. Lists Playwright system-lib gotchas and other time-sinks earlier slices already paid for. See [`../AGENTS.md`](../AGENTS.md) § Per-PRD retros for the full rule.
