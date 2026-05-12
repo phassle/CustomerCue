@@ -125,11 +125,15 @@ test.describe("Keyboard navigation", () => {
     await page.goto("/");
     await page.waitForLoadState("networkidle");
 
-    // Scroll the CTA form into view and wait for Preact hydration
+    // Scroll the CTA form into view and wait for its specific island to
+    // hydrate. The page now has multiple astro-islands (explainer, demo form,
+    // uploads form) in DOM order, so we can't just check the first one.
     await page.locator("#demo-name").scrollIntoViewIfNeeded();
-    await page.waitForFunction(
-      () => !document.querySelectorAll("astro-island")[0]?.hasAttribute("ssr"),
-    );
+    await page.waitForFunction(() => {
+      const input = document.getElementById("demo-name");
+      const island = input?.closest("astro-island");
+      return Boolean(island && !island.hasAttribute("ssr"));
+    });
 
     await page.locator("#demo-name").fill("Test User");
     await page.locator("#demo-email").fill("test@example.com");
