@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Read the brief first
+    url: https://github.com/phassle/CustomerCue/blob/main/brief.md
+    about: "brief.md is the source of truth for positioning, ICP, signal taxonomy, and pricing. Scope choices must trace back to it."
+  - name: Agent / contributor guide
+    url: https://github.com/phassle/CustomerCue/blob/main/AGENTS.md
+    about: "AGENTS.md is the entry point for anyone (human or agent) working in this repo."
+  - name: Report a security vulnerability
+    url: https://github.com/phassle/CustomerCue/blob/main/SECURITY.md
+    about: "Do not file vulnerabilities as public issues. See SECURITY.md."
