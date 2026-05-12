@@ -1,5 +1,4 @@
 import { useState, useMemo, useRef } from "preact/hooks";
-import type { JSX } from "preact";
 import { acmeIntegration } from "../data/conversation-fixtures/acme-integration";
 import { nordicpayEnterprise } from "../data/conversation-fixtures/nordicpay-enterprise";
 import { step3Onboarding } from "../data/conversation-fixtures/step3-onboarding";
@@ -79,7 +78,7 @@ export function ConversationExplainer() {
     });
   }
 
-  function handleKeyDown(e: JSX.TargetedKeyboardEvent<HTMLElement>) {
+  function handleKeyDown(e: KeyboardEvent) {
     const container = containerRef.current;
     if (!container) return;
 
@@ -127,7 +126,15 @@ export function ConversationExplainer() {
             `mark[data-annotation-id="${rationaleAnnotationId}"]`,
           );
           setRationaleAnnotationId(null);
-          mark?.focus();
+          // If the opening mark is hidden (e.g. its signal type was filtered
+          // out while the panel was open), focusing it would silently fail.
+          // Fall back to the first visible mark, then the container.
+          if (mark && !mark.hidden) {
+            mark.focus();
+          } else {
+            const visible = getVisibleMarks(container);
+            (visible[0] ?? container).focus();
+          }
         }
         break;
       }

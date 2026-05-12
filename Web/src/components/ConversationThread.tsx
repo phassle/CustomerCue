@@ -24,12 +24,18 @@ function buildSegments(
   let cursor = 0;
 
   for (const ann of sorted) {
-    if (ann.range.start > cursor) {
-      segments.push({ type: "text", text: body.slice(cursor, ann.range.start) });
+    // Clamp overlapping ranges to the prior segment's end so the
+    // first-sorted annotation wins and later ones contribute only their
+    // non-overlapping tail. A range entirely behind the cursor is dropped.
+    const start = Math.max(cursor, ann.range.start);
+    if (start >= ann.range.end) continue;
+
+    if (start > cursor) {
+      segments.push({ type: "text", text: body.slice(cursor, start) });
     }
     segments.push({
       type: "mark",
-      text: body.slice(ann.range.start, ann.range.end),
+      text: body.slice(start, ann.range.end),
       annotation: ann,
     });
     cursor = ann.range.end;

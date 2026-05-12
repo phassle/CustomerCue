@@ -29,7 +29,7 @@ function getExplainer() {
   return screen.getByRole("region", { name: /signal explainer/i });
 }
 
-describe("RationalePanel", () => {
+describe("ConversationExplainer — rationale UI (rendered inline by the explainer)", () => {
   let ordered: Annotation[];
 
   beforeEach(() => {

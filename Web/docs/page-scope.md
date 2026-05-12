@@ -7,8 +7,9 @@
 1. **Hero** — tagline *"Turn support conversations into customer revenue signals."* Sub-positioning weaves in the differentiator (AI revenue intelligence on top of Intercom/Zendesk, not another support bot) and the ICP hint (B2B SaaS with a CS team). Primary CTA inline.
 2. **Explainer** — interactive conversation-to-signal explainer. Heading: *"Watch a support conversation become a signal."* Four switchable scenarios (Acme Corp, NordicPay, step-3 onboarding, CSV workaround) with annotated conversation threads showing how signals are extracted from real support conversations.
 3. **Signals** — the 10 canonical signal types as a grid/list. Names verbatim. See [`../../docs/signals.md`](../../docs/signals.md).
-4. **CTA section** — the close. Primary + secondary CTA, repeated from hero.
-5. **Footer** — standard minimal B2B footer (product, company, legal, contact).
+4. **Sample digest** — fictional email-shaped weekly digest demonstrating the deliverable. Three signal entries (Acme / NordicPay / step-3) with `<details>/<summary>` source-conversation expanders. Labelled fictional.
+5. **CTA section** — the close. Primary + secondary CTA, repeated from hero.
+6. **Footer** — standard minimal B2B footer (product, company, legal, contact).
 
 Differentiation and ICP get woven into the hero/how-it-works copy, not their own sections.
 

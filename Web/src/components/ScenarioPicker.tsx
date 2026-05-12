@@ -1,5 +1,4 @@
 import { useRef } from "preact/hooks";
-import type { JSX } from "preact";
 import type { Conversation } from "../data/conversation-fixtures/types";
 
 export function ScenarioPicker({
@@ -13,7 +12,7 @@ export function ScenarioPicker({
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
 
-  function handleKeyDown(e: JSX.TargetedKeyboardEvent<HTMLButtonElement>, index: number) {
+  function handleKeyDown(e: KeyboardEvent, index: number) {
     let next: number | null = null;
 
     if (e.key === "ArrowRight") {

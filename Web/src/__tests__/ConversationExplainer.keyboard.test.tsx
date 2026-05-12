@@ -118,34 +118,39 @@ describe("ConversationExplainer — keyboard navigation", () => {
   });
 
   describe("filter interaction", () => {
-    it("j/k skip annotations whose signal type is hidden", () => {
-      const group = screen.getByRole("group", { name: /scenario picker/i });
-      const buttons = group.querySelectorAll("button");
-      fireEvent.click(buttons[3]); // switch to CSV-workaround
+    it("j/k skip annotations whose signal type is hidden via the filter chip", () => {
+      const scenarioGroup = screen.getByRole("group", { name: /scenario picker/i });
+      const scenarioButtons = scenarioGroup.querySelectorAll("button");
+      fireEvent.click(scenarioButtons[3]); // switch to CSV-workaround
 
-      const allMarks = getMarks();
-      allMarks.forEach((mark) => {
-        if (mark.getAttribute("data-signal-type") === "documentation gap") {
-          mark.hidden = true;
-        }
-      });
+      const filterGroup = screen.getByRole("group", { name: /signal type filter/i });
+      const docGapChip = Array.from(
+        filterGroup.querySelectorAll("button"),
+      ).find((b) => b.textContent?.toLowerCase().includes("documentation gap"));
+      expect(docGapChip).toBeDefined();
+      fireEvent.click(docGapChip!);
 
       const visibleMarks = getMarks().filter((m) => !m.hidden);
-      expect(visibleMarks).toHaveLength(2);
+      expect(visibleMarks.length).toBeGreaterThan(0);
+      visibleMarks.forEach((m) => {
+        expect(m.getAttribute("data-signal-type")).not.toBe("documentation gap");
+      });
 
       const container = getExplainer();
       container.focus();
       pressKey("j", container);
       expect(document.activeElement).toBe(visibleMarks[0]);
 
-      pressKey("j");
-      expect(document.activeElement).toBe(visibleMarks[1]);
+      for (let i = 1; i < visibleMarks.length; i++) {
+        pressKey("j");
+        expect(document.activeElement).toBe(visibleMarks[i]);
+      }
 
       pressKey("j");
       expect(document.activeElement).toBe(visibleMarks[0]);
 
       pressKey("k");
-      expect(document.activeElement).toBe(visibleMarks[1]);
+      expect(document.activeElement).toBe(visibleMarks[visibleMarks.length - 1]);
     });
   });
 });
