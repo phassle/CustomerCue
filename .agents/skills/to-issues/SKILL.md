@@ -1,6 +1,6 @@
 ---
-name: to-issues
-description: Break a plan, spec, or PRD into independently-grabbable issues on the project issue tracker using tracer-bullet vertical slices. Use when user wants to convert a plan into issues, create implementation tickets, or break down work into issues.
+name: "to-issues"
+description: "Break a plan, spec, or PRD into independently-grabbable issues on the project issue tracker using tracer-bullet vertical slices. Use when user wants to convert a plan into issues, create implementation tickets, or break down work into issues."
 ---
 
 # To Issues
@@ -18,6 +18,16 @@ Work from whatever is already in the conversation context. If the user passes an
 ### 2. Explore the codebase (optional)
 
 If you have not already explored the codebase, do so to understand the current state of the code. Issue titles and descriptions should use the project's domain glossary vocabulary, and respect ADRs in the area you're touching.
+
+### 2.5. Read every retro under `docs/retros/` (mandatory)
+
+Before drafting slices, read every file under `docs/retros/`. These capture time-sinks, workarounds, and durable fixes that earlier PRD builds paid for.
+
+The planner — not the executor — is responsible for absorbing this. **Encode the lesson into the slice's spec and into the codebase directly**, so the executor (Sandcastle, future Claude Code, a human) picks up a corrected decision and not a "go read this retro" pointer. Do not pollute issue bodies with banner notes; the slice spec should be self-contained.
+
+Example: a retro saying "Playwright Chromium has missing system libs in Sandcastle; use WebKit instead" means every E2E-touching slice you draft names WebKit in its acceptance criteria, and you also commit the corrected `playwright.config.ts` to the feature branch before the next slice is picked up.
+
+A slice spec is well-formed when an executor can implement it without ever opening a retro file.
 
 ### 3. Draft vertical slices
 
