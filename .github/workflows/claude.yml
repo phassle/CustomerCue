@@ -12,27 +12,52 @@ on:
 
 jobs:
   claude:
+    # Trigger guard:
+    # 1. Restrict to trusted actors (OWNER / MEMBER / COLLABORATOR) so an
+    #    arbitrary commenter cannot consume CLAUDE_CODE_OAUTH_TOKEN or the
+    #    OIDC token by typing `@claude`.
+    # 2. Coerce body / title fields to '' before calling `contains()` —
+    #    empty bodies arrive as `null` and would otherwise error out.
     if: |
-      (github.event_name == 'issue_comment' && contains(github.event.comment.body, '@claude')) ||
-      (github.event_name == 'pull_request_review_comment' && contains(github.event.comment.body, '@claude')) ||
-      (github.event_name == 'pull_request_review' && contains(github.event.review.body, '@claude')) ||
-      (github.event_name == 'issues' && (contains(github.event.issue.body, '@claude') || contains(github.event.issue.title, '@claude')))
+      (
+        github.event.comment.author_association == 'OWNER' ||
+        github.event.comment.author_association == 'MEMBER' ||
+        github.event.comment.author_association == 'COLLABORATOR' ||
+        github.event.review.author_association == 'OWNER' ||
+        github.event.review.author_association == 'MEMBER' ||
+        github.event.review.author_association == 'COLLABORATOR' ||
+        github.event.issue.author_association == 'OWNER' ||
+        github.event.issue.author_association == 'MEMBER' ||
+        github.event.issue.author_association == 'COLLABORATOR'
+      ) &&
+      (
+        (github.event_name == 'issue_comment' && contains(github.event.comment.body || '', '@claude')) ||
+        (github.event_name == 'pull_request_review_comment' && contains(github.event.comment.body || '', '@claude')) ||
+        (github.event_name == 'pull_request_review' && contains(github.event.review.body || '', '@claude')) ||
+        (github.event_name == 'issues' && (contains(github.event.issue.body || '', '@claude') || contains(github.event.issue.title || '', '@claude')))
+      )
     runs-on: ubuntu-latest
     permissions:
       contents: read
       pull-requests: read
       issues: read
+      # `id-token: write` kept because anthropics/claude-code-action uses
+      # OIDC for some integrations. The trigger guard above already
+      # restricts who can cause this job to run.
       id-token: write
       actions: read # Required for Claude to read CI results on PRs
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        # Pinned to the commit for tag v4 — supply-chain hardening
+        # (avoids silently picking up retagged action versions).
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
         with:
           fetch-depth: 1
 
       - name: Run Claude Code
         id: claude
-        uses: anthropics/claude-code-action@v1
+        # Pinned to the commit for tag v1.
+        uses: anthropics/claude-code-action@dde2242db6af13460b916652159b6ba19a598f30 # v1
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
 
@@ -47,4 +72,3 @@ jobs:
           # See https://github.com/anthropics/claude-code-action/blob/main/docs/usage.md
           # or https://code.claude.com/docs/en/cli-reference for available options
           # claude_args: '--allowed-tools Bash(gh pr *)'
-
