@@ -5,13 +5,14 @@ import SampleDigest from "../components/SampleDigest.astro";
 import { digestFixture } from "../data/digest-fixture";
 
 function stripTags(html: string): string {
+  // &amp; must be decoded last so &amp;lt; round-trips as &lt; (not <).
   return html
     .replace(/<[^>]+>/g, " ")
     .replace(/&#39;/g, "'")
-    .replace(/&amp;/g, "&")
     .replace(/&lt;/g, "<")
     .replace(/&gt;/g, ">")
     .replace(/&quot;/g, '"')
+    .replace(/&amp;/g, "&")
     .replace(/\s+/g, " ")
     .trim();
 }
