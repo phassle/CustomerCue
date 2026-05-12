@@ -1,0 +1,116 @@
+name: Human review gate
+
+# Enforces the `human-review-required` triage label.
+#
+# When a PR's body or title references one or more issues (via `#<num>`) and
+# any of those issues carries the `human-review-required` label, this check
+# fails until an approving review is recorded by a user account (not a bot)
+# on the PR's current HEAD commit. Force-pushing dismisses prior approvals
+# because their submission timestamp falls before the new commit timestamp.
+#
+# Policy doc: docs/agents/triage-labels.md (§ "Merge-gate dimension").
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize, ready_for_review, labeled, unlabeled]
+  pull_request_review:
+    types: [submitted, dismissed, edited]
+
+permissions:
+  contents: read
+  issues: read
+  pull-requests: read
+
+jobs:
+  gate:
+    # Skip PRs from forks — `pull_request` events on forks have read-only
+    # GITHUB_TOKEN, which is enough for this read-only gate, but keeping the
+    # restriction mirrors the existing claude-code-review.yml pattern.
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    steps:
+      - name: Evaluate human-review-required gate
+        # Pinned to a tag, not a commit SHA — tighten if supply-chain
+        # hardening becomes a concern for this workflow.
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            if (!pr) {
+              core.setFailed("No pull_request payload available on this event.");
+              return;
+            }
+            const { owner, repo } = context.repo;
+
+            // 1. Extract issue references from PR title + body.
+            const text = `${pr.title || ""}\n${pr.body || ""}`;
+            const refs = [...text.matchAll(/#(\d{1,6})/g)].map(m => parseInt(m[1], 10));
+            const unique = [...new Set(refs)];
+
+            // 2. Find which linked issues carry `human-review-required`.
+            const triggers = [];
+            for (const num of unique) {
+              try {
+                const { data: issue } = await github.rest.issues.get({
+                  owner, repo, issue_number: num,
+                });
+                const hasLabel = (issue.labels || []).some(l =>
+                  (typeof l === "string" ? l : l.name) === "human-review-required"
+                );
+                if (hasLabel) triggers.push(num);
+              } catch (e) {
+                core.info(`Skipping #${num}: ${e.message}`);
+              }
+            }
+
+            if (triggers.length === 0) {
+              core.info(
+                `No linked issue carries human-review-required ` +
+                `(scanned ${unique.length} reference(s)). Gate passes by default.`
+              );
+              return;
+            }
+
+            core.info(
+              `Linked issue(s) requiring human review: ` +
+              triggers.map(n => "#" + n).join(", ")
+            );
+
+            // 3. Fetch the PR's reviews and the HEAD commit timestamp.
+            const { data: reviews } = await github.rest.pulls.listReviews({
+              owner, repo, pull_number: pr.number, per_page: 100,
+            });
+
+            const { data: headCommit } = await github.rest.git.getCommit({
+              owner, repo, commit_sha: pr.head.sha,
+            });
+            const headTs = new Date(headCommit.committer.date);
+
+            // Keep the latest review per reviewer.
+            const sorted = reviews
+              .filter(r => r.submitted_at)
+              .sort((a, b) => new Date(a.submitted_at) - new Date(b.submitted_at));
+            const latestPerUser = new Map();
+            for (const r of sorted) latestPerUser.set(r.user.login, r);
+
+            const valid = [...latestPerUser.values()].filter(r =>
+              r.state === "APPROVED" &&
+              r.user.type === "User" &&
+              new Date(r.submitted_at) >= headTs
+            );
+
+            if (valid.length === 0) {
+              const headShort = pr.head.sha.slice(0, 7);
+              core.setFailed(
+                `human-review-required: linked issue(s) ` +
+                triggers.map(n => "#" + n).join(", ") +
+                ` require an approving review from a non-bot user on the ` +
+                `current HEAD (${headShort}). No qualifying review found.`
+              );
+              return;
+            }
+
+            core.info(
+              `Gate satisfied by: ` +
+              valid.map(r => `${r.user.login} @ ${r.submitted_at}`).join(", ")
+            );
