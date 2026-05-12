@@ -6,6 +6,11 @@
   --color-muted: #8B8D95;
   --color-accent: #D4763C;
 
+  --color-highlight-1: rgba(212, 118, 60, 0.25);
+  --color-highlight-2: rgba(60, 162, 212, 0.25);
+  --color-highlight-3: rgba(162, 212, 60, 0.25);
+  --color-highlight-4: rgba(212, 60, 162, 0.25);
+
   --font-display: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
   --font-body: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, monospace;

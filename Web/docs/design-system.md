@@ -23,6 +23,7 @@ Defined in `src/styles/global.css` via Tailwind v4 `@theme`. Use Tailwind utilit
 | Foreground | `#F0F0F2` (high-contrast off-white) | `text-foreground` |
 | Accent | `#D4763C` (warm copper) — CTAs and signal callouts only | `text-accent`, `bg-accent` |
 | Muted text | `#8B8D95` (~65% contrast) | `text-muted` |
+| Highlight 1–4 | Four 25%-alpha tints (copper, sky, lime, magenta) used by the explainer to colour `<mark>` highlights — assigned per signal type via a stable hash. Not a per-signal palette; deliberately limited to four slots to keep the page calm. | `bg-highlight-1`…`bg-highlight-4` |
 | Display type | Plus Jakarta Sans 600/700/800 | `font-display` |
 | Body type | Inter 400/500/600 | `font-body` |
 | Monospace | JetBrains Mono 400/500 (tabular numerals for metrics) | `font-mono` |

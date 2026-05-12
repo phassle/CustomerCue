@@ -67,6 +67,18 @@ describe("ConversationExplainer — rationale UI (rendered inline by the explain
       fireEvent.keyDown(getExplainer(), { key: "Escape" });
       expect(getPanel()).toBeNull();
     });
+
+    it("close button closes the panel and returns focus to the opening mark", () => {
+      const marks = document.querySelectorAll<HTMLElement>("mark");
+      fireEvent.click(marks[0]);
+      const closeBtn = getPanel()!.querySelector<HTMLElement>(
+        'button[aria-label="Close rationale"]',
+      );
+      expect(closeBtn).not.toBeNull();
+      fireEvent.click(closeBtn!);
+      expect(getPanel()).toBeNull();
+      expect(document.activeElement).toBe(marks[0]);
+    });
   });
 
   describe("Scenario: Switching between highlights", () => {

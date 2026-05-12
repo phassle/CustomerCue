@@ -130,7 +130,9 @@ describe("ConversationExplainer — keyboard navigation", () => {
       expect(docGapChip).toBeDefined();
       fireEvent.click(docGapChip!);
 
-      const visibleMarks = getMarks().filter((m) => !m.hidden);
+      const visibleMarks = getMarks().filter(
+        (m) => m.getAttribute("data-filtered") !== "true",
+      );
       expect(visibleMarks.length).toBeGreaterThan(0);
       visibleMarks.forEach((m) => {
         expect(m.getAttribute("data-signal-type")).not.toBe("documentation gap");

@@ -34,9 +34,9 @@ const SIGNAL_NAME_ORDER = new Map(SIGNAL_NAMES.map((name, i) => [name, i]));
 
 function getVisibleMarks(container: HTMLElement): HTMLElement[] {
   const marks = container.querySelectorAll<HTMLElement>(
-    "mark[data-annotation-id]",
+    'mark[data-annotation-id]:not([data-filtered="true"])',
   );
-  return Array.from(marks).filter((m) => !m.hidden);
+  return Array.from(marks);
 }
 
 export function ConversationExplainer() {
@@ -76,6 +76,24 @@ export function ConversationExplainer() {
       }
       return next;
     });
+  }
+
+  function closeRationale() {
+    const container = containerRef.current;
+    if (!container || !rationaleAnnotationId) return;
+    const mark = container.querySelector<HTMLElement>(
+      `mark[data-annotation-id="${rationaleAnnotationId}"]`,
+    );
+    setRationaleAnnotationId(null);
+    // If the opening mark was filtered out while the panel was open, focusing
+    // it would silently fail. Fall back to the first visible mark, then the
+    // container.
+    if (mark && mark.getAttribute("data-filtered") !== "true") {
+      mark.focus();
+    } else {
+      const visible = getVisibleMarks(container);
+      (visible[0] ?? container).focus();
+    }
   }
 
   function handleKeyDown(e: KeyboardEvent) {
@@ -122,19 +140,7 @@ export function ConversationExplainer() {
       case "Escape": {
         if (rationaleAnnotationId) {
           e.preventDefault();
-          const mark = container.querySelector<HTMLElement>(
-            `mark[data-annotation-id="${rationaleAnnotationId}"]`,
-          );
-          setRationaleAnnotationId(null);
-          // If the opening mark is hidden (e.g. its signal type was filtered
-          // out while the panel was open), focusing it would silently fail.
-          // Fall back to the first visible mark, then the container.
-          if (mark && !mark.hidden) {
-            mark.focus();
-          } else {
-            const visible = getVisibleMarks(container);
-            (visible[0] ?? container).focus();
-          }
+          closeRationale();
         }
         break;
       }
@@ -179,8 +185,16 @@ export function ConversationExplainer() {
       {activeAnnotation && (
         <aside
           data-testid="rationale-panel"
-          class="mt-4 rounded-lg border border-accent/30 bg-accent/5 px-4 py-3"
+          class="relative mt-4 rounded-lg border border-accent/30 bg-accent/5 px-4 py-3 pr-10"
         >
+          <button
+            type="button"
+            aria-label="Close rationale"
+            onClick={closeRationale}
+            class="absolute right-2 top-2 rounded p-1 text-muted outline-none hover:text-foreground focus:ring-2 focus:ring-accent"
+          >
+            <span aria-hidden="true">×</span>
+          </button>
           <h4 class="font-display text-sm font-semibold capitalize text-accent">
             {activeAnnotation.signalType}
           </h4>

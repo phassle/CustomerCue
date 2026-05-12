@@ -52,15 +52,42 @@ describe("SignalTypeFilter", () => {
         'mark[data-signal-type="documentation gap"]',
       );
       for (const mark of docGapMarks) {
-        expect((mark as HTMLElement).hidden).toBe(true);
+        expect((mark as HTMLElement).getAttribute("data-filtered")).toBe(
+          "true",
+        );
       }
 
       const workaroundMarks = document.querySelectorAll(
         'mark[data-signal-type="repeated manual workaround"]',
       );
       for (const mark of workaroundMarks) {
-        expect((mark as HTMLElement).hidden).toBe(false);
+        expect((mark as HTMLElement).getAttribute("data-filtered")).toBeNull();
       }
+    });
+  });
+
+  describe("Filtering preserves the underlying conversation text", () => {
+    it("text inside a filtered mark stays in the DOM and is non-focusable", () => {
+      fireEvent.click(getScenarioChips()[3]);
+
+      const docGapMarks = Array.from(
+        document.querySelectorAll<HTMLElement>(
+          'mark[data-signal-type="documentation gap"]',
+        ),
+      );
+      const originalText = docGapMarks.map((m) => m.textContent ?? "");
+      expect(originalText.every((t) => t.length > 0)).toBe(true);
+
+      const docGapChip = Array.from(getFilterChips()).find((c) =>
+        c.textContent?.includes("documentation gap"),
+      )!;
+      fireEvent.click(docGapChip);
+
+      docGapMarks.forEach((mark, i) => {
+        expect(mark.textContent).toBe(originalText[i]);
+        expect(mark.tabIndex).toBe(-1);
+        expect(mark.style.backgroundColor).toBe("transparent");
+      });
     });
   });
 
@@ -79,7 +106,7 @@ describe("SignalTypeFilter", () => {
         'mark[data-signal-type="documentation gap"]',
       );
       for (const mark of docGapMarks) {
-        expect((mark as HTMLElement).hidden).toBe(false);
+        expect((mark as HTMLElement).getAttribute("data-filtered")).toBeNull();
       }
     });
   });
@@ -130,7 +157,7 @@ describe("SignalTypeFilter", () => {
         'mark[data-signal-type="documentation gap"]',
       );
       for (const mark of docGapMarks) {
-        expect((mark as HTMLElement).hidden).toBe(false);
+        expect((mark as HTMLElement).getAttribute("data-filtered")).toBeNull();
       }
     });
 

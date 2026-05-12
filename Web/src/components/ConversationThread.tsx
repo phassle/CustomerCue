@@ -63,32 +63,38 @@ function AnnotatedBody({
 
   return (
     <p class="font-body text-sm leading-relaxed text-foreground/90">
-      {segments.map((seg) =>
-        seg.type === "text" ? (
-          seg.text
-        ) : (
+      {segments.map((seg) => {
+        if (seg.type === "text") return seg.text;
+        // When a signal type is filtered out we keep the underlying text in
+        // the DOM (the conversation should still read normally) but strip the
+        // highlight treatment, the focus stop, and the click affordance.
+        const isFiltered =
+          hiddenSignalTypes?.has(seg.annotation.signalType) ?? false;
+        return (
           <mark
             key={seg.annotation.id}
-            tabindex={0}
+            tabindex={isFiltered ? -1 : 0}
             data-annotation-id={seg.annotation.id}
             data-signal-type={seg.annotation.signalType}
+            data-filtered={isFiltered ? "true" : undefined}
             aria-label={`highlight: ${seg.annotation.signalType}`}
-            hidden={hiddenSignalTypes?.has(seg.annotation.signalType) ?? false}
             class="rounded-sm text-inherit outline-none focus:ring-2 focus:ring-accent"
             style={{
-              backgroundColor: signalColor(seg.annotation.signalType),
-              cursor: onAnnotationClick ? "pointer" : undefined,
+              backgroundColor: isFiltered
+                ? "transparent"
+                : signalColor(seg.annotation.signalType),
+              cursor: !isFiltered && onAnnotationClick ? "pointer" : undefined,
             }}
             onClick={
-              onAnnotationClick
+              !isFiltered && onAnnotationClick
                 ? () => onAnnotationClick(seg.annotation)
                 : undefined
             }
           >
             {seg.text}
           </mark>
-        ),
-      )}
+        );
+      })}
     </p>
   );
 }

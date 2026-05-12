@@ -51,7 +51,7 @@ test.describe("Explainer", () => {
       await page.getByRole("button", { name: /Vantage CSV/ }).click();
       await expect(page.getByText("Priya Sharma").first()).toBeVisible();
 
-      const visible = page.locator(`${MARKS}:not([hidden])`);
+      const visible = page.locator(`${MARKS}:not([data-filtered="true"])`);
       await expect(visible).toHaveCount(4);
 
       const filter = page.locator('[aria-label="Signal type filter"]');
@@ -145,7 +145,10 @@ test.describe("Explainer", () => {
       const position = await page.locator(RATIONALE).evaluate(
         (el) => getComputedStyle(el).position,
       );
-      expect(position).toBe("static");
+      // The aside must remain in the document flow (no floating overlay).
+      // `static` and `relative` both keep the element in-flow; `absolute`,
+      // `fixed`, and `sticky` would make it overlay-like.
+      expect(["static", "relative"]).toContain(position);
     });
   });
 
