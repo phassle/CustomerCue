@@ -1,19 +1,6 @@
 ---
-import { INBOX_ESTIMATOR, WEEKLY_CONVERSATIONS, CUSTOMER_COUNT } from "./inbox-estimator-fixtures";
-import { estimateSignals } from "./inbox-estimator";
-import type { SignalEstimate } from "./inbox-estimator";
-
-const estimate: SignalEstimate = estimateSignals(
-  WEEKLY_CONVERSATIONS.default,
-  CUSTOMER_COUNT.default,
-);
-
-const buckets = [
-  { label: "Churn Risk", range: estimate.churnRisk },
-  { label: "Expansion Intent", range: estimate.expansionIntent },
-  { label: "Product Friction & Bugs", range: estimate.productFrictionAndBugs },
-  { label: "Long Tail", range: estimate.longTail },
-] as const;
+import { INBOX_ESTIMATOR } from "./inbox-estimator-fixtures";
+import { InboxEstimator } from "./InboxEstimator";
 ---
 
 <section id={INBOX_ESTIMATOR} class="px-6 py-20 md:px-10">
@@ -24,18 +11,7 @@ const buckets = [
     Find churn risk, expansion intent, and product friction inside your support conversations.
   </p>
 
-  <div class="grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-6 mx-auto max-w-3xl">
-    {buckets.map((bucket) => (
-      <div class="rounded-lg border border-foreground/10 px-4 py-5 text-center">
-        <span class="font-mono text-2xl font-semibold tabular-nums">
-          {bucket.range.low}–{bucket.range.high}
-        </span>
-        <span class="mt-2 block font-display text-sm font-semibold tracking-wide text-muted">
-          {bucket.label}
-        </span>
-      </div>
-    ))}
-  </div>
+  <InboxEstimator client:visible />
 
   <p class="mt-8 text-center text-xs text-muted max-w-2xl mx-auto">
     Illustrative ranges based on patterns from our 1,000-conversation reports.
