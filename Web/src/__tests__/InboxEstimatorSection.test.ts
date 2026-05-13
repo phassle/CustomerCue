@@ -3,6 +3,7 @@ import { describe, it, expect, beforeAll } from "vitest";
 import { experimental_AstroContainer as AstroContainer } from "astro/container";
 import InboxEstimatorSection from "../components/InboxEstimatorSection.astro";
 import { INBOX_ESTIMATOR } from "../components/inbox-estimator-fixtures";
+import { CONVERSATIONS_UPLOAD } from "../components/ConversationsUploadForm";
 
 function stripTags(raw: string): string {
   return raw
@@ -64,5 +65,24 @@ describe("InboxEstimatorSection", () => {
 
   it("contains the InboxEstimator island mount", () => {
     expect(html).toContain("InboxEstimator");
+  });
+
+  it("renders a closing-line anchor linking to the upload form", () => {
+    expect(html).toContain(`href="#${CONVERSATIONS_UPLOAD}"`);
+  });
+
+  it("closing-line copy contains the brief’s verbatim validation-offer phrase", () => {
+    expect(text).toContain(
+      "Send us 1,000 of your support conversations and we'll return your real numbers in 48 hours",
+    );
+  });
+
+  it("closing line is a plain anchor, not a button", () => {
+    expect(html).toMatch(
+      /<a[^>]*href="#conversations-upload"[^>]*>/,
+    );
+    expect(html).not.toMatch(
+      /<button[^>]*>[\s\S]*?Send us 1,000[\s\S]*?<\/button>/,
+    );
   });
 });

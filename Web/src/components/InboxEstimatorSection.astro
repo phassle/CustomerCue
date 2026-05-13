@@ -1,5 +1,6 @@
 ---
 import { INBOX_ESTIMATOR } from "./inbox-estimator-fixtures";
+import { CONVERSATIONS_UPLOAD } from "./ConversationsUploadForm";
 import { InboxEstimator } from "./InboxEstimator";
 ---
 
@@ -12,6 +13,15 @@ import { InboxEstimator } from "./InboxEstimator";
   </p>
 
   <InboxEstimator client:visible />
+
+  <p class="mt-8 text-center text-sm italic max-w-2xl mx-auto">
+    <a
+      href={`#${CONVERSATIONS_UPLOAD}`}
+      class="text-accent no-underline hover:underline"
+    >
+      Send us 1,000 of your support conversations and we'll return your real numbers in 48 hours →
+    </a>
+  </p>
 
   <p class="mt-8 text-center text-xs text-muted max-w-2xl mx-auto">
     Illustrative ranges based on patterns from our 1,000-conversation reports.
