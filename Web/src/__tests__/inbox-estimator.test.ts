@@ -45,6 +45,10 @@ describe("slider config constants", () => {
 });
 
 describe("BASE_RATES fixture", () => {
+  const allReferencedSignals = Object.values(BASE_RATES).flatMap(
+    (b) => b.signals,
+  );
+
   it("covers exactly the four bucket keys", () => {
     expect(Object.keys(BASE_RATES).sort()).toEqual(
       [
@@ -57,16 +61,14 @@ describe("BASE_RATES fixture", () => {
   });
 
   it("only references canonical signal names from the catalog", () => {
-    const referenced = Object.values(BASE_RATES).flatMap((b) => b.signals);
-    for (const name of referenced) {
+    for (const name of allReferencedSignals) {
       expect(SIGNAL_NAMES).toContain(name);
     }
   });
 
   it("partitions the canonical catalog: every signal appears in exactly one bucket", () => {
-    const referenced = Object.values(BASE_RATES).flatMap((b) => b.signals);
-    expect([...referenced].sort()).toEqual([...SIGNAL_NAMES].sort());
-    expect(new Set(referenced).size).toBe(referenced.length);
+    expect([...allReferencedSignals].sort()).toEqual([...SIGNAL_NAMES].sort());
+    expect(new Set(allReferencedSignals).size).toBe(allReferencedSignals.length);
   });
 
   it("has 0 ≤ low ≤ high for every bucket rate", () => {
@@ -113,7 +115,11 @@ describe("estimateSignals — integer outputs", () => {
       customers.push(v);
     }
 
-    const sampleCustomers = [customers[0], customers[Math.floor(customers.length / 2)], customers[customers.length - 1]];
+    const sampleCustomers = [
+      customers[0],
+      customers[Math.floor(customers.length / 2)],
+      customers[customers.length - 1],
+    ];
 
     for (const weekly of conversations) {
       for (const customer of sampleCustomers) {
