@@ -28,6 +28,10 @@ function formatRange(low: number, high: number): string {
   return `≈ ${low}–${high} / week`;
 }
 
+function parseSliderValue(e: Event): number {
+  return Number((e.target as HTMLInputElement).value);
+}
+
 function summariseEstimate(estimate: SignalEstimate): string {
   const totalLow = Object.values(estimate).reduce((s, r) => s + r.low, 0);
   const totalHigh = Object.values(estimate).reduce((s, r) => s + r.high, 0);
@@ -77,25 +81,25 @@ export function InboxEstimator() {
   }, []);
 
   const handleConversationsInput = (e: Event) => {
-    const val = Number((e.target as HTMLInputElement).value);
+    const val = parseSliderValue(e);
     setWeeklyConversations(val);
     scheduleAnnouncement(estimateSignals(val, customerCount));
   };
 
   const handleConversationsChange = (e: Event) => {
-    const val = Number((e.target as HTMLInputElement).value);
+    const val = parseSliderValue(e);
     setWeeklyConversations(val);
     flushAnnouncement(estimateSignals(val, customerCount));
   };
 
   const handleCustomerInput = (e: Event) => {
-    const val = Number((e.target as HTMLInputElement).value);
+    const val = parseSliderValue(e);
     setCustomerCount(val);
     scheduleAnnouncement(estimateSignals(weeklyConversations, val));
   };
 
   const handleCustomerChange = (e: Event) => {
-    const val = Number((e.target as HTMLInputElement).value);
+    const val = parseSliderValue(e);
     setCustomerCount(val);
     flushAnnouncement(estimateSignals(weeklyConversations, val));
   };

@@ -33,26 +33,13 @@ export function estimateSignals(
   weeklyConversations: number,
   customerCount: number,
 ): SignalEstimate {
+  const bucket = (key: keyof typeof BASE_RATES) =>
+    estimateBucket(weeklyConversations, customerCount, BASE_RATES[key].perHundredConversations);
+
   return {
-    churnRisk: estimateBucket(
-      weeklyConversations,
-      customerCount,
-      BASE_RATES.churnRisk.perHundredConversations,
-    ),
-    expansionIntent: estimateBucket(
-      weeklyConversations,
-      customerCount,
-      BASE_RATES.expansionIntent.perHundredConversations,
-    ),
-    productFrictionAndBugs: estimateBucket(
-      weeklyConversations,
-      customerCount,
-      BASE_RATES.productFrictionAndBugs.perHundredConversations,
-    ),
-    longTail: estimateBucket(
-      weeklyConversations,
-      customerCount,
-      BASE_RATES.longTail.perHundredConversations,
-    ),
+    churnRisk: bucket("churnRisk"),
+    expansionIntent: bucket("expansionIntent"),
+    productFrictionAndBugs: bucket("productFrictionAndBugs"),
+    longTail: bucket("longTail"),
   };
 }
