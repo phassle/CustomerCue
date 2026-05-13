@@ -3,6 +3,7 @@ import { describe, it, expect, beforeAll } from "vitest";
 import { experimental_AstroContainer as AstroContainer } from "astro/container";
 import InboxEstimatorSection from "../components/InboxEstimatorSection.astro";
 import { INBOX_ESTIMATOR } from "../components/inbox-estimator-fixtures";
+import { EXPLAINER } from "../components/ConversationExplainer";
 
 function stripTags(raw: string): string {
   return raw
@@ -64,5 +65,18 @@ describe("InboxEstimatorSection", () => {
 
   it("contains the InboxEstimator island mount", () => {
     expect(html).toContain("InboxEstimator");
+  });
+
+  it("renders a 'See three real examples' link whose href uses the EXPLAINER constant", () => {
+    expect(text).toContain("See three real examples");
+    expect(html).toContain(`href="#${EXPLAINER}"`);
+  });
+
+  it("the examples link appears between the island and the disclaimer", () => {
+    const islandPos = html.indexOf("InboxEstimator");
+    const linkPos = html.indexOf("See three real examples");
+    const disclaimerPos = html.indexOf("Illustrative ranges");
+    expect(islandPos).toBeLessThan(linkPos);
+    expect(linkPos).toBeLessThan(disclaimerPos);
   });
 });

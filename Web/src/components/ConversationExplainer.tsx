@@ -6,6 +6,8 @@ import { csvWorkaround } from "../data/conversation-fixtures/csv-workaround";
 import type { Annotation } from "../data/conversation-fixtures/types";
 import { SIGNAL_NAMES, type SignalType } from "../lib/signal-catalog";
 import { ScenarioPicker } from "./ScenarioPicker";
+
+export const EXPLAINER = "explainer";
 import { ConversationThread } from "./ConversationThread";
 import { SignalTypeFilter } from "./SignalTypeFilter";
 
@@ -149,6 +151,7 @@ export function ConversationExplainer() {
 
   return (
     <section
+      id={EXPLAINER}
       ref={containerRef}
       tabindex={-1}
       aria-label="Signal explainer"
