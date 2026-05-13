@@ -4,8 +4,7 @@ import {
   CUSTOMER_COUNT,
   BASE_RATES,
 } from "./inbox-estimator-fixtures";
-import { estimateSignals } from "./inbox-estimator";
-import type { SignalEstimate } from "./inbox-estimator";
+import { estimateSignals, type SignalEstimate } from "./inbox-estimator";
 
 const BUCKET_LABELS: readonly {
   key: keyof SignalEstimate;

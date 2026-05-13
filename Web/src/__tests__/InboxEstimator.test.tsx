@@ -6,7 +6,14 @@ import {
   CUSTOMER_COUNT,
   BASE_RATES,
 } from "../components/inbox-estimator-fixtures";
-import { estimateSignals } from "../components/inbox-estimator";
+import { estimateSignals, type SignalEstimate } from "../components/inbox-estimator";
+
+const BUCKET_KEYS: readonly (keyof SignalEstimate)[] = [
+  "churnRisk",
+  "expansionIntent",
+  "productFrictionAndBugs",
+  "longTail",
+];
 
 function getById(id: string): HTMLElement {
   const el = document.getElementById(id);
@@ -38,9 +45,8 @@ describe("InboxEstimator", () => {
         CUSTOMER_COUNT.default,
       );
 
-      const buckets = ["churnRisk", "expansionIntent", "productFrictionAndBugs", "longTail"] as const;
       let higherCount = 0;
-      for (const bucket of buckets) {
+      for (const bucket of BUCKET_KEYS) {
         if (maxEstimate[bucket].high > defaultEstimate[bucket].high) {
           higherCount++;
         }
@@ -61,8 +67,7 @@ describe("InboxEstimator", () => {
         CUSTOMER_COUNT.default,
       );
 
-      const container = document.body;
-      const text = container.textContent ?? "";
+      const text = document.body.textContent ?? "";
       for (const range of Object.values(maxEstimate)) {
         expect(text).toContain(`≈ ${range.low}–${range.high} / week`);
       }
@@ -88,9 +93,8 @@ describe("InboxEstimator", () => {
         CUSTOMER_COUNT.max,
       );
 
-      const buckets = ["churnRisk", "expansionIntent", "productFrictionAndBugs", "longTail"] as const;
       let higherCount = 0;
-      for (const bucket of buckets) {
+      for (const bucket of BUCKET_KEYS) {
         if (
           maxEstimate[bucket].high > defaultEstimate[bucket].high ||
           maxEstimate[bucket].low > defaultEstimate[bucket].low
@@ -108,14 +112,10 @@ describe("InboxEstimator", () => {
 
       const text = document.body.textContent ?? "";
 
-      for (const signal of BASE_RATES.churnRisk.signals) {
-        expect(text).toContain(signal);
-      }
-      for (const signal of BASE_RATES.expansionIntent.signals) {
-        expect(text).toContain(signal);
-      }
-      for (const signal of BASE_RATES.productFrictionAndBugs.signals) {
-        expect(text).toContain(signal);
+      for (const key of ["churnRisk", "expansionIntent", "productFrictionAndBugs"] as const) {
+        for (const signal of BASE_RATES[key].signals) {
+          expect(text).toContain(signal);
+        }
       }
     });
 
