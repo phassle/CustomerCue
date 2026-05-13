@@ -62,14 +62,10 @@ describe("InboxEstimator", () => {
         target: { value: String(WEEKLY_CONVERSATIONS.max) },
       });
 
-      const maxEstimate = estimateSignals(
-        WEEKLY_CONVERSATIONS.max,
-        CUSTOMER_COUNT.default,
-      );
-
-      const text = document.body.textContent ?? "";
-      for (const range of Object.values(maxEstimate)) {
-        expect(text).toContain(`≈ ${range.low}–${range.high} / week`);
+      for (const key of BUCKET_KEYS) {
+        const el = document.querySelector(`[data-testid="range-${key}"]`);
+        expect(el).not.toBeNull();
+        expect(el!.textContent).toMatch(/≈ \d+–\d+ \/ week/);
       }
     });
   });
@@ -361,6 +357,135 @@ describe("InboxEstimator", () => {
       const customers = getById("customer-count");
       expect(conversations.className).toContain("touch-target-slider");
       expect(customers.className).toContain("touch-target-slider");
+    });
+  });
+
+  describe("animated count transitions", () => {
+    function mockMatchMedia(matches: boolean) {
+      const mql = {
+        matches,
+        media: "(prefers-reduced-motion: reduce)",
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+      };
+      vi.stubGlobal("matchMedia", vi.fn().mockReturnValue(mql));
+      return mql;
+    }
+
+    function parseRange(testId: string): { low: number; high: number } {
+      const el = document.querySelector(`[data-testid="${testId}"]`);
+      if (!el) throw new Error(`Element [data-testid="${testId}"] not found`);
+      const match = el.textContent!.match(/≈ (\d+)–(\d+) \/ week/);
+      if (!match) throw new Error(`Could not parse range from "${el.textContent}"`);
+      return { low: Number(match[1]), high: Number(match[2]) };
+    }
+
+    beforeEach(() => {
+      vi.useFakeTimers();
+      mockMatchMedia(false);
+      cleanup();
+    });
+
+    afterEach(() => {
+      vi.useRealTimers();
+      vi.restoreAllMocks();
+    });
+
+    it("shows intermediate values 100ms after a slider change", () => {
+      render(<InboxEstimator />);
+
+      const defaultEstimate = estimateSignals(
+        WEEKLY_CONVERSATIONS.default,
+        CUSTOMER_COUNT.default,
+      );
+
+      const slider = getById("weekly-conversations") as HTMLInputElement;
+      act(() => {
+        fireEvent.input(slider, {
+          target: { value: String(WEEKLY_CONVERSATIONS.max) },
+        });
+      });
+
+      const newEstimate = estimateSignals(
+        WEEKLY_CONVERSATIONS.max,
+        CUSTOMER_COUNT.default,
+      );
+
+      act(() => { vi.advanceTimersByTime(100); });
+
+      const displayed = parseRange("range-churnRisk");
+      expect(displayed.high).toBeGreaterThan(defaultEstimate.churnRisk.high);
+      expect(displayed.high).toBeLessThan(newEstimate.churnRisk.high);
+    });
+
+    it("reaches final values by 250ms after a slider change", () => {
+      render(<InboxEstimator />);
+
+      const slider = getById("weekly-conversations") as HTMLInputElement;
+      act(() => {
+        fireEvent.input(slider, {
+          target: { value: String(WEEKLY_CONVERSATIONS.max) },
+        });
+      });
+
+      const newEstimate = estimateSignals(
+        WEEKLY_CONVERSATIONS.max,
+        CUSTOMER_COUNT.default,
+      );
+
+      act(() => { vi.advanceTimersByTime(250); });
+
+      const displayed = parseRange("range-churnRisk");
+      expect(displayed.low).toBe(newEstimate.churnRisk.low);
+      expect(displayed.high).toBe(newEstimate.churnRisk.high);
+    });
+
+    it("displays only integers during animation (no decimals)", () => {
+      render(<InboxEstimator />);
+
+      const slider = getById("weekly-conversations") as HTMLInputElement;
+      act(() => {
+        fireEvent.input(slider, {
+          target: { value: String(WEEKLY_CONVERSATIONS.max) },
+        });
+      });
+
+      for (let ms = 16; ms <= 250; ms += 16) {
+        act(() => { vi.advanceTimersByTime(16); });
+        for (const key of BUCKET_KEYS) {
+          const el = document.querySelector(`[data-testid="range-${key}"]`);
+          expect(el).not.toBeNull();
+          const text = el!.textContent ?? "";
+          const match = text.match(/≈ (\S+)–(\S+) \/ week/);
+          expect(match).not.toBeNull();
+          expect(match![1]).toMatch(/^\d+$/);
+          expect(match![2]).toMatch(/^\d+$/);
+        }
+      }
+    });
+
+    it("reduced-motion users see instant updates with no intermediate values", () => {
+      mockMatchMedia(true);
+      render(<InboxEstimator />);
+
+      const slider = getById("weekly-conversations") as HTMLInputElement;
+
+      const newEstimate = estimateSignals(
+        WEEKLY_CONVERSATIONS.max,
+        CUSTOMER_COUNT.default,
+      );
+
+      act(() => {
+        fireEvent.input(slider, {
+          target: { value: String(WEEKLY_CONVERSATIONS.max) },
+        });
+      });
+
+      act(() => { vi.advanceTimersByTime(16); });
+
+      const displayed = parseRange("range-churnRisk");
+      expect(displayed.low).toBe(newEstimate.churnRisk.low);
+      expect(displayed.high).toBe(newEstimate.churnRisk.high);
     });
   });
 });
