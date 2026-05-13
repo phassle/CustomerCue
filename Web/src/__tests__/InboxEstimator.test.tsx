@@ -204,4 +204,50 @@ describe("InboxEstimator", () => {
       }
     });
   });
+
+  describe("responsive layout: sliders", () => {
+    it("slider container stacks vertically by default (grid-cols-1)", () => {
+      render(<InboxEstimator />);
+      const container = document.querySelector("[data-testid='slider-container']") as HTMLElement;
+      expect(container).not.toBeNull();
+      expect(container.className).toContain("grid-cols-1");
+    });
+
+    it("slider container switches to two-column grid at md breakpoint", () => {
+      render(<InboxEstimator />);
+      const container = document.querySelector("[data-testid='slider-container']") as HTMLElement;
+      expect(container.className).toContain("md:grid-cols-2");
+    });
+  });
+
+  describe("responsive layout: output cards", () => {
+    it("output cards stack in a single column by default (grid-cols-1)", () => {
+      render(<InboxEstimator />);
+      const container = document.querySelector("[data-testid='output-cards']") as HTMLElement;
+      expect(container).not.toBeNull();
+      expect(container.className).toContain("grid-cols-1");
+    });
+
+    it("output cards switch to 2×2 grid at md breakpoint", () => {
+      render(<InboxEstimator />);
+      const container = document.querySelector("[data-testid='output-cards']") as HTMLElement;
+      expect(container.className).toContain("md:grid-cols-2");
+    });
+
+    it("output cards container does not use more than 2 columns at any breakpoint", () => {
+      render(<InboxEstimator />);
+      const container = document.querySelector("[data-testid='output-cards']") as HTMLElement;
+      expect(container.className).not.toMatch(/grid-cols-[3-9]/);
+    });
+  });
+
+  describe("touch targets", () => {
+    it("slider inputs have the touch-target class for 44×44 px minimum", () => {
+      render(<InboxEstimator />);
+      const conversations = getById("weekly-conversations");
+      const customers = getById("customer-count");
+      expect(conversations.className).toContain("touch-target-slider");
+      expect(customers.className).toContain("touch-target-slider");
+    });
+  });
 });

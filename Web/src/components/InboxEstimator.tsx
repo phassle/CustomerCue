@@ -38,7 +38,7 @@ export function InboxEstimator() {
 
   return (
     <div>
-      <div class="mb-10 flex flex-col gap-6 max-w-xl mx-auto">
+      <div data-testid="slider-container" class="mb-10 grid grid-cols-1 md:grid-cols-2 gap-6 mx-auto">
         <div>
           <label
             for="weekly-conversations"
@@ -59,7 +59,7 @@ export function InboxEstimator() {
                 Number((e.target as HTMLInputElement).value),
               )
             }
-            class="w-full accent-accent"
+            class="w-full accent-accent touch-target-slider"
           />
         </div>
         <div>
@@ -80,13 +80,14 @@ export function InboxEstimator() {
             onInput={(e) =>
               setCustomerCount(Number((e.target as HTMLInputElement).value))
             }
-            class="w-full accent-accent"
+            class="w-full accent-accent touch-target-slider"
           />
         </div>
       </div>
 
       <div
-        class="grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-6 mx-auto max-w-3xl"
+        data-testid="output-cards"
+        class="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 mx-auto max-w-3xl"
         aria-live="polite"
       >
         {BUCKET_LABELS.map(({ key, label }) => (
