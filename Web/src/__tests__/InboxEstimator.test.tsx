@@ -1,5 +1,5 @@
-import { describe, it, expect, beforeEach } from "vitest";
-import { render, cleanup, fireEvent } from "@testing-library/preact";
+import { describe, it, expect, beforeEach, vi, afterEach } from "vitest";
+import { render, cleanup, fireEvent, act } from "@testing-library/preact";
 import { InboxEstimator } from "../components/InboxEstimator";
 import {
   WEEKLY_CONVERSATIONS,
@@ -201,6 +201,119 @@ describe("InboxEstimator", () => {
       const text = document.body.textContent ?? "";
       for (const range of Object.values(estimate)) {
         expect(text).toContain(`≈ ${range.low}–${range.high} / week`);
+      }
+    });
+  });
+
+  describe("a11y: each slider announces its current value via aria-valuetext", () => {
+    it("weekly-conversations slider has aria-valuetext reading '500 conversations per week' at default", () => {
+      render(<InboxEstimator />);
+      const slider = getById("weekly-conversations");
+      expect(slider.getAttribute("aria-valuetext")).toBe(
+        `${WEEKLY_CONVERSATIONS.default} conversations per week`,
+      );
+    });
+
+    it("aria-valuetext updates when the slider moves to 1000", () => {
+      render(<InboxEstimator />);
+      const slider = getById("weekly-conversations") as HTMLInputElement;
+      fireEvent.input(slider, { target: { value: "1000" } });
+      expect(slider.getAttribute("aria-valuetext")).toBe(
+        "1000 conversations per week",
+      );
+    });
+
+    it("customer-count slider has aria-valuetext reading '150 customers' at default", () => {
+      render(<InboxEstimator />);
+      const slider = getById("customer-count");
+      expect(slider.getAttribute("aria-valuetext")).toBe(
+        `${CUSTOMER_COUNT.default} customers`,
+      );
+    });
+
+    it("customer-count aria-valuetext updates when slider moves", () => {
+      render(<InboxEstimator />);
+      const slider = getById("customer-count") as HTMLInputElement;
+      fireEvent.input(slider, { target: { value: "300" } });
+      expect(slider.getAttribute("aria-valuetext")).toBe("300 customers");
+    });
+  });
+
+  describe("a11y: output region announces updates politely", () => {
+    it("output cards container has aria-live='polite'", () => {
+      render(<InboxEstimator />);
+      const liveRegion = document.querySelector("[aria-live='polite']");
+      expect(liveRegion).not.toBeNull();
+    });
+  });
+
+  describe("a11y: sustained slider movement does not flood announcements", () => {
+    beforeEach(() => {
+      vi.useFakeTimers();
+    });
+
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    it("at most one announcement per 500ms during sustained drag", () => {
+      render(<InboxEstimator />);
+      const slider = getById("weekly-conversations") as HTMLInputElement;
+      const liveRegion = document.querySelector(
+        "[aria-live='polite']",
+      ) as HTMLElement;
+      const srOnly = liveRegion.querySelector("[data-sr-announcement]");
+      expect(srOnly).not.toBeNull();
+
+      const initialText = srOnly!.textContent;
+
+      for (let v = 100; v <= 5000; v += 100) {
+        fireEvent.input(slider, { target: { value: String(v) } });
+      }
+
+      const textAfterBurst = srOnly!.textContent;
+      expect(textAfterBurst).toBe(initialText);
+
+      act(() => { vi.advanceTimersByTime(500); });
+      const textAfterDebounce = srOnly!.textContent;
+      expect(textAfterDebounce).not.toBe(initialText);
+    });
+
+    it("a final announcement fires on the slider's change event", () => {
+      render(<InboxEstimator />);
+      const slider = getById("weekly-conversations") as HTMLInputElement;
+      const liveRegion = document.querySelector(
+        "[aria-live='polite']",
+      ) as HTMLElement;
+      const srOnly = liveRegion.querySelector("[data-sr-announcement]");
+
+      const initialText = srOnly!.textContent;
+
+      fireEvent.input(slider, { target: { value: "2000" } });
+      const textAfterInput = srOnly!.textContent;
+      expect(textAfterInput).toBe(initialText);
+
+      fireEvent.change(slider, { target: { value: "2000" } });
+      const textAfterChange = srOnly!.textContent;
+      expect(textAfterChange).not.toBe(initialText);
+      expect(textAfterChange).toContain("signals per week");
+    });
+  });
+
+  describe("a11y: decorative glyphs carry aria-label and role=img", () => {
+    it("no standalone decorative-glyph elements exist without aria-label and role=img", () => {
+      render(<InboxEstimator />);
+      const glyphPattern = /[⚠↗→⬆⬇●◆★]/;
+      const allElements = document.querySelectorAll("*");
+      for (const el of allElements) {
+        if (
+          el.childNodes.length === 1 &&
+          el.childNodes[0].nodeType === Node.TEXT_NODE &&
+          glyphPattern.test(el.textContent ?? "")
+        ) {
+          expect(el.getAttribute("role")).toBe("img");
+          expect(el.getAttribute("aria-label")).toBeTruthy();
+        }
       }
     });
   });

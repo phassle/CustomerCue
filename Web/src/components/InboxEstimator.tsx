@@ -1,4 +1,4 @@
-import { useState } from "preact/hooks";
+import { useState, useRef, useCallback, useEffect } from "preact/hooks";
 import {
   WEEKLY_CONVERSATIONS,
   CUSTOMER_COUNT,
@@ -22,8 +22,16 @@ const BUCKET_LABELS: readonly {
   { key: "longTail", label: "Other revenue signals" },
 ];
 
+const DEBOUNCE_MS = 500;
+
 function formatRange(low: number, high: number): string {
   return `≈ ${low}–${high} / week`;
+}
+
+function summariseEstimate(estimate: SignalEstimate): string {
+  const totalLow = Object.values(estimate).reduce((s, r) => s + r.low, 0);
+  const totalHigh = Object.values(estimate).reduce((s, r) => s + r.high, 0);
+  return `Estimated ${totalLow} to ${totalHigh} total signals per week`;
 }
 
 export function InboxEstimator() {
@@ -33,8 +41,64 @@ export function InboxEstimator() {
   const [customerCount, setCustomerCount] = useState<number>(
     CUSTOMER_COUNT.default,
   );
+  const [announcement, setAnnouncement] = useState("");
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const estimate = estimateSignals(weeklyConversations, customerCount);
+
+  const scheduleAnnouncement = useCallback(
+    (est: SignalEstimate) => {
+      if (debounceRef.current !== null) {
+        clearTimeout(debounceRef.current);
+      }
+      debounceRef.current = setTimeout(() => {
+        setAnnouncement(summariseEstimate(est));
+        debounceRef.current = null;
+      }, DEBOUNCE_MS);
+    },
+    [],
+  );
+
+  const flushAnnouncement = useCallback(
+    (est: SignalEstimate) => {
+      if (debounceRef.current !== null) {
+        clearTimeout(debounceRef.current);
+        debounceRef.current = null;
+      }
+      setAnnouncement(summariseEstimate(est));
+    },
+    [],
+  );
+
+  useEffect(() => {
+    return () => {
+      if (debounceRef.current !== null) clearTimeout(debounceRef.current);
+    };
+  }, []);
+
+  const handleConversationsInput = (e: Event) => {
+    const val = Number((e.target as HTMLInputElement).value);
+    setWeeklyConversations(val);
+    scheduleAnnouncement(estimateSignals(val, customerCount));
+  };
+
+  const handleConversationsChange = (e: Event) => {
+    const val = Number((e.target as HTMLInputElement).value);
+    setWeeklyConversations(val);
+    flushAnnouncement(estimateSignals(val, customerCount));
+  };
+
+  const handleCustomerInput = (e: Event) => {
+    const val = Number((e.target as HTMLInputElement).value);
+    setCustomerCount(val);
+    scheduleAnnouncement(estimateSignals(weeklyConversations, val));
+  };
+
+  const handleCustomerChange = (e: Event) => {
+    const val = Number((e.target as HTMLInputElement).value);
+    setCustomerCount(val);
+    flushAnnouncement(estimateSignals(weeklyConversations, val));
+  };
 
   return (
     <div>
@@ -54,11 +118,9 @@ export function InboxEstimator() {
             max={WEEKLY_CONVERSATIONS.max}
             step={WEEKLY_CONVERSATIONS.step}
             value={weeklyConversations}
-            onInput={(e) =>
-              setWeeklyConversations(
-                Number((e.target as HTMLInputElement).value),
-              )
-            }
+            aria-valuetext={`${weeklyConversations} conversations per week`}
+            onInput={handleConversationsInput}
+            onChange={handleConversationsChange}
             class="w-full accent-accent"
           />
         </div>
@@ -77,9 +139,9 @@ export function InboxEstimator() {
             max={CUSTOMER_COUNT.max}
             step={CUSTOMER_COUNT.step}
             value={customerCount}
-            onInput={(e) =>
-              setCustomerCount(Number((e.target as HTMLInputElement).value))
-            }
+            aria-valuetext={`${customerCount} customers`}
+            onInput={handleCustomerInput}
+            onChange={handleCustomerChange}
             class="w-full accent-accent"
           />
         </div>
@@ -102,6 +164,13 @@ export function InboxEstimator() {
             </span>
           </div>
         ))}
+        <span
+          data-sr-announcement
+          class="sr-only"
+          aria-atomic="true"
+        >
+          {announcement}
+        </span>
       </div>
     </div>
   );
