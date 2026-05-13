@@ -92,7 +92,9 @@ test.describe("Keyboard navigation", () => {
       { role: "file", name: /Conversations file/i },
       // Submit button is disabled (no file selected) — skipped in tab order
       { role: "link", name: /Signals/i },
-      // About / Privacy / Terms render as non-link placeholders — skipped in tab order
+      // About / Terms render as non-link placeholders — skipped in tab order.
+      // Privacy is a real link to /privacy (ADR 0004).
+      { role: "link", name: /^Privacy$/i },
       { role: "link", name: /hello@customercue\.com/i },
     ];
 
