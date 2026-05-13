@@ -21,7 +21,7 @@ function customerFactor(customerCount: number): number {
 function estimateBucket(
   weeklyConversations: number,
   customerCount: number,
-  rate: { low: number; high: number },
+  rate: SignalRange,
 ): SignalRange {
   const scale = (weeklyConversations / 100) * customerFactor(customerCount);
   const low = Math.round(rate.low * scale);
