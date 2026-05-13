@@ -1,4 +1,4 @@
-# Retro — Web inbox signal estimator (PRD #34)
+# Retro — Inbox signal estimator (PRD #34)
 
 Per-PRD retro. Owned by Claude Code (host); Sandcastle agents read it before starting, do not edit it.
 
