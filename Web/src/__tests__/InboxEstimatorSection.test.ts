@@ -14,10 +14,10 @@ function stripTags(raw: string): string {
     .replace(/<[^>]+>/g, " ")
     .replace(/&#x27;/g, "'")
     .replace(/&#39;/g, "'")
-    .replace(/&amp;/g, "&")
     .replace(/&lt;/g, "<")
     .replace(/&gt;/g, ">")
-    .replace(/&quot;/g, "\"")
+    .replace(/&quot;/g, '"')
+    .replace(/&amp;/g, "&")
     .replace(/\s+/g, " ")
     .trim();
 }
@@ -33,7 +33,7 @@ describe("InboxEstimatorSection", () => {
   });
 
   it("renders the heading", () => {
-    expect(text).toContain("What" + "'" + "s hiding in your inbox?");
+    expect(text).toContain("What's hiding in your inbox?");
   });
 
   it("renders the subhead from the brief", () => {
@@ -43,7 +43,7 @@ describe("InboxEstimatorSection", () => {
   });
 
   it("has an anchor id matching the INBOX_ESTIMATOR constant", () => {
-    expect(html).toContain("id=\"" + INBOX_ESTIMATOR + "\"");
+    expect(html).toContain(`id="${INBOX_ESTIMATOR}"`);
   });
 
   it("renders the disclaimer", () => {

@@ -49,7 +49,7 @@ describe("Page integration: / renders ConversationExplainer", () => {
 
   it("inbox estimator appears between Signals and Sample Digest sections", () => {
     const signalsPos = html.indexOf('id="signals"');
-    const estimatorPos = html.indexOf("id=\"" + INBOX_ESTIMATOR + "\"");
+    const estimatorPos = html.indexOf(`id="${INBOX_ESTIMATOR}"`);
     const digestPos = html.indexOf('id="sample-digest"');
     expect(signalsPos).toBeGreaterThan(-1);
     expect(estimatorPos).toBeGreaterThan(-1);
