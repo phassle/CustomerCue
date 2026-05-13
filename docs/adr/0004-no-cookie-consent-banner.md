@@ -11,7 +11,7 @@ When (and only when) the first non-essential cookie, tracker, or storage write i
 
 ## Context
 
-The marketing site is currently Astro + Preact + Tailwind only. It sets no cookies, writes no `localStorage` or `sessionStorage`, loads no analytics SDK (no GA, no Plausible, no PostHog, no Segment, no Fathom), and runs no marketing or attribution pixels. The only browser-side data is fonts loaded from Google Fonts.
+The marketing site is currently Astro + Preact + Tailwind only. It sets no cookies, writes no `localStorage` or `sessionStorage`, loads no analytics SDK (no GA, no Plausible, no PostHog, no Segment, no Fathom), and runs no marketing or attribution pixels. The only browser-side data is fonts loaded from Google Fonts — treated as a technical CDN dependency for typography, not as an analytics or tracking service, so it falls outside the consent obligation under ePrivacy Art 5(3).
 
 Under GDPR / ePrivacy Art 5(3), informed consent is only required for **non-essential cookies and similar trackers**. With none present, there is nothing to consent or refuse to.
 
