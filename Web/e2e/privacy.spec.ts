@@ -9,6 +9,15 @@ test.describe("Privacy posture", () => {
     await expect(page.getByText(/we don.?t set cookies/i).first()).toBeVisible();
   });
 
+  test("/privacy renders with site header and footer", async ({ page }) => {
+    await page.goto("/privacy");
+    await expect(page.getByRole("banner")).toBeVisible();
+    await expect(page.getByRole("banner")).toContainText("CustomerCue");
+    const footer = page.locator("footer");
+    await footer.scrollIntoViewIfNeeded();
+    await expect(footer).toBeVisible();
+  });
+
   test("footer Privacy link on / navigates to /privacy", async ({ page }) => {
     await page.goto("/");
     const link = page.locator('footer a[href="/privacy"]');
