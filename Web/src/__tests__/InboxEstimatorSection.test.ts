@@ -87,7 +87,7 @@ describe("InboxEstimatorSection", () => {
 
   it("closing-line copy contains the brief’s verbatim validation-offer phrase", () => {
     expect(text).toContain(
-      "Send us 1,000 of your support conversations and we’ll return your real numbers in 48 hours",
+      "Send us 1,000 of your support conversations and we'll return your real numbers in 48 hours",
     );
   });
 
