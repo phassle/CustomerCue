@@ -33,8 +33,12 @@ function parseSliderValue(e: Event): number {
 }
 
 function summariseEstimate(estimate: SignalEstimate): string {
-  const totalLow = Object.values(estimate).reduce((s, r) => s + r.low, 0);
-  const totalHigh = Object.values(estimate).reduce((s, r) => s + r.high, 0);
+  let totalLow = 0;
+  let totalHigh = 0;
+  for (const r of Object.values(estimate)) {
+    totalLow += r.low;
+    totalHigh += r.high;
+  }
   return `Estimated ${totalLow} to ${totalHigh} total signals per week`;
 }
 
