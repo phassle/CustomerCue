@@ -1,3 +1,5 @@
+export const EXPLAINER = "explainer";
+
 import { useState, useMemo, useRef } from "preact/hooks";
 import { acmeIntegration } from "../data/conversation-fixtures/acme-integration";
 import { nordicpayEnterprise } from "../data/conversation-fixtures/nordicpay-enterprise";
@@ -149,6 +151,7 @@ export function ConversationExplainer() {
 
   return (
     <section
+      id={EXPLAINER}
       ref={containerRef}
       tabindex={-1}
       aria-label="Signal explainer"

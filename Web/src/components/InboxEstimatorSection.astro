@@ -1,5 +1,6 @@
 ---
 import { INBOX_ESTIMATOR } from "./inbox-estimator-fixtures";
+import { EXPLAINER } from "./ConversationExplainer";
 import { InboxEstimator } from "./InboxEstimator";
 ---
 
@@ -12,6 +13,12 @@ import { InboxEstimator } from "./InboxEstimator";
   </p>
 
   <InboxEstimator client:visible />
+
+  <p class="mt-6 text-center">
+    <a href={`#${EXPLAINER}`} class="text-sm font-display font-semibold text-accent hover:underline">
+      See three real examples →
+    </a>
+  </p>
 
   <p class="mt-8 text-center text-xs text-muted max-w-2xl mx-auto">
     Illustrative ranges based on patterns from our 1,000-conversation reports.

@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { render, screen, cleanup, fireEvent } from "@testing-library/preact";
-import { ConversationExplainer } from "../components/ConversationExplainer";
+import { ConversationExplainer, EXPLAINER } from "../components/ConversationExplainer";
 import { acmeIntegration } from "../data/conversation-fixtures/acme-integration";
 import { nordicpayEnterprise } from "../data/conversation-fixtures/nordicpay-enterprise";
 import { step3Onboarding } from "../data/conversation-fixtures/step3-onboarding";
@@ -111,6 +111,14 @@ describe("ConversationExplainer", () => {
       const banner = screen.getByRole("banner");
       expect(banner.textContent).toContain(acmeIntegration.account);
       expect(buttons[0].getAttribute("aria-pressed")).toBe("true");
+    });
+  });
+
+  describe("section id constant", () => {
+    it("section element has id matching the EXPLAINER constant", () => {
+      const section = document.getElementById(EXPLAINER);
+      expect(section).not.toBeNull();
+      expect(section!.tagName.toLowerCase()).toBe("section");
     });
   });
 });
