@@ -1,5 +1,3 @@
-export const EXPLAINER = "explainer";
-
 import { useState, useMemo, useRef } from "preact/hooks";
 import { acmeIntegration } from "../data/conversation-fixtures/acme-integration";
 import { nordicpayEnterprise } from "../data/conversation-fixtures/nordicpay-enterprise";
@@ -8,6 +6,8 @@ import { csvWorkaround } from "../data/conversation-fixtures/csv-workaround";
 import type { Annotation } from "../data/conversation-fixtures/types";
 import { SIGNAL_NAMES, type SignalType } from "../lib/signal-catalog";
 import { ScenarioPicker } from "./ScenarioPicker";
+
+export const EXPLAINER = "explainer";
 import { ConversationThread } from "./ConversationThread";
 import { SignalTypeFilter } from "./SignalTypeFilter";
 
