@@ -1,0 +1,74 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Wordmark from "../components/Wordmark.astro";
+import Footer from "../components/Footer.astro";
+
+const lastUpdated = "2026-05-13";
+---
+
+<Layout title="Privacy — CustomerCue">
+  <header class="flex items-center px-6 py-5 md:px-10">
+    <a href="/" class="focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded-sm">
+      <Wordmark />
+    </a>
+  </header>
+  <main class="px-6 py-12 md:px-10 md:py-20">
+    <article class="mx-auto max-w-2xl">
+      <h1 class="font-display text-3xl font-bold tracking-tight md:text-4xl mb-8">
+        Privacy
+      </h1>
+
+      <div class="space-y-6 text-base leading-relaxed text-foreground/90">
+        <p class="font-display text-xl text-foreground">
+          We don&rsquo;t set cookies. We don&rsquo;t track visitors. We don&rsquo;t run analytics.
+        </p>
+
+        <p>
+          This marketing site is a lightweight introduction to CustomerCue. It loads
+          HTML, CSS, a small amount of JavaScript, and web fonts from Google Fonts.
+          We don&rsquo;t write to <code class="font-mono text-sm">localStorage</code> or
+          <code class="font-mono text-sm">sessionStorage</code>.
+        </p>
+
+        <h2 class="font-display text-xl font-semibold tracking-tight pt-4">
+          What we don&rsquo;t collect
+        </h2>
+        <ul class="list-disc pl-6 space-y-2">
+          <li>No first- or third-party cookies.</li>
+          <li>No <code class="font-mono text-sm">localStorage</code> or <code class="font-mono text-sm">sessionStorage</code>.</li>
+          <li>No analytics SDKs (no Google Analytics, no Plausible, no PostHog, no Segment).</li>
+          <li>No marketing pixels, attribution tags, or session replay.</li>
+          <li>No fingerprinting.</li>
+        </ul>
+
+        <h2 class="font-display text-xl font-semibold tracking-tight pt-4">
+          What happens if you contact us
+        </h2>
+        <p>
+          If you submit one of the forms on the homepage, your browser sends the
+          form fields to our <code class="font-mono text-sm">/api/lead</code> endpoint.
+          In this workshop demo, that endpoint validates the payload and returns a
+          success response &mdash; it does not persist submissions. The conversations
+          upload form does not upload the file itself (only its name, size, and type).
+          You can also email us directly at <a href="mailto:hello@customercue.com" class="text-accent underline-offset-2 hover:underline">hello@customercue.com</a>.
+        </p>
+
+        <h2 class="font-display text-xl font-semibold tracking-tight pt-4">
+          If this ever changes
+        </h2>
+        <p>
+          If CustomerCue adds analytics, embedded video, scheduling widgets, or
+          anything else that touches your browser&rsquo;s storage, we&rsquo;ll add a clear
+          consent surface at the same time &mdash; not before. See
+          <a href="https://github.com/phassle/CustomerCue/blob/main/docs/adr/0004-no-cookie-consent-banner.md" class="text-accent underline-offset-2 hover:underline">ADR&nbsp;0004</a>
+          for the reasoning.
+        </p>
+
+        <p class="text-sm text-muted pt-8">
+          Last updated {lastUpdated}.
+        </p>
+      </div>
+    </article>
+  </main>
+  <Footer />
+</Layout>
