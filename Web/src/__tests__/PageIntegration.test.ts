@@ -2,6 +2,7 @@
 import { describe, it, expect, beforeAll } from "vitest";
 import { experimental_AstroContainer as AstroContainer } from "astro/container";
 import IndexPage from "../pages/index.astro";
+import { INBOX_ESTIMATOR } from "../components/inbox-estimator-fixtures";
 
 describe("Page integration: / renders ConversationExplainer", () => {
   let html: string;
@@ -44,5 +45,16 @@ describe("Page integration: / renders ConversationExplainer", () => {
     expect(signalsPos).toBeGreaterThan(-1);
     expect(heroPos).toBeLessThan(explainerPos);
     expect(explainerPos).toBeLessThan(signalsPos);
+  });
+
+  it("inbox estimator appears between Signals and Sample Digest sections", () => {
+    const signalsPos = html.indexOf('id="signals"');
+    const estimatorPos = html.indexOf("id=\"" + INBOX_ESTIMATOR + "\"");
+    const digestPos = html.indexOf('id="sample-digest"');
+    expect(signalsPos).toBeGreaterThan(-1);
+    expect(estimatorPos).toBeGreaterThan(-1);
+    expect(digestPos).toBeGreaterThan(-1);
+    expect(signalsPos).toBeLessThan(estimatorPos);
+    expect(estimatorPos).toBeLessThan(digestPos);
   });
 });
