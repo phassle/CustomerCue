@@ -42,17 +42,17 @@ test.describe("Privacy posture", () => {
     await page.goto("/");
     await page.waitForLoadState("networkidle");
     const storage = await page.evaluate(() => ({
-      local: { ...localStorage },
-      session: { ...sessionStorage },
+      localKeys: Array.from({ length: localStorage.length }, (_, i) => localStorage.key(i)),
+      sessionKeys: Array.from({ length: sessionStorage.length }, (_, i) => sessionStorage.key(i)),
     }));
     expect(
-      Object.keys(storage.local),
-      `localStorage written unexpectedly: ${JSON.stringify(storage.local)}. ` +
+      storage.localKeys.filter(Boolean),
+      `localStorage written unexpectedly: ${JSON.stringify(storage.localKeys)}. ` +
         `If you intentionally added storage, update /privacy and ADR 0004.`
     ).toHaveLength(0);
     expect(
-      Object.keys(storage.session),
-      `sessionStorage written unexpectedly: ${JSON.stringify(storage.session)}.`
+      storage.sessionKeys.filter(Boolean),
+      `sessionStorage written unexpectedly: ${JSON.stringify(storage.sessionKeys)}.`
     ).toHaveLength(0);
   });
 

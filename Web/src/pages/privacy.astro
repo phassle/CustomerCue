@@ -24,9 +24,10 @@ const lastUpdated = "2026-05-13";
         </p>
 
         <p>
-          This site is a single-page introduction to CustomerCue. It loads HTML, CSS,
-          a small amount of JavaScript, and web fonts. Nothing is stored in your
-          browser. Nothing is sent to a third party.
+          This marketing site is a lightweight introduction to CustomerCue. It loads
+          HTML, CSS, a small amount of JavaScript, and web fonts from Google Fonts.
+          We don&rsquo;t write to <code class="font-mono text-sm">localStorage</code> or
+          <code class="font-mono text-sm">sessionStorage</code>.
         </p>
 
         <h2 class="font-display text-xl font-semibold tracking-tight pt-4">
@@ -44,9 +45,12 @@ const lastUpdated = "2026-05-13";
           What happens if you contact us
         </h2>
         <p>
-          The demo-request form on this page submits to a server endpoint that logs
-          your email so we can write back. We do not share that address with anyone.
-          Email us at <a href="mailto:hello@customercue.com" class="text-accent underline-offset-2 hover:underline">hello@customercue.com</a> if you want it removed.
+          If you submit one of the forms on the homepage, your browser sends the
+          form fields to our <code class="font-mono text-sm">/api/lead</code> endpoint.
+          In this workshop demo, that endpoint validates the payload and returns a
+          success response &mdash; it does not persist submissions. The conversations
+          upload form does not upload the file itself (only its name, size, and type).
+          You can also email us directly at <a href="mailto:hello@customercue.com" class="text-accent underline-offset-2 hover:underline">hello@customercue.com</a>.
         </p>
 
         <h2 class="font-display text-xl font-semibold tracking-tight pt-4">
