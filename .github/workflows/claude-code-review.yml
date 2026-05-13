@@ -12,36 +12,33 @@ on:
 
 jobs:
   claude-review:
-    # Skip fork PRs: `pull_request` events from forks do not receive
-    # `secrets.CLAUDE_CODE_OAUTH_TOKEN`, so the job would fail. If
-    # external-contributor review is wanted later, switch to
-    # `pull_request_target` with explicit, vetted checkout / permissions.
-    if: github.event.pull_request.head.repo.full_name == github.repository
+    # Optional: Filter by PR author
+    # if: |
+    #   github.event.pull_request.user.login == 'external-contributor' ||
+    #   github.event.pull_request.user.login == 'new-developer' ||
+    #   github.event.pull_request.author_association == 'FIRST_TIME_CONTRIBUTOR'
+
     runs-on: ubuntu-latest
     permissions:
       contents: read
       pull-requests: read
       issues: read
-      # `id-token: write` kept because anthropics/claude-code-action uses
-      # OIDC for some integrations. The job is restricted to same-repo PRs
-      # above so the privilege is not exposed to forks.
       id-token: write
 
     steps:
       - name: Checkout repository
-        # Pinned to the commit for tag v4 — supply-chain hardening.
-        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        uses: actions/checkout@v4
         with:
           fetch-depth: 1
 
       - name: Run Claude Code Review
         id: claude-review
-        # Pinned to the commit for tag v1.
-        uses: anthropics/claude-code-action@dde2242db6af13460b916652159b6ba19a598f30 # v1
+        uses: anthropics/claude-code-action@v1
         with:
-          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           plugin_marketplaces: 'https://github.com/anthropics/claude-code.git'
           plugins: 'code-review@claude-code-plugins'
           prompt: '/code-review:code-review ${{ github.repository }}/pull/${{ github.event.pull_request.number }}'
           # See https://github.com/anthropics/claude-code-action/blob/main/docs/usage.md
           # or https://code.claude.com/docs/en/cli-reference for available options
+
