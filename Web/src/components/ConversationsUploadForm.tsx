@@ -8,6 +8,8 @@ import {
   ErrorAlert,
 } from "./form-primitives";
 
+export const CONVERSATIONS_UPLOAD = "conversations-upload";
+
 export function ConversationsUploadForm() {
   const [state, setState] = useState<FormState>({ status: "idle" });
   const [name, setName] = useState("");

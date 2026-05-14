@@ -9,6 +9,8 @@ import { ScenarioPicker } from "./ScenarioPicker";
 import { ConversationThread } from "./ConversationThread";
 import { SignalTypeFilter } from "./SignalTypeFilter";
 
+export const EXPLAINER = "explainer";
+
 const CONFIDENCE_DOTS: Record<Annotation["confidence"], string> = {
   low: "●○○",
   medium: "●●○",
@@ -149,6 +151,7 @@ export function ConversationExplainer() {
 
   return (
     <section
+      id={EXPLAINER}
       ref={containerRef}
       tabindex={-1}
       aria-label="Signal explainer"

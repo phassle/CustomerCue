@@ -17,3 +17,13 @@
 
   --spacing: 0.25rem;
 }
+
+.touch-target-slider::-webkit-slider-thumb {
+  width: 44px;
+  height: 44px;
+}
+
+.touch-target-slider::-moz-range-thumb {
+  width: 44px;
+  height: 44px;
+}

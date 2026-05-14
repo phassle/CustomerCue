@@ -1,5 +1,6 @@
 import { test, expect } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
+import { INBOX_ESTIMATOR } from "../src/components/inbox-estimator-fixtures";
 
 test.describe("Accessibility", () => {
   test("axe scan reports zero critical violations on /", async ({ page }) => {
@@ -46,6 +47,32 @@ test.describe("Accessibility", () => {
     await expect(page.getByRole("banner")).toBeVisible();
     await expect(page.getByRole("main")).toBeVisible();
     await expect(page.getByRole("contentinfo")).toBeVisible();
+  });
+
+  test("inbox estimator section passes axe after slider interaction", async ({
+    page,
+  }) => {
+    await page.goto("/");
+    await page.waitForLoadState("networkidle");
+
+    const section = page.locator(`#${INBOX_ESTIMATOR}`);
+    await expect(section).toBeVisible();
+
+    const slider = section.locator('input[type="range"]').first();
+    await slider.focus();
+    for (let i = 0; i < 5; i++) {
+      await page.keyboard.press("ArrowRight");
+    }
+
+    const results = await new AxeBuilder({ page })
+      .include(`#${INBOX_ESTIMATOR}`)
+      .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
+      .analyze();
+
+    expect(
+      results.violations,
+      `Violations: ${JSON.stringify(results.violations, null, 2)}`,
+    ).toHaveLength(0);
   });
 
   test("all form inputs have associated labels", async ({ page }) => {

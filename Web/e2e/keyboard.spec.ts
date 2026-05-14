@@ -3,6 +3,7 @@ import { test, expect, type Page, type Locator } from "@playwright/test";
 type ExpectedFocus =
   | { role: "link"; name: RegExp }
   | { role: "textbox"; name: RegExp; form?: string }
+  | { role: "slider"; name: RegExp }
   | { role: "button"; name: RegExp }
   | { role: "file"; name: RegExp }
   | { role: "summary"; name: RegExp };
@@ -23,6 +24,18 @@ async function assertFocus(page: Page, expected: ExpectedFocus): Promise<void> {
     case "textbox": {
       const tag = await focused.evaluate((el) => el.tagName.toLowerCase());
       expect(tag).toBe("input");
+      const id = await focused.getAttribute("id");
+      expect(id).toBeTruthy();
+      const label = page.locator(`label[for="${id}"]`);
+      const labelText = await label.textContent();
+      expect(labelText).toMatch(expected.name);
+      break;
+    }
+    case "slider": {
+      const tag = await focused.evaluate((el) => el.tagName.toLowerCase());
+      expect(tag).toBe("input");
+      const type = await focused.getAttribute("type");
+      expect(type).toBe("range");
       const id = await focused.getAttribute("id");
       expect(id).toBeTruthy();
       const label = page.locator(`label[for="${id}"]`);
@@ -80,6 +93,13 @@ test.describe("Keyboard navigation", () => {
     ];
 
     const postExplainerOrder: ExpectedFocus[] = [
+      // InboxEstimatorSection sits between Explainer and SampleDigest in DOM
+      // order (Web/src/pages/index.astro). Its two range sliders plus two
+      // anchor links take tab focus before the digest's <summary> elements.
+      { role: "slider", name: /conversations per week/i },
+      { role: "slider", name: /customers/i },
+      { role: "link", name: /See three real examples/i },
+      { role: "link", name: /Send us 1,000 of your support conversations/i },
       { role: "summary", name: /View 6 source conversations/i },
       { role: "summary", name: /View 4 source conversations/i },
       { role: "summary", name: /View 37 source conversations/i },

@@ -1,0 +1,37 @@
+---
+import { INBOX_ESTIMATOR } from "./inbox-estimator-fixtures";
+import { EXPLAINER } from "./ConversationExplainer";
+import { CONVERSATIONS_UPLOAD } from "./ConversationsUploadForm";
+import { InboxEstimator } from "./InboxEstimator";
+---
+
+<section id={INBOX_ESTIMATOR} class="px-6 py-20 md:px-10">
+  <h2 class="font-display text-2xl font-bold tracking-tight md:text-3xl mb-4">
+    What's hiding in your inbox?
+  </h2>
+  <p class="text-muted mb-10 max-w-2xl">
+    Find churn risk, expansion intent, and product friction inside your support conversations.
+  </p>
+
+  <InboxEstimator client:visible />
+
+  <p class="mt-6 text-center">
+    <a href={`#${EXPLAINER}`} class="text-sm font-display font-semibold text-accent hover:underline">
+      See three real examples →
+    </a>
+  </p>
+
+  <p class="mt-8 text-center text-sm italic max-w-2xl mx-auto">
+    <a
+      href={`#${CONVERSATIONS_UPLOAD}`}
+      class="text-accent no-underline hover:underline"
+    >
+      Send us 1,000 of your support conversations and we'll return your real numbers in 48 hours →
+    </a>
+  </p>
+
+  <p class="mt-8 text-center text-xs text-muted max-w-2xl mx-auto">
+    Illustrative ranges based on patterns from our 1,000-conversation reports.
+    Send us your conversations to see your real numbers.
+  </p>
+</section>
