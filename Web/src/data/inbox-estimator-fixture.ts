@@ -18,7 +18,7 @@ const ACME_REPEATED_TICKETS_IN_14_DAYS = 6;
 const ACME_WEEKLY_CLUSTER_TICKETS = ACME_REPEATED_TICKETS_IN_14_DAYS / 2;
 const ACME_CLUSTER_SHARE_OF_WEEKLY_INBOX = 0.012;
 
-const NORDICPAY_ENTERPRISE_ASKS_FOR_ONE_SIGNAL = 5;
+const NORDICPAY_TICKETS_PER_EXPANSION_SIGNAL = 5;
 const NORDICPAY_EXPANSION_LIKE_SHARE = 0.028;
 
 const ONBOARDING_CLUSTER_TICKETS = 37;
@@ -33,7 +33,7 @@ export const BASE_SIGNAL_RATES = {
   // NordicPay anchor: repeated enterprise-security/admin asks indicate one
   // expansion-intent signal; modeled as a modest recurring share.
   expansionIntent:
-    NORDICPAY_EXPANSION_LIKE_SHARE / NORDICPAY_ENTERPRISE_ASKS_FOR_ONE_SIGNAL,
+    NORDICPAY_EXPANSION_LIKE_SHARE / NORDICPAY_TICKETS_PER_EXPANSION_SIGNAL,
   // Onboarding anchor: 37 tickets across 11 customers surfaced two signals
   // (onboarding issue + bug cluster), scaled to an inbox-wide share.
   productFrictionAndBugs:

@@ -20,6 +20,9 @@ const HIGH_MULTIPLIER = 1.2;
 const HIGH_CEILING = 200;
 const CUSTOMER_ADJUSTMENT_MIN = 0.8;
 const CUSTOMER_ADJUSTMENT_MAX = 1.2;
+// Customer adjustment uses an affine curve:
+// adjustment = base + (customerCount/defaultCustomerCount) * weight.
+// It stays close to 1.0 around defaults while allowing gentle scaling.
 const CUSTOMER_ADJUSTMENT_BASE = 0.9;
 const CUSTOMER_ADJUSTMENT_RATIO_WEIGHT = 0.1;
 
