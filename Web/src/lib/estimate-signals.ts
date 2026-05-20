@@ -18,6 +18,10 @@ export interface SignalEstimate {
 const LOW_MULTIPLIER = 0.8;
 const HIGH_MULTIPLIER = 1.2;
 const HIGH_CEILING = 200;
+const CUSTOMER_ADJUSTMENT_MIN = 0.8;
+const CUSTOMER_ADJUSTMENT_MAX = 1.2;
+const CUSTOMER_ADJUSTMENT_BASE = 0.9;
+const CUSTOMER_ADJUSTMENT_RATIO_WEIGHT = 0.1;
 
 function toBucketRange(projectedCount: number): SignalBucketEstimate {
   const roundedLow = Math.max(0, Math.floor(projectedCount * LOW_MULTIPLIER));
@@ -30,7 +34,13 @@ function toBucketRange(projectedCount: number): SignalBucketEstimate {
 
 function getCustomerAdjustment(customerCount: number): number {
   const ratio = customerCount / CUSTOMER_COUNT.default;
-  return Math.min(1.2, Math.max(0.8, 0.9 + ratio * 0.1));
+  return Math.min(
+    CUSTOMER_ADJUSTMENT_MAX,
+    Math.max(
+      CUSTOMER_ADJUSTMENT_MIN,
+      CUSTOMER_ADJUSTMENT_BASE + ratio * CUSTOMER_ADJUSTMENT_RATIO_WEIGHT,
+    ),
+  );
 }
 
 export function estimateSignals(

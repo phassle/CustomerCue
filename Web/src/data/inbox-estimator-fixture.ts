@@ -1,5 +1,3 @@
-import { SIGNAL_NAMES, type SignalType } from "../lib/signal-catalog";
-
 export const WEEKLY_CONVERSATIONS = {
   min: 50,
   max: 5000,
@@ -15,12 +13,6 @@ export const CUSTOMER_COUNT = {
 };
 
 export const INBOX_ESTIMATOR = "inbox-estimator";
-
-const CHURN_RISK_SIGNAL: SignalType = SIGNAL_NAMES[0];
-const EXPANSION_INTENT_SIGNAL: SignalType = SIGNAL_NAMES[1];
-const PRODUCT_FRICTION_SIGNAL: SignalType = SIGNAL_NAMES[2];
-const BUG_CLUSTER_SIGNAL: SignalType = SIGNAL_NAMES[3];
-const ONBOARDING_ISSUE_SIGNAL: SignalType = SIGNAL_NAMES[4];
 
 const ACME_REPEATED_TICKETS_IN_14_DAYS = 6;
 const ACME_WEEKLY_CLUSTER_TICKETS = ACME_REPEATED_TICKETS_IN_14_DAYS / 2;
@@ -54,9 +46,3 @@ export const BASE_SIGNAL_RATES = {
   "churnRisk" | "expansionIntent" | "productFrictionAndBugs" | "longTail",
   number
 >;
-
-export const BASE_RATE_SIGNALS = {
-  churnRisk: CHURN_RISK_SIGNAL,
-  expansionIntent: EXPANSION_INTENT_SIGNAL,
-  productFrictionAndBugs: [PRODUCT_FRICTION_SIGNAL, BUG_CLUSTER_SIGNAL, ONBOARDING_ISSUE_SIGNAL],
-} as const;
