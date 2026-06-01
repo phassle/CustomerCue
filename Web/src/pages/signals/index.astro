@@ -5,11 +5,10 @@ import Footer from "../../components/Footer.astro";
 import { SIGNAL_NAMES } from "../../lib/signal-catalog";
 import { getSignalTypeEntry, toSlug } from "../../lib/signal-library";
 
-const cards = SIGNAL_NAMES.map((name) => ({
-  name,
-  slug: toSlug(name),
-  entry: getSignalTypeEntry(toSlug(name)),
-}));
+const cards = SIGNAL_NAMES.map((name) => {
+  const slug = toSlug(name);
+  return { name, slug, entry: getSignalTypeEntry(slug) };
+});
 const documentedCount = cards.filter((c) => c.entry).length;
 ---
 

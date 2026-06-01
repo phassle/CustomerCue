@@ -2,11 +2,10 @@
 import { getAllSignals } from "../lib/signal-catalog";
 import { getSignalTypeEntry, toSlug } from "../lib/signal-library";
 
-const signals = getAllSignals().map((signal) => ({
-  ...signal,
-  slug: toSlug(signal.name),
-  documented: Boolean(getSignalTypeEntry(toSlug(signal.name))),
-}));
+const signals = getAllSignals().map((signal) => {
+  const slug = toSlug(signal.name);
+  return { ...signal, slug, documented: Boolean(getSignalTypeEntry(slug)) };
+});
 ---
 
 <section id="signals" class="px-6 py-20 md:px-10">

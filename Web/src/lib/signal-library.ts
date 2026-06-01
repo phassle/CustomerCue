@@ -7,10 +7,6 @@ import type { Conversation } from "../data/conversation-fixtures/types";
 // src/signals/README.md.
 export { toSlug };
 
-// A Signal Field Guide entry documents one *signal type* (a taxonomy
-// category), illustrated by one source Conversation whose annotations carry
-// the per-signal rationale + suggestedAction. There is no classifier here —
-// detection lives in Saas/; Web/ only renders annotated fixture data.
 export interface SignalTypeEntry {
   /** Canonical signal-type name, verbatim from SIGNAL_NAMES. */
   name: SignalType;
@@ -24,10 +20,6 @@ export interface SignalTypeEntry {
   fixture: Conversation;
 }
 
-// Auto-discovery seam. Each slice is a self-contained folder under
-// src/signals/<slug>/ that default-exports nothing and named-exports `entry`.
-// Globbing them here means a new slice plugs in without editing any shared
-// file — N agents can add slices in parallel with zero merge conflicts.
 const modules = import.meta.glob<{ entry: SignalTypeEntry }>(
   "../signals/*/index.ts",
   { eager: true },
