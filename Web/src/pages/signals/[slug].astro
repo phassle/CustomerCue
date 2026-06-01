@@ -1,0 +1,56 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import Wordmark from "../../components/Wordmark.astro";
+import Footer from "../../components/Footer.astro";
+import SignalConversation from "../../components/SignalConversation.astro";
+import { signalTypeEntries } from "../../lib/signal-library";
+
+export function getStaticPaths() {
+  return signalTypeEntries.map((entry) => ({
+    params: { slug: entry.slug },
+    props: { entry },
+  }));
+}
+
+const { entry } = Astro.props;
+---
+
+<Layout title={`${entry.name} — Signal Field Guide — CustomerCue`}>
+  <header class="flex items-center px-6 py-5 md:px-10">
+    <a href="/" aria-label="CustomerCue home"><Wordmark /></a>
+  </header>
+  <main class="px-6 py-12 md:px-10">
+    <div class="mx-auto max-w-3xl">
+      <a
+        href="/signals"
+        class="font-mono text-xs text-muted hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded-sm"
+        >&larr; All signals</a
+      >
+      <h1
+        class="mt-4 font-display text-3xl font-bold tracking-tight md:text-4xl"
+      >
+        {entry.name}
+      </h1>
+      <p class="mt-4 font-body text-base leading-relaxed text-foreground/80">
+        {entry.whatItMeans}
+      </p>
+
+      <section class="mt-10" aria-label="Example conversation">
+        <div class="mb-4 flex items-baseline justify-between gap-4">
+          <h2 class="font-display text-xl font-bold tracking-tight">
+            From a real-shaped conversation
+          </h2>
+          <span
+            class="shrink-0 rounded-full border border-foreground/15 px-2 py-0.5 font-mono text-xs uppercase tracking-wide text-muted"
+            >Fictional</span
+          >
+        </div>
+        <SignalConversation
+          conversation={entry.fixture}
+          focusType={entry.name}
+        />
+      </section>
+    </div>
+  </main>
+  <Footer />
+</Layout>

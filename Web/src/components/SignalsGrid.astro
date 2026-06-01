@@ -1,23 +1,50 @@
 ---
 import { getAllSignals } from "../lib/signal-catalog";
+import { getSignalTypeEntry, toSlug } from "../lib/signal-library";
 
-const signals = getAllSignals();
+const signals = getAllSignals().map((signal) => ({
+  ...signal,
+  slug: toSlug(signal.name),
+  documented: Boolean(getSignalTypeEntry(toSlug(signal.name))),
+}));
 ---
 
 <section id="signals" class="px-6 py-20 md:px-10">
-  <h2 class="font-display text-2xl font-bold tracking-tight md:text-3xl mb-12">
+  <h2 class="font-display text-2xl font-bold tracking-tight md:text-3xl mb-4">
     10 signals from your support inbox
   </h2>
+  <p class="mb-12 font-body text-base text-foreground/70">
+    Explore each one in the
+    <a
+      href="/signals"
+      class="text-accent underline-offset-4 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded-sm"
+      >Signal Field Guide</a
+    >.
+  </p>
   <div class="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-5 md:gap-6">
-    {signals.map((signal) => (
-      <div
-        data-signal-cell
-        class="rounded-lg border border-foreground/10 px-4 py-5 text-center"
-      >
-        <span class="font-display text-sm font-semibold tracking-wide md:text-base">
-          {signal.name}
-        </span>
-      </div>
-    ))}
+    {
+      signals.map((signal) =>
+        signal.documented ? (
+          <a
+            href={`/signals/${signal.slug}`}
+            data-signal-cell
+            class="rounded-lg border border-foreground/10 px-4 py-5 text-center transition-colors hover:border-accent/50 hover:bg-accent/5 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+          >
+            <span class="font-display text-sm font-semibold tracking-wide md:text-base">
+              {signal.name}
+            </span>
+          </a>
+        ) : (
+          <div
+            data-signal-cell
+            class="rounded-lg border border-foreground/10 px-4 py-5 text-center"
+          >
+            <span class="font-display text-sm font-semibold tracking-wide md:text-base">
+              {signal.name}
+            </span>
+          </div>
+        ),
+      )
+    }
   </div>
 </section>

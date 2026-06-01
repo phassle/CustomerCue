@@ -13,6 +13,9 @@ export const SIGNAL_NAMES = [
 
 export type SignalType = (typeof SIGNAL_NAMES)[number];
 
+/** Canonical URL slug for a signal type (spaces → hyphens). */
+export const toSlug = (name: SignalType): string => name.replace(/\s+/g, "-");
+
 export interface Signal {
   name: SignalType;
 }

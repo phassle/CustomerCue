@@ -1,0 +1,152 @@
+---
+import type {
+  Conversation,
+  Annotation,
+} from "../data/conversation-fixtures/types";
+import type { SignalType } from "../lib/signal-catalog";
+import { signalColor } from "../lib/signal-colors";
+
+interface Props {
+  conversation: Conversation;
+  /** Annotations of this type are highlighted and surfaced as receipts. */
+  focusType: SignalType;
+}
+
+const { conversation, focusType } = Astro.props;
+
+type Segment =
+  | { type: "text"; text: string }
+  | { type: "mark"; text: string; annotation: Annotation };
+
+// Static port of ConversationThread's segment builder: clamp overlapping
+// ranges so the first-sorted annotation wins. Only the focused signal type is
+// highlighted here — the page is about one signal type at a time.
+function buildSegments(body: string, annotations: Annotation[]): Segment[] {
+  const focused = annotations
+    .filter((a) => a.signalType === focusType)
+    .sort((a, b) => a.range.start - b.range.start);
+  if (focused.length === 0) return [{ type: "text", text: body }];
+
+  const segments: Segment[] = [];
+  let cursor = 0;
+  for (const ann of focused) {
+    const start = Math.max(cursor, ann.range.start);
+    if (start >= ann.range.end) continue;
+    if (start > cursor) {
+      segments.push({ type: "text", text: body.slice(cursor, start) });
+    }
+    segments.push({
+      type: "mark",
+      text: body.slice(start, ann.range.end),
+      annotation: ann,
+    });
+    cursor = ann.range.end;
+  }
+  if (cursor < body.length) {
+    segments.push({ type: "text", text: body.slice(cursor) });
+  }
+  return segments;
+}
+
+const annotationsByMessage = new Map<string, Annotation[]>();
+for (const ann of conversation.annotations) {
+  const list = annotationsByMessage.get(ann.range.messageId) ?? [];
+  list.push(ann);
+  annotationsByMessage.set(ann.range.messageId, list);
+}
+
+const receipts = conversation.annotations.filter(
+  (a) => a.signalType === focusType,
+);
+const highlight = signalColor(focusType);
+---
+
+<div class="mx-auto max-w-2xl">
+  <header
+    class="mb-4 rounded-lg border border-foreground/10 bg-foreground/5 px-4 py-3"
+  >
+    <h3 class="font-display text-base font-semibold text-foreground">
+      {conversation.scenarioLabel}
+    </h3>
+    <dl class="mt-1 flex flex-wrap gap-x-4 gap-y-1 font-mono text-xs text-muted">
+      <div class="flex gap-1">
+        <dt>Account:</dt>
+        <dd class="text-foreground/80">{conversation.account}</dd>
+      </div>
+      <div class="flex gap-1">
+        <dt>Context:</dt>
+        <dd class="text-foreground/80">{conversation.productContext}</dd>
+      </div>
+    </dl>
+  </header>
+
+  <div class="flex flex-col gap-3">
+    {
+      conversation.messages.map((msg) => {
+        const segments = buildSegments(
+          msg.body,
+          annotationsByMessage.get(msg.id) ?? [],
+        );
+        const alignment =
+          msg.author === "customer"
+            ? "border-foreground/15 bg-foreground/5 self-start"
+            : "border-accent/20 bg-accent/5 self-end";
+        return (
+          <article
+            aria-label={`Message from ${msg.authorName}`}
+            class={`rounded-lg border px-4 py-3 ${alignment}`}
+          >
+            <div class="mb-1 flex items-baseline gap-2">
+              <span class="font-display text-sm font-semibold text-foreground">
+                {msg.authorName}
+              </span>
+              <span class="font-mono text-xs text-foreground/60">
+                {msg.timestamp}
+              </span>
+            </div>
+            <p class="font-body text-sm leading-relaxed text-foreground/90">
+              {segments.map((seg) =>
+                seg.type === "text" ? (
+                  seg.text
+                ) : (
+                  <mark
+                    data-signal-type={seg.annotation.signalType}
+                    aria-label={`highlight: ${seg.annotation.signalType}`}
+                    class="rounded-sm text-inherit"
+                    style={`background-color: ${highlight}`}
+                  >
+                    {seg.text}
+                  </mark>
+                ),
+              )}
+            </p>
+          </article>
+        );
+      })
+    }
+  </div>
+
+  <section aria-label="Why this is a signal" class="mt-6">
+    <h3 class="font-mono text-xs font-semibold uppercase tracking-wide text-muted">
+      Why this is a {focusType} signal
+    </h3>
+    <ul class="mt-3 space-y-3">
+      {
+        receipts.map((ann) => (
+          <li class="rounded-lg border border-foreground/10 px-4 py-3">
+            <p class="font-body text-sm text-foreground/90">{ann.rationale}</p>
+            <p class="mt-2 font-body text-sm text-foreground/70">
+              <span class="font-mono text-xs uppercase text-muted">
+                Suggested action ·{" "}
+              </span>
+              {ann.suggestedAction}
+            </p>
+            <span class="mt-2 inline-block font-mono text-xs text-muted">
+              confidence: {ann.confidence}
+            </span>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+</div>

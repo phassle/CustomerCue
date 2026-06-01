@@ -6,9 +6,13 @@ Terms specific to the public marketing site. For repo-wide vocabulary see [`../b
 
 ### signal
 
-A real, surfaced revenue signal extracted from a real support conversation. Every rendered signal MUST link to its source conversation(s) — the trust contract from [`../docs/signals.md`](../docs/signals.md). Canonical taxonomy in the same file.
+A real, surfaced revenue signal *instance* — extracted from a specific support conversation (e.g. Acme's churn risk on a failing-sync thread). Distinct from a **signal type** (the category it belongs to). Every rendered signal MUST link to its source conversation(s) — the trust contract from [`../docs/signals.md`](../docs/signals.md).
 
-In `Web/`, "signal" only appears in fixture data inside the Explainer and Sample digest — both clearly labelled fictional.
+In `Web/`, "signal" only appears in fixture data inside the Explainer, Sample digest, and Signal Field Guide — all clearly labelled fictional.
+
+### signal type
+
+One of the 10 canonical taxonomy categories in [`../docs/signals.md`](../docs/signals.md) (`churn risk`, `expansion intent`, …) — the *kind* a signal can be, not a surfaced instance. The **Signal Field Guide** (`/signals`, see [`docs/page-scope.md`](./docs/page-scope.md) and [`../docs/adr/0006-web-signal-field-guide-multipage.md`](../docs/adr/0006-web-signal-field-guide-multipage.md)) documents signal types; each detail page illustrates one with example signals (annotated fixtures). Use the names verbatim — no synonyms.
 
 ### signal estimate
 

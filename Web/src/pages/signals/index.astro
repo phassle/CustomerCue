@@ -1,0 +1,83 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import Wordmark from "../../components/Wordmark.astro";
+import Footer from "../../components/Footer.astro";
+import { SIGNAL_NAMES } from "../../lib/signal-catalog";
+import { getSignalTypeEntry, toSlug } from "../../lib/signal-library";
+
+const cards = SIGNAL_NAMES.map((name) => ({
+  name,
+  slug: toSlug(name),
+  entry: getSignalTypeEntry(toSlug(name)),
+}));
+const documentedCount = cards.filter((c) => c.entry).length;
+---
+
+<Layout title="Signal Field Guide — CustomerCue">
+  <header class="flex items-center px-6 py-5 md:px-10">
+    <a href="/" aria-label="CustomerCue home"><Wordmark /></a>
+  </header>
+  <main class="px-6 py-12 md:px-10">
+    <div class="mx-auto max-w-6xl">
+      <p class="font-mono text-xs uppercase tracking-wide text-muted">
+        Field guide
+      </p>
+      <h1
+        class="mt-2 font-display text-3xl font-bold tracking-tight md:text-4xl"
+      >
+        The 10 revenue signals hiding in your support inbox
+      </h1>
+      <p class="mt-4 max-w-2xl font-body text-base text-foreground/70">
+        Every signal type, with a real-shaped example conversation and the
+        receipts behind it. Examples are fictional.
+      </p>
+      <p class="mt-2 font-mono text-xs text-muted">
+        {documentedCount} of {SIGNAL_NAMES.length} documented
+      </p>
+
+      <ul
+        class="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"
+        role="list"
+      >
+        {
+          cards.map(({ name, slug, entry }) =>
+            entry ? (
+              <li>
+                <a
+                  href={`/signals/${slug}`}
+                  data-signal-card
+                  data-state="documented"
+                  class="block h-full rounded-lg border border-foreground/15 px-5 py-5 transition-colors hover:border-accent/50 hover:bg-accent/5 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                >
+                  <span class="font-display text-base font-semibold tracking-wide text-foreground">
+                    {name}
+                  </span>
+                  <p class="mt-2 font-body text-sm text-foreground/70">
+                    {entry.summary}
+                  </p>
+                </a>
+              </li>
+            ) : (
+              <li>
+                <div
+                  data-signal-card
+                  data-state="pending"
+                  aria-disabled="true"
+                  class="h-full rounded-lg border border-dashed border-foreground/10 px-5 py-5 opacity-50"
+                >
+                  <span class="font-display text-base font-semibold tracking-wide text-foreground/70">
+                    {name}
+                  </span>
+                  <p class="mt-2 font-mono text-xs uppercase tracking-wide text-muted">
+                    Coming soon
+                  </p>
+                </div>
+              </li>
+            ),
+          )
+        }
+      </ul>
+    </div>
+  </main>
+  <Footer />
+</Layout>
