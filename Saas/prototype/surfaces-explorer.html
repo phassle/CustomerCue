@@ -1,0 +1,3154 @@
+<!doctype html>
+<!--
+  CustomerCue — Saas 1.0 surfaces explorer (built on top of the locked Variant A).
+  THROWAWAY. Once the surface variants are picked, the winners fold into the real
+  Saas/ Next.js app (PRD: github.com/phassle/CustomerCue/issues/55) and this file
+  gets deleted.
+
+  Forked from variant-a-standalone.html on 2026-05-13 to layer five new surfaces
+  on top of the locked Variant A Triage Inbox backdrop:
+    S1 — Paste-classify (/classify)
+    S2 — Account drilldown
+    S3 — Send-to-owner
+    S4 — [stub] rationale treatment
+    S5 — /login user picker
+
+  The Variant A inbox itself is NOT touched — it sits underneath every overlay
+  surface, so each surface variant is judged against the real product chrome.
+
+  Usage:
+    open Saas/prototype/surfaces-explorer.html
+    ?surface=inbox|classify|drilldown|sendto|stub|login   (default: inbox)
+    ?variant=A|B|C                                         (per non-inbox surface)
+    ?layout=1|2|3 and ?sort=…                              (inbox-only, retained)
+  Keys:
+    1/2/3 — layout (inbox only)
+    ←/→  — cycle variant within current surface
+    Click the surface tabs at the top to switch surface.
+
+  Data is fictional. Canonical signal names (docs/signals.md) used verbatim. Every
+  signal renders with linked source conversations (trust contract).
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>CustomerCue — Saas 1.0 surfaces explorer</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600&family=Geist:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  html, body { font-family: 'Geist', system-ui, sans-serif; }
+  .mono { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+
+  /* =================================================================== */
+  /* Variant A — Editorial Triage Inbox.                                  */
+  /* All styling scoped under .va so the surrounding page chrome is       */
+  /* free to evolve in a follow-up design session.                        */
+  /* =================================================================== */
+  .va {
+    --paper:        #F7F3EC;
+    --paper-deep:   #EFE7D5;
+    --paper-tint:   #FBF8F2;
+    --surface:      #FFFFFF;
+    --ink:          #1B1916;
+    --ink-soft:     #3D372F;
+    --ink-mute:     #847C70;
+    --ink-faint:    #B5AC9E;
+    --rule:         #E5DFD3;
+    --rule-strong:  #C9C0AE;
+    --risk:         #8C2D2D;
+    --risk-soft:    #F4E5DE;
+    --expand:       #2A5D3C;
+    --expand-soft:  #DDE9DD;
+    --accent:       #B8893C;
+    --accent-soft:  #F0E1C4;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Geist', system-ui, sans-serif;
+    font-feature-settings: 'ss01','cv11';
+    letter-spacing: -0.003em;
+    height: calc(100vh - 32px);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  .va * { box-sizing: border-box; }
+  .va button { font-family: inherit; cursor: pointer; border: none; background: none; padding: 0; color: inherit; }
+  .va .serif { font-family: 'Fraunces', Georgia, 'Times New Roman', serif; font-variation-settings: 'opsz' 48, 'SOFT' 50; }
+  .va .mono  { font-family: 'JetBrains Mono', ui-monospace, monospace; letter-spacing: 0; }
+  .va kbd {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9.5px;
+    padding: 1px 5px;
+    background: var(--paper);
+    border: 1px solid var(--rule-strong);
+    border-bottom-width: 2px;
+    border-radius: 3px;
+    color: var(--ink-soft);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    line-height: 1.4;
+  }
+  .va .text-risk   { color: var(--risk); }
+  .va .text-expand { color: var(--expand); }
+
+  /* topbar ----------------------------------------------------------- */
+  .va-topbar {
+    flex-shrink: 0;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto auto auto;
+    align-items: center;
+    gap: 22px;
+    padding: 0 24px;
+    height: 56px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--rule);
+  }
+  .va-brand { display: flex; align-items: center; gap: 10px; }
+  .va-brand-mark {
+    font-family: 'Fraunces', serif;
+    font-variation-settings: 'opsz' 40;
+    font-weight: 600;
+    font-size: 16px;
+    letter-spacing: -0.02em;
+    background: var(--ink);
+    color: var(--paper);
+    width: 28px; height: 28px;
+    display: grid; place-items: center;
+    border-radius: 4px;
+  }
+  .va-brand-name {
+    font-family: 'Fraunces', serif;
+    font-variation-settings: 'opsz' 24;
+    font-weight: 500;
+    font-size: 15.5px;
+    letter-spacing: -0.018em;
+    color: var(--ink);
+  }
+  .va-brand-workspace {
+    font-size: 10.5px;
+    color: var(--ink-mute);
+    padding-left: 12px;
+    margin-left: 4px;
+    border-left: 1px solid var(--rule);
+    letter-spacing: 0.04em;
+  }
+  .va-search {
+    display: flex; align-items: center; gap: 10px;
+    height: 32px;
+    padding: 0 12px;
+    background: var(--paper);
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    color: var(--ink-mute);
+    font-size: 12.5px;
+    max-width: 380px;
+    transition: border-color .15s;
+    cursor: text;
+  }
+  .va-search:hover { border-color: var(--rule-strong); }
+  .va-search-icon { color: var(--ink-faint); font-size: 13px; }
+  .va-search > kbd { margin-left: auto; }
+  .va-kbd-hints { display: flex; gap: 14px; font-size: 10.5px; color: var(--ink-mute); }
+  .va-kbd-hints span { display: inline-flex; align-items: center; gap: 4px; letter-spacing: 0.02em; }
+  .va-sync { font-size: 10.5px; color: var(--ink-mute); display: flex; align-items: center; gap: 5px; }
+  .va-sync::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--expand); box-shadow: 0 0 0 2px var(--expand-soft); }
+  .va-avatar {
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    background: var(--ink);
+    color: var(--paper);
+    display: grid; place-items: center;
+    font-size: 10.5px; font-weight: 600; letter-spacing: 0.06em;
+  }
+
+  /* grid ------------------------------------------------------------- */
+  .va-grid {
+    flex: 1;
+    min-height: 0;
+    display: grid;
+    grid-template-columns: 56px 380px minmax(0, 1fr);
+    overflow: hidden;
+  }
+
+  /* icon rail */
+  .va-iconrail {
+    background: var(--surface);
+    border-right: 1px solid var(--rule);
+    padding: 12px 0;
+    display: flex; flex-direction: column;
+    align-items: center;
+    gap: 2px;
+  }
+  .va-icon {
+    width: 38px; height: 38px;
+    border-radius: 6px;
+    color: var(--ink-mute);
+    font-size: 16px;
+    display: grid; place-items: center;
+    transition: background .15s, color .15s;
+  }
+  .va-icon:hover { background: var(--paper); color: var(--ink); }
+  .va-icon.is-active { background: var(--ink); color: var(--paper); }
+  .va-iconrail-spacer { flex: 1; }
+
+  /* queue ------------------------------------------------------------ */
+  .va-queue {
+    background: var(--surface);
+    border-right: 1px solid var(--rule);
+    display: flex; flex-direction: column;
+    min-height: 0;
+  }
+  .va-queue-header {
+    display: flex; align-items: flex-end; justify-content: space-between;
+    gap: 12px;
+    padding: 18px 20px 14px;
+    border-bottom: 1px solid var(--rule);
+  }
+  .va-eyebrow {
+    font-size: 9.5px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--ink-mute);
+    font-weight: 600;
+  }
+  .va-queue-title {
+    font-family: 'Fraunces', serif;
+    font-variation-settings: 'opsz' 72;
+    font-size: 26px;
+    font-weight: 400;
+    letter-spacing: -0.028em;
+    margin: 4px 0 0 0;
+    color: var(--ink);
+    line-height: 1;
+  }
+  .va-queue-meta {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 11px;
+    color: var(--ink-mute);
+  }
+  .va-queue-meta strong { color: var(--ink); font-weight: 600; font-family: 'JetBrains Mono', monospace; font-size: 12px; }
+  .va-queue-meta .text-risk strong { color: var(--risk); }
+  .va-dot { width: 3px; height: 3px; border-radius: 50%; background: var(--ink-faint); display: inline-block; }
+
+  .va-queue-toolbar {
+    display: flex; align-items: center; gap: 4px;
+    padding: 8px 14px;
+    border-bottom: 1px solid var(--rule);
+    background: var(--paper-tint);
+  }
+  .va-queue-toolbar button {
+    font-size: 11px;
+    padding: 4px 9px;
+    border-radius: 3px;
+    color: var(--ink-soft);
+    transition: background .12s, color .12s;
+  }
+  .va-queue-toolbar button:hover { color: var(--ink); }
+  .va-queue-toolbar button.is-active {
+    background: var(--surface);
+    color: var(--ink);
+    box-shadow: inset 0 0 0 1px var(--rule-strong);
+  }
+  .va-queue-sort {
+    margin-left: auto;
+    font-size: 10px;
+    color: var(--ink-mute);
+    letter-spacing: 0.04em;
+  }
+
+  .va-queue-list {
+    list-style: none; padding: 0; margin: 0;
+    overflow-y: auto; flex: 1; min-height: 0;
+  }
+  .va-item {
+    display: grid;
+    grid-template-columns: 26px 1fr;
+    gap: 12px;
+    padding: 14px 18px 14px 14px;
+    border-bottom: 1px solid var(--rule);
+    cursor: pointer;
+    position: relative;
+    transition: background .15s;
+    animation: vaItemIn 0.4s ease-out backwards;
+    animation-delay: calc(var(--i, 0) * 22ms);
+  }
+  @keyframes vaItemIn {
+    from { opacity: 0; transform: translateY(4px); }
+    to   { opacity: 1; transform: none; }
+  }
+  .va-item:hover { background: var(--paper-tint); }
+  .va-item.is-active { background: var(--paper); }
+  .va-item.is-active::before {
+    content: ''; position: absolute;
+    left: 0; top: 0; bottom: 0; width: 3px;
+    background: var(--tone, var(--ink));
+  }
+  .va-item-rank {
+    font-size: 10.5px;
+    color: var(--ink-faint);
+    padding-top: 3px;
+    text-align: right;
+    font-weight: 500;
+  }
+  .va-item.is-active .va-item-rank { color: var(--ink-soft); }
+  .va-item-row1 { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+  .va-type { display: inline-flex; align-items: center; gap: 6px; }
+  .va-type-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+  .va-type-name {
+    font-size: 11px;
+    color: var(--ink-soft);
+    letter-spacing: -0.005em;
+    font-weight: 500;
+  }
+  .va-item-time {
+    margin-left: auto;
+    font-size: 10px;
+    color: var(--ink-faint);
+  }
+  .va-item-account {
+    font-family: 'Fraunces', serif;
+    font-variation-settings: 'opsz' 28, 'SOFT' 40;
+    font-size: 17px;
+    font-weight: 500;
+    letter-spacing: -0.018em;
+    color: var(--ink);
+    line-height: 1.08;
+  }
+  .va-item-meta {
+    font-size: 10.5px;
+    color: var(--ink-mute);
+    margin-top: 4px;
+    letter-spacing: 0;
+  }
+  .va-item-summary {
+    font-size: 12.5px;
+    color: var(--ink-soft);
+    margin-top: 7px;
+    line-height: 1.42;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .va-item-foot {
+    display: flex; align-items: center;
+    gap: 8px; margin-top: 9px;
+  }
+  .va-urgency {
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    font-weight: 600;
+    padding: 2px 7px;
+    border-radius: 2px;
+  }
+  .va-urgency.u-high   { color: var(--risk);     background: var(--risk-soft); }
+  .va-urgency.u-medium { color: var(--accent);   background: var(--accent-soft); }
+  .va-urgency.u-low    { color: var(--ink-mute); background: var(--paper-deep); }
+  .va-item-tix { font-size: 10.5px; color: var(--ink-mute); }
+  .va-item-current {
+    margin-left: auto;
+    font-size: 10px;
+    color: var(--ink);
+    letter-spacing: 0.04em;
+    font-weight: 600;
+  }
+
+  /* detail ----------------------------------------------------------- */
+  .va-detail {
+    overflow-y: auto;
+    background: var(--paper);
+    background-image:
+      radial-gradient(ellipse at top right, rgba(255,255,255,0.6), transparent 50%),
+      radial-gradient(ellipse at bottom left, rgba(184,137,60,0.035), transparent 60%);
+  }
+  .va-detail-inner {
+    max-width: 880px;
+    padding: 36px 56px 80px;
+    margin: 0 auto;
+    animation: vaFadeIn 0.5s ease-out backwards;
+    animation-delay: 0.08s;
+  }
+  @keyframes vaFadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: none; }
+  }
+
+  .va-trail {
+    display: flex; gap: 10px;
+    font-size: 11px;
+    color: var(--ink-mute);
+    letter-spacing: 0.04em;
+    margin-bottom: 24px;
+    align-items: center;
+  }
+  .va-trail-sep { color: var(--ink-faint); }
+  .va-trail-current { color: var(--ink); }
+
+  .va-headline-row {
+    display: flex; align-items: center;
+    gap: 10px; flex-wrap: wrap;
+    margin-bottom: 18px;
+  }
+  .va-type-tag {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 5px 14px 5px 11px;
+    background: var(--surface);
+    border: 1px solid var(--rule-strong);
+    border-radius: 999px;
+    font-size: 11.5px;
+    color: var(--ink);
+    font-weight: 500;
+  }
+  .va-detected { font-size: 11px; color: var(--ink-mute); }
+  .va-pill-btn {
+    font-size: 11.5px;
+    padding: 5px 12px;
+    background: transparent;
+    border: 1px solid var(--rule-strong);
+    border-radius: 4px;
+    color: var(--ink-soft);
+    transition: background .15s, color .15s, border-color .15s;
+  }
+  .va-pill-btn:hover { background: var(--surface); color: var(--ink); border-color: var(--ink); }
+  .va-pill-btn.va-share { margin-left: auto; }
+
+  .va-headline {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(48px, 5.4vw, 76px);
+    font-weight: 400;
+    letter-spacing: -0.042em;
+    line-height: 0.94;
+    font-variation-settings: 'opsz' 144, 'SOFT' 30;
+    color: var(--ink);
+    margin: 0;
+  }
+
+  .va-meta-strip {
+    display: flex; align-items: baseline;
+    gap: 18px;
+    margin: 18px 0 32px;
+    flex-wrap: wrap;
+    font-size: 13px;
+    color: var(--ink);
+  }
+  .va-meta-strip > span:not(.va-meta-rule) {
+    display: inline-flex; align-items: baseline; gap: 8px;
+  }
+  .va-meta-strip em {
+    font-style: normal;
+    color: var(--ink-mute);
+    text-transform: uppercase;
+    font-size: 9.5px;
+    letter-spacing: 0.14em;
+    font-weight: 600;
+  }
+  .va-meta-strip strong {
+    font-weight: 500;
+    font-family: 'Fraunces', serif;
+    font-variation-settings: 'opsz' 24;
+    font-size: 15px;
+    letter-spacing: -0.015em;
+  }
+  .va-meta-rule { width: 1px; height: 12px; background: var(--rule-strong); align-self: center; }
+
+  .va-pullquote {
+    margin: 32px 0 4px;
+    padding: 14px 0 14px 24px;
+    border-left: 2px solid var(--ink);
+  }
+  .va-pullquote .va-eyebrow { margin-bottom: 8px; }
+  .va-pullquote p {
+    font-family: 'Fraunces', serif;
+    font-variation-settings: 'opsz' 48, 'SOFT' 50;
+    font-size: 22px;
+    font-weight: 350;
+    line-height: 1.42;
+    margin: 0;
+    color: var(--ink);
+    letter-spacing: -0.018em;
+  }
+
+  .va-stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    margin: 36px 0;
+    border-top: 1px solid var(--ink);
+    border-bottom: 1px solid var(--ink);
+  }
+  .va-stat {
+    padding: 18px 18px 18px;
+    border-right: 1px solid var(--rule);
+    background: var(--paper-tint);
+  }
+  .va-stat:last-child { border-right: 0; }
+  .va-stat-label {
+    font-size: 9.5px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-mute);
+    font-weight: 600;
+  }
+  .va-stat-row { display: flex; align-items: center; gap: 10px; }
+  .va-stat-value {
+    font-family: 'Fraunces', serif;
+    font-size: 34px;
+    font-weight: 400;
+    letter-spacing: -0.038em;
+    line-height: 1;
+    margin-top: 10px;
+    font-variation-settings: 'opsz' 96;
+    color: var(--ink);
+  }
+  .va-stat-sub {
+    font-size: 10.5px;
+    color: var(--ink-mute);
+    margin-top: 8px;
+    letter-spacing: 0.02em;
+  }
+  .va-sparkline { width: 70px; height: 22px; margin-top: 14px; opacity: 0.9; flex-shrink: 0; }
+  .va-stat-impact { background: var(--risk-soft); }
+  .va-stat-impact .va-stat-label { color: var(--risk); }
+  .va-stat-impact .va-stat-value { color: var(--risk); }
+
+  .va-sources { margin-top: 44px; }
+  .va-section-header {
+    display: flex; justify-content: space-between;
+    align-items: flex-end;
+    padding-bottom: 12px;
+    border-bottom: 2px solid var(--ink);
+    margin-bottom: 0;
+    gap: 16px;
+  }
+  .va-section-subtitle {
+    font-size: 12.5px;
+    color: var(--ink-mute);
+    margin: 4px 0 0;
+    font-style: italic;
+    font-family: 'Fraunces', serif;
+    font-variation-settings: 'opsz' 18, 'ital' 1;
+    font-weight: 350;
+  }
+  .va-section-subtitle .mono { font-style: normal; }
+
+  .va-source-list { list-style: none; padding: 0; margin: 0; }
+  .va-source-row {
+    display: grid;
+    grid-template-columns: 110px minmax(0, 1fr) 90px 20px;
+    gap: 18px;
+    padding: 16px 12px;
+    border-bottom: 1px solid var(--rule);
+    align-items: start;
+    transition: background .15s;
+    cursor: pointer;
+    margin: 0 -12px;
+  }
+  .va-source-row:hover { background: var(--surface); }
+  .va-source-meta { display: flex; flex-direction: column; gap: 4px; padding-top: 2px; }
+  .va-source-channel {
+    font-size: 9.5px;
+    letter-spacing: 0.18em;
+    color: var(--ink);
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+  .va-source-id {
+    font-size: 10px;
+    color: var(--ink-faint);
+    letter-spacing: 0.02em;
+  }
+  .va-source-subject {
+    font-size: 14.5px;
+    color: var(--ink);
+    font-weight: 500;
+    letter-spacing: -0.012em;
+    line-height: 1.3;
+  }
+  .va-source-snippet {
+    font-size: 12.5px;
+    color: var(--ink-mute);
+    margin-top: 5px;
+    line-height: 1.5;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .va-source-date {
+    font-size: 11px;
+    color: var(--ink-mute);
+    padding-top: 3px;
+    text-align: right;
+  }
+  .va-source-arrow {
+    color: var(--ink-faint);
+    font-size: 14px;
+    transition: transform .2s, color .2s;
+    padding-top: 2px;
+  }
+  .va-source-row:hover .va-source-arrow {
+    color: var(--ink);
+    transform: translate(2px, -2px);
+  }
+
+  /* actions ---------------------------------------------------------- */
+  .va-actions {
+    margin-top: 44px;
+    padding: 22px 24px 22px;
+    background: var(--surface);
+    border: 1px solid var(--ink);
+    position: relative;
+  }
+  .va-actions::before {
+    content: '';
+    position: absolute;
+    top: -1px; left: -1px; right: -1px;
+    height: 4px;
+    background: var(--ink);
+  }
+  .va-actions-head {
+    display: flex; align-items: baseline;
+    justify-content: space-between;
+    flex-wrap: wrap; gap: 12px;
+  }
+  .va-actions-sub {
+    font-size: 11.5px;
+    color: var(--ink-mute);
+    margin: 0;
+    font-family: 'Fraunces', serif;
+    font-variation-settings: 'opsz' 18, 'ital' 1;
+    font-weight: 350;
+    font-style: italic;
+  }
+  .va-action-buttons {
+    display: flex; flex-wrap: wrap;
+    gap: 6px; margin-top: 16px;
+  }
+  .va-action-buttons button {
+    display: inline-flex; align-items: center;
+    gap: 10px;
+    font-size: 12.5px;
+    padding: 9px 14px;
+    border-radius: 2px;
+    transition: background .15s, color .15s, border-color .15s;
+    font-weight: 500;
+  }
+  .va-action-primary {
+    background: var(--ink); color: var(--paper);
+  }
+  .va-action-primary kbd {
+    background: rgba(247,243,236,.14);
+    border-color: rgba(247,243,236,.22);
+    color: var(--paper);
+    border-bottom-width: 1px;
+  }
+  .va-action-primary:hover { background: var(--ink-soft); }
+  .va-action-secondary {
+    background: var(--paper);
+    box-shadow: inset 0 0 0 1px var(--rule-strong);
+    color: var(--ink);
+  }
+  .va-action-secondary:hover { background: var(--surface); box-shadow: inset 0 0 0 1px var(--ink); }
+  .va-action-ghost {
+    background: transparent;
+    color: var(--ink-mute);
+    margin-left: auto;
+    font-weight: 400;
+  }
+  .va-action-ghost:hover { color: var(--ink); }
+
+  /* listing switcher (inside queue toolbar) -------------------------- */
+  .va-listing-tabs {
+    display: inline-flex;
+    background: var(--surface);
+    border: 1px solid var(--rule-strong);
+    border-radius: 4px;
+    padding: 2px;
+  }
+  .va-listing-tab {
+    display: inline-flex; align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    color: var(--ink-soft);
+    padding: 4px 9px;
+    border-radius: 3px;
+    transition: background .15s, color .15s;
+    font-weight: 500;
+  }
+  .va-listing-tab:hover { color: var(--ink); }
+  .va-listing-tab.is-active {
+    background: var(--ink);
+    color: var(--paper);
+  }
+  .va-listing-tab kbd {
+    font-size: 8.5px;
+    padding: 0 4px;
+    background: transparent;
+    border: 1px solid var(--rule-strong);
+    border-bottom-width: 1px;
+    color: var(--ink-faint);
+    border-radius: 2px;
+    line-height: 1.5;
+  }
+  .va-listing-tab.is-active kbd {
+    background: rgba(247,243,236,.10);
+    border-color: rgba(247,243,236,.22);
+    color: rgba(247,243,236,.72);
+  }
+
+  /* sort dropdown ---------------------------------------------------- */
+  .va-sort {
+    position: relative;
+    margin-left: auto;
+  }
+  .va-sort > summary {
+    list-style: none;
+    display: inline-flex; align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    color: var(--ink-soft);
+    padding: 5px 8px 5px 10px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background .15s, color .15s, box-shadow .15s;
+    letter-spacing: 0.02em;
+    font-weight: 500;
+    user-select: none;
+  }
+  .va-sort > summary::-webkit-details-marker { display: none; }
+  .va-sort > summary::marker { display: none; content: ''; }
+  .va-sort > summary:hover { color: var(--ink); background: var(--surface); }
+  .va-sort[open] > summary {
+    background: var(--surface);
+    color: var(--ink);
+    box-shadow: inset 0 0 0 1px var(--ink);
+  }
+  .va-sort-arrow { color: var(--ink-mute); font-size: 11px; }
+  .va-sort[open] .va-sort-arrow { color: var(--ink); }
+  .va-sort-current { font-weight: 500; }
+  .va-sort-chev { font-size: 9px; color: var(--ink-mute); transition: transform .15s; }
+  .va-sort[open] .va-sort-chev { transform: rotate(180deg); color: var(--ink); }
+
+  .va-sort-menu {
+    position: absolute;
+    right: 0; top: calc(100% + 6px);
+    background: var(--surface);
+    border: 1px solid var(--ink);
+    border-radius: 4px;
+    min-width: 240px;
+    z-index: 30;
+    padding: 4px;
+    box-shadow: 0 10px 28px -10px rgba(27,25,22,.18),
+                0 2px 0 0 var(--ink);
+    animation: vaSortIn .15s ease-out;
+  }
+  @keyframes vaSortIn {
+    from { opacity: 0; transform: translateY(-4px); }
+    to   { opacity: 1; transform: none; }
+  }
+  .va-sort-eyebrow {
+    padding: 8px 10px 4px;
+    color: var(--ink-mute);
+  }
+  .va-sort-opt {
+    display: flex; flex-direction: column;
+    align-items: flex-start; gap: 2px;
+    width: 100%;
+    padding: 8px 10px 9px;
+    border-radius: 3px;
+    text-align: left;
+    cursor: pointer;
+    transition: background .12s;
+    position: relative;
+  }
+  .va-sort-opt:hover { background: var(--paper-tint); }
+  .va-sort-opt.is-active { background: var(--paper); }
+  .va-sort-opt.is-active::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 8px; bottom: 8px;
+    width: 2px;
+    background: var(--ink);
+    border-radius: 2px;
+  }
+  .va-sort-opt-label {
+    font-size: 12.5px;
+    color: var(--ink);
+    font-weight: 500;
+    letter-spacing: -0.005em;
+  }
+  .va-sort-opt-desc {
+    font-size: 10.5px;
+    color: var(--ink-mute);
+    letter-spacing: 0;
+  }
+
+  /* type divider (used in cards + ledger when sort=type) ------------- */
+  .va-type-divider {
+    display: grid;
+    grid-template-columns: 3px 1fr auto;
+    align-items: stretch;
+    background: var(--paper-tint);
+    border-top: 1px solid var(--rule-strong);
+    border-bottom: 1px solid var(--rule);
+    list-style: none;
+    cursor: default;
+  }
+  .va-type-divider:first-child { border-top: 0; }
+  .va-type-divider-bar { background: var(--tone, var(--ink)); }
+  .va-type-divider-label {
+    font-size: 10px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--ink);
+    font-weight: 600;
+    padding: 9px 0 9px 14px;
+    display: flex; align-items: center;
+  }
+  .va-type-divider-count {
+    font-size: 10.5px;
+    color: var(--ink-mute);
+    padding: 0 14px;
+    display: flex; align-items: center;
+  }
+  .va-type-divider--thin .va-type-divider-label { padding-top: 6px; padding-bottom: 6px; font-size: 9.5px; letter-spacing: 0.18em; }
+  .va-type-divider--thin .va-type-divider-count { font-size: 10px; }
+
+  /* listing 2 — ledger ----------------------------------------------- */
+  .va-list-ledger {
+    list-style: none; padding: 0; margin: 0;
+    overflow-y: auto; flex: 1; min-height: 0;
+  }
+  .va-ledger-row {
+    display: grid;
+    grid-template-columns: 22px 6px minmax(0, 1fr) auto 18px 32px;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 16px 8px 12px;
+    border-bottom: 1px solid var(--rule);
+    cursor: pointer;
+    position: relative;
+    transition: background .15s;
+    animation: vaItemIn 0.35s ease-out backwards;
+    animation-delay: calc(var(--i, 0) * 14ms);
+  }
+  .va-ledger-row:hover { background: var(--paper-tint); }
+  .va-ledger-row.is-active { background: var(--paper); }
+  .va-ledger-row.is-active::before {
+    content: ''; position: absolute;
+    left: 0; top: 0; bottom: 0; width: 3px;
+    background: var(--tone, var(--ink));
+  }
+  .va-ledger-rank {
+    font-size: 10.5px;
+    color: var(--ink-faint);
+    text-align: right;
+    font-weight: 500;
+  }
+  .va-ledger-row.is-active .va-ledger-rank { color: var(--ink-soft); }
+  .va-ledger-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    justify-self: center;
+  }
+  .va-ledger-account {
+    font-family: 'Fraunces', serif;
+    font-variation-settings: 'opsz' 22;
+    font-size: 14.5px;
+    font-weight: 500;
+    letter-spacing: -0.015em;
+    color: var(--ink);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .va-ledger-arr {
+    font-size: 11px;
+    color: var(--ink-soft);
+    font-weight: 600;
+    text-align: right;
+    letter-spacing: 0.01em;
+  }
+  .va-ledger-urgency {
+    font-size: 9.5px;
+    font-weight: 700;
+    width: 18px; height: 16px;
+    display: grid; place-items: center;
+    border-radius: 2px;
+    letter-spacing: 0;
+  }
+  .va-ledger-urgency.u-high   { background: var(--risk);       color: var(--paper); }
+  .va-ledger-urgency.u-medium { background: var(--accent);     color: var(--paper); }
+  .va-ledger-urgency.u-low    { background: var(--paper-deep); color: var(--ink-mute); }
+  .va-ledger-time {
+    font-size: 10px;
+    color: var(--ink-mute);
+    text-align: right;
+    letter-spacing: 0;
+  }
+
+  /* listing 3 — grouped by signal type ------------------------------- */
+  .va-list-grouped {
+    list-style: none; padding: 0; margin: 0;
+    overflow-y: auto; flex: 1; min-height: 0;
+  }
+  .va-group {
+    border-bottom: 1px solid var(--rule);
+    animation: vaItemIn 0.4s ease-out backwards;
+    animation-delay: calc(var(--gi, 0) * 50ms);
+  }
+  .va-group-header {
+    display: grid;
+    grid-template-columns: 4px 1fr auto auto;
+    align-items: stretch;
+    background: var(--paper-tint);
+    border-bottom: 1px solid var(--rule);
+    cursor: pointer;
+    min-height: 34px;
+  }
+  .va-group-bar {
+    background: var(--tone, var(--ink));
+    align-self: stretch;
+  }
+  .va-group-name {
+    font-size: 10.5px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    font-weight: 600;
+    padding: 10px 0 10px 14px;
+    color: var(--ink);
+    display: flex;
+    align-items: center;
+  }
+  .va-group-count {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--ink-mute);
+    padding: 0 10px;
+    display: flex;
+    align-items: center;
+  }
+  .va-group-toggle {
+    width: 28px;
+    color: var(--ink-mute);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px;
+  }
+  .va-group-items {
+    list-style: none; padding: 0; margin: 0;
+    background: var(--surface);
+  }
+  .va-group-item {
+    display: grid;
+    grid-template-columns: 24px 1fr;
+    gap: 12px;
+    padding: 12px 18px 12px 14px;
+    border-bottom: 1px solid var(--rule);
+    cursor: pointer;
+    position: relative;
+    transition: background .15s;
+  }
+  .va-group-item:last-child { border-bottom: 0; }
+  .va-group-item:hover { background: var(--paper-tint); }
+  .va-group-item.is-active { background: var(--paper); }
+  .va-group-item.is-active::before {
+    content: ''; position: absolute;
+    left: 0; top: 0; bottom: 0; width: 3px;
+    background: var(--tone, var(--ink));
+  }
+  .va-group-item-rank {
+    font-size: 10.5px;
+    color: var(--ink-faint);
+    padding-top: 3px;
+    text-align: right;
+    font-weight: 500;
+  }
+  .va-group-item-head {
+    display: flex; align-items: baseline;
+    gap: 10px; margin-bottom: 5px;
+  }
+  .va-group-item-account {
+    font-family: 'Fraunces', serif;
+    font-variation-settings: 'opsz' 24;
+    font-size: 15px;
+    font-weight: 500;
+    letter-spacing: -0.014em;
+    color: var(--ink);
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .va-group-item-arr {
+    font-size: 10.5px;
+    color: var(--ink-mute);
+    font-weight: 500;
+  }
+  .va-group-item-time {
+    font-size: 10px;
+    color: var(--ink-faint);
+  }
+  .va-group-item-summary {
+    font-size: 12px;
+    color: var(--ink-soft);
+    line-height: 1.42;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .va-group-item-foot {
+    display: flex; align-items: center;
+    gap: 10px; margin-top: 6px;
+  }
+
+  /* status bar ------------------------------------------------------- */
+  .va-statusbar {
+    flex-shrink: 0;
+    display: flex; align-items: center;
+    gap: 14px;
+    height: 30px;
+    padding: 0 20px;
+    background: var(--ink);
+    color: rgba(247,243,236,.72);
+    font-size: 10.5px;
+    letter-spacing: 0.04em;
+  }
+  .va-statusbar-dot {
+    width: 3px; height: 3px; border-radius: 50%;
+    background: rgba(247,243,236,.3);
+  }
+  .va-statusbar-fill { flex: 1; }
+  .va-statusbar-cta {
+    color: var(--accent);
+    letter-spacing: 0.08em;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 10px;
+  }
+
+  /* =================================================================== */
+  /* Surfaces explorer chrome — sits ABOVE the locked Variant A inbox.   */
+  /* All prototype-only styles prefixed with `.px-` so they cannot leak  */
+  /* into the real Saas/ app when winners are folded back in.            */
+  /* =================================================================== */
+  :root {
+    --paper:        #F7F3EC;
+    --paper-deep:   #EFE7D5;
+    --paper-tint:   #FBF8F2;
+    --surface:      #FFFFFF;
+    --ink:          #1B1916;
+    --ink-soft:     #3D372F;
+    --ink-mute:     #847C70;
+    --ink-faint:    #B5AC9E;
+    --rule:         #E5DFD3;
+    --rule-strong:  #C9C0AE;
+    --risk:         #8C2D2D;
+    --risk-soft:    #F4E5DE;
+    --expand:       #2A5D3C;
+    --expand-soft:  #DDE9DD;
+    --accent:       #B8893C;
+    --accent-soft:  #F0E1C4;
+  }
+
+  .px-topbar {
+    height: 32px;
+    display: flex;
+    align-items: stretch;
+    gap: 14px;
+    padding: 0 14px;
+    background: var(--ink);
+    color: rgba(247,243,236,.78);
+    font-family: 'Geist', system-ui, sans-serif;
+    font-size: 11px;
+    border-bottom: 1px solid #000;
+  }
+  .px-topbar-brand { display: flex; align-items: center; gap: 9px; }
+  .px-topbar-mark {
+    width: 20px; height: 20px;
+    background: var(--paper); color: var(--ink);
+    display: grid; place-items: center;
+    border-radius: 3px;
+    font-family: 'Fraunces', serif;
+    font-variation-settings: 'opsz' 40;
+    font-size: 10.5px; font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+  .px-topbar-name { color: var(--paper); font-weight: 500; letter-spacing: 0.01em; }
+  .px-topbar-warn {
+    font-size: 9.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: var(--accent);
+    padding-left: 10px;
+    margin-left: 4px;
+    border-left: 1px solid rgba(247,243,236,.15);
+  }
+  .px-topbar-tabs { display: flex; align-items: stretch; gap: 1px; margin: 0 auto; }
+  .px-topbar-tab {
+    border: none; background: none;
+    padding: 0 12px;
+    color: rgba(247,243,236,.55);
+    font-size: 11px;
+    font-family: inherit;
+    letter-spacing: 0.01em;
+    display: inline-flex; align-items: center; gap: 8px;
+    cursor: pointer;
+    transition: color .12s, background .12s;
+  }
+  .px-topbar-tab:hover { color: var(--paper); background: rgba(247,243,236,.04); }
+  .px-topbar-tab.is-active {
+    color: var(--paper); font-weight: 500;
+    background: rgba(247,243,236,.08);
+    box-shadow: inset 0 -2px 0 var(--accent);
+  }
+  .px-topbar-tab .px-tab-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    opacity: 0.55;
+    border: 1px solid rgba(247,243,236,.2);
+    border-radius: 2px;
+    padding: 0 4px;
+    line-height: 1.5;
+  }
+  .px-topbar-stack {
+    align-self: center;
+    font-size: 9.5px;
+    color: rgba(247,243,236,.4);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  /* Floating variant pill at bottom-center */
+  .px-variant-bar {
+    position: fixed; left: 50%; bottom: 18px;
+    transform: translateX(-50%);
+    background: var(--ink);
+    color: var(--paper);
+    border-radius: 22px;
+    padding: 5px 6px 5px 12px;
+    display: flex; align-items: center; gap: 8px;
+    box-shadow: 0 22px 44px -22px rgba(27,25,22,.6), 0 4px 10px -4px rgba(27,25,22,.35);
+    z-index: 60;
+    font-size: 11.5px;
+    font-family: 'Geist', sans-serif;
+  }
+  .px-variant-bar[hidden] { display: none; }
+  .px-variant-bar .label {
+    padding: 0 6px; min-width: 220px;
+    text-align: center;
+  }
+  .px-variant-bar .label .key {
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--accent-soft);
+    font-size: 10px; margin-right: 6px;
+    letter-spacing: 0.03em;
+  }
+  .px-variant-bar .label b { color: var(--paper); font-weight: 500; }
+  .px-variant-bar button {
+    border: none; background: rgba(255,255,255,.07);
+    color: var(--paper);
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    font-size: 15px;
+    line-height: 1;
+    display: grid; place-items: center;
+    cursor: pointer;
+    transition: background .15s;
+    font-family: inherit;
+  }
+  .px-variant-bar button:hover { background: rgba(255,255,255,.18); }
+
+  /* Overlay root — fixed below topbar, hosts all surface overlays + pages */
+  #px-overlay-root {
+    position: fixed;
+    top: 32px; left: 0; right: 0; bottom: 0;
+    pointer-events: none;
+    z-index: 40;
+    font-family: 'Geist', system-ui, sans-serif;
+    color: var(--ink);
+  }
+  #px-overlay-root > * { pointer-events: auto; }
+
+  /* When a full-page surface (classify, login) is active, hide the inbox */
+  body.px-fullpage #app { display: none; }
+  body.px-fullpage #px-overlay-root { background: var(--paper); }
+
+  /* Generic small UI bits used across surfaces */
+  .px-chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 3px 10px;
+    background: var(--paper);
+    border: 1px solid var(--rule);
+    border-radius: 999px;
+    font-size: 11px;
+    color: var(--ink-soft);
+  }
+  .px-chip.high { background: var(--risk-soft); color: var(--risk); border-color: transparent; font-weight: 600; }
+  .px-chip.med  { background: var(--accent-soft); color: var(--accent); border-color: transparent; font-weight: 600; }
+  .px-chip.low  { background: var(--expand-soft); color: var(--expand); border-color: transparent; font-weight: 600; }
+  .px-type-pill {
+    display: inline-flex; align-items: center; gap: 7px;
+    font-size: 11.5px; color: var(--ink-soft); font-weight: 500;
+  }
+  .px-type-pill::before {
+    content: ''; width: 7px; height: 7px; border-radius: 50%;
+    background: var(--tone, var(--ink));
+  }
+  .px-eyebrow {
+    font-size: 9.5px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--ink-mute);
+    font-weight: 600;
+  }
+  .px-field-label {
+    display: block;
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-mute);
+    margin-bottom: 7px;
+    font-weight: 600;
+  }
+  .px-field-help { font-size: 11.5px; color: var(--ink-mute); }
+  .px-seg {
+    display: inline-flex;
+    border: 1px solid var(--rule-strong);
+    border-radius: 4px;
+    background: var(--surface);
+    padding: 2px;
+    gap: 2px;
+  }
+  .px-seg button {
+    border: none; background: none;
+    padding: 5px 11px;
+    border-radius: 3px;
+    font-size: 11.5px;
+    color: var(--ink-soft);
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .px-seg button.is-active {
+    background: var(--ink); color: var(--paper);
+    font-weight: 500;
+  }
+  .px-textarea, .px-input, .px-select {
+    font-family: inherit;
+    color: var(--ink);
+    border: 1px solid var(--rule-strong);
+    border-radius: 3px;
+    background: var(--surface);
+    padding: 10px 12px;
+    font-size: 13px;
+    width: 100%;
+    outline: none;
+  }
+  .px-textarea { resize: vertical; min-height: 160px; line-height: 1.5; font-family: 'JetBrains Mono', monospace; font-size: 12px; }
+  .px-textarea:focus, .px-input:focus, .px-select:focus { border-color: var(--ink); }
+
+  .px-btn {
+    display: inline-flex; align-items: center; gap: 9px;
+    padding: 9px 16px;
+    border: 1px solid transparent;
+    border-radius: 3px;
+    font-size: 12.5px;
+    font-weight: 500;
+    font-family: inherit;
+    cursor: pointer;
+    letter-spacing: 0.01em;
+  }
+  .px-btn-primary { background: var(--ink); color: var(--paper); }
+  .px-btn-primary:hover { background: var(--ink-soft); }
+  .px-btn-primary kbd {
+    background: rgba(247,243,236,.14);
+    border-color: rgba(247,243,236,.22);
+    color: var(--paper);
+    border-bottom-width: 1px;
+  }
+  .px-btn-secondary { background: var(--paper); color: var(--ink); box-shadow: inset 0 0 0 1px var(--rule-strong); }
+  .px-btn-secondary:hover { box-shadow: inset 0 0 0 1px var(--ink); }
+  .px-btn-ghost { background: transparent; color: var(--ink-mute); }
+  .px-btn-ghost:hover { color: var(--ink); }
+
+  /* Note ribbon shown at the top of every surface (variant description) */
+  .px-note {
+    position: absolute;
+    top: 14px; left: 50%; transform: translateX(-50%);
+    max-width: 760px;
+    width: max-content;
+    background: var(--surface);
+    border: 1px solid var(--rule-strong);
+    border-left: 3px solid var(--accent);
+    border-radius: 3px;
+    padding: 8px 14px 8px 12px;
+    font-size: 11.5px;
+    color: var(--ink-soft);
+    line-height: 1.45;
+    box-shadow: 0 8px 22px -14px rgba(27,25,22,.25);
+    z-index: 70;
+  }
+  .px-note .mono { color: var(--accent); font-weight: 600; margin-right: 8px; }
+
+  /* =================================================================== */
+  /* S1 — Paste-classify (full-page surface, replaces inbox)             */
+  /* =================================================================== */
+  .px-page {
+    position: absolute; inset: 0;
+    background: var(--paper);
+    overflow-y: auto;
+    padding: 64px 40px 80px;
+  }
+  .px-page-inner { max-width: 760px; margin: 0 auto; }
+  .px-page-eyebrow { font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--ink-mute); font-weight: 600; }
+  .px-page-headline {
+    font-family: 'Fraunces', serif;
+    font-variation-settings: 'opsz' 96;
+    font-size: 44px; font-weight: 400;
+    letter-spacing: -0.038em; line-height: 1.02;
+    margin: 6px 0 8px;
+    color: var(--ink);
+  }
+  .px-page-lede {
+    font-family: 'Fraunces', serif;
+    font-variation-settings: 'opsz' 18, 'ital' 1;
+    font-weight: 350; font-style: italic;
+    font-size: 14.5px;
+    color: var(--ink-mute);
+    max-width: 580px;
+    margin: 0 0 32px;
+    line-height: 1.5;
+  }
+
+  /* S1·A — single-pane */
+  .s1a-form {
+    background: var(--surface);
+    border: 1px solid var(--rule-strong);
+    border-radius: 4px;
+    padding: 32px 38px;
+  }
+  .s1a-form .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 18px; }
+  .s1a-submit { margin-top: 22px; display: flex; align-items: center; gap: 14px; }
+  .s1a-result {
+    margin-top: 26px;
+    background: var(--paper-tint);
+    border: 1px solid var(--rule);
+    border-left: 3px solid var(--tone, var(--ink));
+    border-radius: 4px;
+    padding: 22px 26px;
+    animation: pxHi 1.6s ease-out 1;
+  }
+  @keyframes pxHi {
+    0%   { box-shadow: 0 0 0 0 var(--accent-soft); }
+    35%  { box-shadow: 0 0 0 8px var(--accent-soft); }
+    100% { box-shadow: 0 0 0 0 transparent; }
+  }
+  .s1a-result h3 {
+    font-family: 'Fraunces', serif;
+    font-variation-settings: 'opsz' 48;
+    font-weight: 500;
+    font-size: 22px;
+    letter-spacing: -0.018em;
+    margin: 6px 0 8px;
+  }
+  .s1a-result .pull {
+    font-family: 'Fraunces', serif;
+    font-variation-settings: 'opsz' 36;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 1.42;
+    border-left: 2px solid var(--tone, var(--ink));
+    padding: 4px 0 4px 14px;
+    margin: 12px 0;
+  }
+
+  /* S1·B — split-screen */
+  .s1b-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 22px;
+    min-height: 540px;
+  }
+  .s1b-pane {
+    background: var(--surface);
+    border: 1px solid var(--rule-strong);
+    border-radius: 4px;
+    padding: 22px 26px;
+    display: flex; flex-direction: column;
+  }
+  .s1b-pane.preview { background: var(--paper-tint); }
+  .s1b-pane-head {
+    display: flex; justify-content: space-between; align-items: baseline;
+    margin-bottom: 14px;
+  }
+  .s1b-pane-head h3 {
+    font-family: 'Fraunces', serif;
+    font-variation-settings: 'opsz' 36;
+    font-weight: 500;
+    font-size: 18px; margin: 0;
+    letter-spacing: -0.018em;
+  }
+  .s1b-status {
+    display: inline-flex; align-items: center; gap: 7px;
+    font-size: 11px; color: var(--ink-mute);
+  }
+  .s1b-status .pulse {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--accent);
+    animation: pxPulse 1.2s ease-in-out infinite;
+  }
+  @keyframes pxPulse { 0%,100% { opacity: 0.35; transform: scale(.85);} 50% { opacity: 1; transform: scale(1.1);} }
+  .s1b-preview-card {
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-left: 3px solid var(--tone, var(--ink-faint));
+    border-radius: 4px;
+    padding: 16px 18px;
+    margin-top: 8px;
+  }
+  .s1b-preview-card.ghost { opacity: 0.5; border-left-color: var(--ink-faint); }
+  .s1b-preview-card .acct {
+    font-family: 'Fraunces', serif;
+    font-variation-settings: 'opsz' 36;
+    font-weight: 500;
+    font-size: 19px;
+    letter-spacing: -0.018em;
+  }
+  .s1b-preview-card .pull {
+    font-family: 'Fraunces', serif;
+    font-variation-settings: 'opsz' 28;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 1.4;
+    border-left: 2px solid var(--tone, var(--ink));
+    padding-left: 12px;
+    margin: 12px 0 4px;
+  }
+
+  /* S1·C — wizard */
+  .s1c-progress { display: flex; gap: 12px; align-items: center; justify-content: center; margin-bottom: 26px; }
+  .s1c-step { display: flex; align-items: center; gap: 8px; font-size: 11.5px; color: var(--ink-faint); }
+  .s1c-step .num {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    background: var(--paper);
+    border: 1px solid var(--rule-strong);
+    display: grid; place-items: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    color: var(--ink-mute);
+  }
+  .s1c-step.is-current { color: var(--ink); font-weight: 500; }
+  .s1c-step.is-current .num { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+  .s1c-step.is-done .num { background: var(--expand); color: var(--paper); border-color: var(--expand); }
+  .s1c-rule { width: 28px; height: 1px; background: var(--rule-strong); }
+  .s1c-panel {
+    background: var(--surface);
+    border: 1px solid var(--rule-strong);
+    border-radius: 4px;
+    padding: 32px 36px;
+    min-height: 380px;
+    display: flex; flex-direction: column;
+  }
+  .s1c-pasted-preview {
+    background: var(--paper);
+    border: 1px solid var(--rule);
+    border-radius: 3px;
+    padding: 12px 14px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11.5px;
+    color: var(--ink-mute);
+    line-height: 1.45;
+    max-height: 96px;
+    overflow: hidden;
+    position: relative;
+  }
+  .s1c-pasted-preview::after {
+    content: ''; position: absolute;
+    left: 0; right: 0; bottom: 0; height: 40px;
+    background: linear-gradient(transparent, var(--paper));
+    pointer-events: none;
+  }
+  .s1c-actions {
+    margin-top: auto; padding-top: 22px;
+    display: flex; justify-content: space-between; gap: 10px;
+  }
+
+  /* =================================================================== */
+  /* S2 — Account drilldown                                              */
+  /* =================================================================== */
+  .px-backdrop {
+    position: absolute; inset: 0;
+    background: rgba(27,25,22,.32);
+    backdrop-filter: blur(1.5px);
+    animation: pxFade .18s ease-out;
+  }
+  @keyframes pxFade { from { opacity: 0; } to { opacity: 1; } }
+
+  /* S2·A — right slide-in */
+  .s2a-panel {
+    position: absolute;
+    top: 0; right: 0; bottom: 0;
+    width: 58%; max-width: 720px;
+    background: var(--surface);
+    border-left: 1px solid var(--ink);
+    box-shadow: -28px 0 60px -28px rgba(27,25,22,.45);
+    display: flex; flex-direction: column;
+    animation: pxSlideIn .22s ease-out;
+  }
+  @keyframes pxSlideIn { from { transform: translateX(8%); opacity: 0;} to { transform: none; opacity: 1; } }
+  .s2a-head {
+    padding: 26px 32px 18px;
+    border-bottom: 1px solid var(--rule);
+    background: var(--paper-tint);
+  }
+  .s2a-close {
+    float: right;
+    width: 28px; height: 28px;
+    border: 1px solid var(--rule-strong);
+    border-radius: 3px;
+    background: var(--surface);
+    color: var(--ink-soft);
+    font-size: 14px;
+    cursor: pointer;
+  }
+  .s2a-headline {
+    font-family: 'Fraunces', serif;
+    font-variation-settings: 'opsz' 96;
+    font-size: 38px;
+    font-weight: 400;
+    letter-spacing: -0.034em;
+    margin: 4px 0 14px;
+    line-height: 1;
+  }
+  .s2a-meta-strip {
+    display: flex; gap: 22px; flex-wrap: wrap;
+    font-size: 12.5px;
+    color: var(--ink-mute);
+  }
+  .s2a-meta-strip em {
+    font-style: normal;
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-mute);
+    display: block;
+    font-weight: 600;
+  }
+  .s2a-meta-strip b {
+    font-family: 'Fraunces', serif;
+    font-variation-settings: 'opsz' 24;
+    font-weight: 500;
+    font-size: 15px;
+    color: var(--ink);
+    letter-spacing: -0.012em;
+  }
+  .s2a-body { flex: 1; overflow-y: auto; padding: 18px 32px 32px; }
+  .s2a-list-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 10px; }
+  .s2a-signal {
+    display: grid;
+    grid-template-columns: 28px 1fr auto;
+    gap: 14px;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--rule);
+    align-items: start;
+  }
+  .s2a-signal .rank { font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: var(--ink-faint); padding-top: 4px; }
+  .s2a-signal .summary { font-size: 13px; color: var(--ink-soft); line-height: 1.42; margin-top: 5px; }
+  .s2a-signal .meta { font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: var(--ink-mute); }
+
+  /* S2·B — full-screen account page (replaces inbox view) */
+  .s2b-page {
+    position: absolute; inset: 0;
+    background: var(--surface);
+    display: flex; flex-direction: column;
+    animation: pxFade .18s ease-out;
+  }
+  .s2b-bar {
+    display: flex; align-items: center; gap: 16px;
+    padding: 12px 28px;
+    border-bottom: 1px solid var(--rule);
+    background: var(--paper-tint);
+  }
+  .s2b-tabs { display: flex; gap: 2px; margin-left: 12px; }
+  .s2b-tab { padding: 6px 12px; font-size: 11.5px; color: var(--ink-mute); border: none; background: none; border-radius: 3px; font-family: inherit; cursor: pointer; }
+  .s2b-tab.is-active { background: var(--ink); color: var(--paper); font-weight: 500; }
+  .s2b-body { padding: 36px 48px; flex: 1; overflow-y: auto; }
+  .s2b-header { display: grid; grid-template-columns: 2fr 3fr; gap: 36px; margin-bottom: 32px; }
+  .s2b-summary {
+    background: var(--paper-tint);
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    padding: 20px 22px;
+  }
+  .s2b-summary-row {
+    display: flex; justify-content: space-between; align-items: baseline;
+    padding: 6px 0;
+    font-size: 12px;
+    color: var(--ink-mute);
+  }
+  .s2b-summary-row b {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--ink);
+    font-weight: 600;
+  }
+  .s2b-summary-row b.text-risk { color: var(--risk); }
+  .s2b-card {
+    display: grid;
+    grid-template-columns: 28px 1fr auto;
+    gap: 14px; align-items: start;
+    padding: 14px 18px;
+    background: var(--paper-tint);
+    border: 1px solid var(--rule);
+    border-left: 3px solid var(--tone, var(--ink));
+    border-radius: 4px;
+    margin-bottom: 8px;
+  }
+
+  /* S2·C — inline expansion */
+  .s2c-inline {
+    margin: 18px 0 4px;
+    background: var(--paper-tint);
+    border: 1px solid var(--rule-strong);
+    border-radius: 4px;
+    padding: 16px 20px;
+    animation: pxFade .2s ease-out;
+  }
+  .s2c-inline-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 12px; }
+  .s2c-row {
+    display: grid; grid-template-columns: 24px 1fr auto auto;
+    gap: 14px; align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px dashed var(--rule);
+    font-size: 12.5px;
+  }
+  .s2c-row:last-child { border-bottom: none; }
+  .s2c-row .title { color: var(--ink-soft); }
+  .s2c-row .meta { font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: var(--ink-mute); }
+  .s2c-account-tag {
+    background: var(--accent-soft);
+    border-radius: 2px;
+    padding: 1px 5px;
+    color: var(--ink);
+    margin-right: 4px;
+    cursor: pointer;
+  }
+
+  /* =================================================================== */
+  /* S3 — Send-to-owner                                                  */
+  /* =================================================================== */
+
+  /* S3·A — centered modal */
+  .s3a-modalwrap {
+    position: absolute; inset: 0;
+    display: grid; place-items: center;
+  }
+  .s3a-modal {
+    width: 560px; max-width: 92%;
+    background: var(--surface);
+    border: 1px solid var(--ink);
+    border-radius: 4px;
+    box-shadow: 0 32px 70px -22px rgba(27,25,22,.45);
+    overflow: hidden;
+    animation: pxFade .18s ease-out;
+  }
+  .s3a-head {
+    padding: 18px 22px 14px;
+    border-bottom: 1px solid var(--rule);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .s3a-tabs {
+    display: flex; padding: 0 22px;
+    border-bottom: 1px solid var(--rule);
+    background: var(--paper-tint);
+  }
+  .s3a-tab {
+    padding: 10px 14px;
+    font-size: 12px;
+    border: none; background: none;
+    color: var(--ink-mute);
+    position: relative;
+    display: flex; align-items: center; gap: 7px;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .s3a-tab.is-active { color: var(--ink); font-weight: 500; }
+  .s3a-tab.is-active::after {
+    content: ''; position: absolute;
+    left: 0; right: 0; bottom: -1px; height: 2px;
+    background: var(--ink);
+  }
+  .s3a-body { padding: 20px 22px; background: var(--paper-tint); }
+  .s3a-preview {
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-radius: 3px;
+    padding: 16px 18px;
+    font-size: 12.5px;
+    line-height: 1.55;
+  }
+  .s3a-actions {
+    padding: 14px 22px;
+    display: flex; gap: 10px; justify-content: flex-end;
+    background: var(--surface);
+    border-top: 1px solid var(--rule);
+  }
+
+  /* S3·B — bottom sheet */
+  .s3b-sheet {
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    background: var(--surface);
+    border-top: 1px solid var(--ink);
+    box-shadow: 0 -22px 50px -28px rgba(27,25,22,.4);
+    padding: 16px 32px 22px;
+    animation: pxSheetUp .22s ease-out;
+  }
+  @keyframes pxSheetUp { from { transform: translateY(40%); opacity: 0; } to { transform: none; opacity: 1; } }
+  .s3b-grab {
+    width: 36px; height: 4px; border-radius: 2px;
+    background: var(--rule-strong);
+    margin: 0 auto 14px;
+  }
+  .s3b-row { display: grid; grid-template-columns: 1fr auto; gap: 18px; align-items: center; }
+  .s3b-preview {
+    margin-top: 12px;
+    background: var(--paper-tint);
+    border: 1px solid var(--rule);
+    border-radius: 3px;
+    padding: 12px 14px;
+    font-size: 12px;
+    color: var(--ink-soft);
+    line-height: 1.45;
+  }
+  .s3b-actions { display: flex; gap: 10px; margin-top: 14px; justify-content: flex-end; }
+
+  /* S3·C — inline composer (renders inside detail canvas via DOM injection) */
+  .s3c-composer {
+    margin: 18px 0 6px;
+    background: var(--paper);
+    border: 1px solid var(--ink);
+    border-radius: 4px;
+    padding: 16px 20px;
+    animation: pxFade .18s ease-out;
+  }
+  .s3c-head { display: flex; align-items: center; gap: 14px; margin-bottom: 12px; }
+  .s3c-channels { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .s3c-channel {
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-radius: 3px;
+    padding: 12px 14px;
+    font-size: 12px;
+    line-height: 1.5;
+  }
+  .s3c-channel h4 {
+    font-size: 9.5px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-mute);
+    margin: 0 0 6px;
+    font-weight: 600;
+  }
+  .s3c-foot { display: flex; align-items: center; gap: 14px; margin-top: 14px; }
+  .s3c-foot label { font-size: 11.5px; color: var(--ink-soft); display: inline-flex; gap: 6px; align-items: center; }
+  .s3c-foot .right { margin-left: auto; display: flex; gap: 10px; }
+  .s3c-actioned {
+    margin-top: 14px;
+    background: var(--expand-soft);
+    border-radius: 3px;
+    padding: 10px 14px;
+    font-size: 11.5px;
+    color: var(--expand);
+    display: flex; align-items: center; gap: 10px;
+    animation: pxFade .25s ease-out;
+  }
+
+  /* =================================================================== */
+  /* S4 — [stub] rationale treatments (inline-injected into pullquote)   */
+  /* =================================================================== */
+  .s4-stub-inline {
+    background: var(--paper);
+    color: var(--ink-mute);
+    border: 1px solid var(--rule-strong);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    padding: 2px 6px;
+    border-radius: 2px;
+    margin-right: 8px;
+    vertical-align: 2px;
+    font-weight: 500;
+  }
+  .s4-banner {
+    display: flex; gap: 10px; align-items: flex-start;
+    padding: 10px 14px;
+    background: var(--paper-tint);
+    border: 1px solid var(--rule-strong);
+    border-left: 3px solid var(--accent);
+    border-radius: 3px;
+    margin: 18px 0 4px;
+    font-size: 12px;
+    color: var(--ink-soft);
+    line-height: 1.45;
+    animation: pxFade .2s ease-out;
+  }
+  .s4-banner .ico {
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: var(--paper);
+    display: grid; place-items: center;
+    font-size: 10px; font-weight: 700;
+    flex-shrink: 0;
+  }
+  .s4-banner b { color: var(--ink); font-weight: 600; }
+  /* footer-meta variant doesn't need its own CSS — it just mutates the statusbar classifier label */
+
+  /* =================================================================== */
+  /* S5 — /login user picker (full-page)                                 */
+  /* =================================================================== */
+  .s5a-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 22px;
+    max-width: 720px; margin: 0 auto;
+  }
+  .s5a-card {
+    background: var(--surface);
+    border: 1px solid var(--rule-strong);
+    border-radius: 4px;
+    padding: 36px 32px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color .15s, transform .15s;
+  }
+  .s5a-card:hover { border-color: var(--ink); transform: translateY(-1px); }
+  .s5a-avatar {
+    width: 68px; height: 68px;
+    border-radius: 50%;
+    background: var(--ink);
+    color: var(--paper);
+    display: grid; place-items: center;
+    margin: 0 auto 16px;
+    font-family: 'Fraunces', serif;
+    font-variation-settings: 'opsz' 48;
+    font-size: 22px; font-weight: 500;
+    letter-spacing: -0.02em;
+  }
+  .s5a-name {
+    font-family: 'Fraunces', serif;
+    font-variation-settings: 'opsz' 48;
+    font-weight: 500;
+    font-size: 24px;
+    letter-spacing: -0.02em;
+  }
+  .s5a-role { font-size: 12.5px; color: var(--ink-mute); margin-top: 4px; }
+  .s5a-stats { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--ink-soft); margin-top: 14px; }
+
+  .s5b-list { max-width: 720px; margin: 0 auto; }
+  .s5b-row {
+    display: flex; align-items: center; gap: 18px;
+    padding: 16px 22px;
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: background .12s, border-color .12s;
+  }
+  .s5b-row:hover { background: var(--paper-tint); border-color: var(--rule-strong); }
+  .s5b-avatar {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    background: var(--paper-deep); color: var(--ink);
+    display: grid; place-items: center;
+    font-weight: 600; font-size: 12.5px; letter-spacing: 0.04em;
+  }
+  .s5b-info { flex: 1; min-width: 0; }
+  .s5b-name {
+    font-family: 'Fraunces', serif;
+    font-variation-settings: 'opsz' 28;
+    font-weight: 500;
+    font-size: 17px;
+    letter-spacing: -0.014em;
+  }
+  .s5b-meta { font-size: 11.5px; color: var(--ink-mute); margin-top: 2px; }
+  .s5b-arr { font-family: 'JetBrains Mono', monospace; font-size: 11.5px; color: var(--ink-soft); }
+</style>
+</head>
+<body class="bg-slate-50 text-slate-900 antialiased">
+
+<div id="px-topbar" class="px-topbar">
+  <div class="px-topbar-brand">
+    <span class="px-topbar-mark">CC</span>
+    <span class="px-topbar-name">Surfaces explorer</span>
+    <span class="px-topbar-warn">fictional data · throwaway</span>
+  </div>
+  <nav class="px-topbar-tabs" id="px-tabs"></nav>
+  <div class="px-topbar-stack mono">saas 1.0 · variant A backdrop</div>
+</div>
+
+<div id="app"></div>
+
+<div id="px-variant-bar" class="px-variant-bar" hidden></div>
+<div id="px-overlay-root"></div>
+
+<script>
+/* ------------------------------------------------------------------ */
+/* Mocked seed data — fictional, see Saas/docs/demo-data.md            */
+/* ------------------------------------------------------------------ */
+const accounts = [
+  { id: 'acme',      name: 'Acme Corp',      arr: 42000,  plan: 'Growth',     segment: 'Mid-market', owner: 'Maja Lindberg' },
+  { id: 'nordicpay', name: 'NordicPay',      arr: 84000,  plan: 'Growth',     segment: 'Mid-market', owner: 'Felix Andersson' },
+  { id: 'orbit',     name: 'Orbit Systems',  arr: 120000, plan: 'Enterprise', segment: 'Enterprise', owner: 'Sara Nyström' },
+  { id: 'helios',    name: 'Helios Labs',    arr: 18000,  plan: 'Starter',    segment: 'SMB',        owner: 'Per Bergström' },
+  { id: 'kovacs',    name: 'Kovacs & Co',    arr: 7500,   plan: 'Starter',    segment: 'SMB',        owner: 'Per Bergström' },
+  { id: 'lumen',     name: 'Lumen Health',   arr: 96000,  plan: 'Enterprise', segment: 'Enterprise', owner: 'Sara Nyström' },
+  { id: 'tundra',    name: 'Tundra Freight', arr: 31000,  plan: 'Growth',     segment: 'Mid-market', owner: 'Maja Lindberg' },
+  { id: 'pelago',    name: 'Pelago Studio',  arr: 11000,  plan: 'Starter',    segment: 'SMB',        owner: 'Felix Andersson' },
+  { id: 'voltari',   name: 'Voltari Energy', arr: 210000, plan: 'Enterprise', segment: 'Enterprise', owner: 'Sara Nyström' },
+  { id: 'mossrose',  name: 'Mossrose Retail',arr: 26000,  plan: 'Growth',     segment: 'Mid-market', owner: 'Felix Andersson' },
+];
+
+/* signal.type values are the CANONICAL TAXONOMY, verbatim from docs/signals.md.
+   Do not invent synonyms. */
+const signals = [
+  { id: 's1',  type: 'churn risk',                    accountId: 'acme',      summary: '6 tickets in 14 days about Stripe integration, sentiment declining',                     sentiment: -0.42, urgency: 'high',   detectedAt: '2 days ago',  ticketIds: ['t1','t2','t3','t4','t5','t6'] },
+  { id: 's2',  type: 'expansion intent',              accountId: 'nordicpay', summary: 'Repeated questions about SSO, audit logs, admin roles — classic enterprise signals',     sentiment: 0.08,  urgency: 'medium', detectedAt: '5 days ago',  ticketIds: ['t10','t11','t12','t13'] },
+  { id: 's3',  type: 'onboarding issue',              accountId: 'orbit',     summary: '37 tickets across 11 customers stuck on setup step 3 (data import mapping)',             sentiment: -0.18, urgency: 'high',   detectedAt: '1 week ago',  ticketIds: ['t20','t21','t22','t23','t24'] },
+  { id: 's4',  type: 'bug cluster',                   accountId: 'orbit',     summary: 'CSV importer drops rows when first column is blank — 9 reports, 4 ICP accounts',          sentiment: -0.31, urgency: 'high',   detectedAt: '3 days ago',  ticketIds: ['t30','t31','t32'] },
+  { id: 's5',  type: 'product friction',              accountId: 'lumen',     summary: 'Three admins escalated about session timeout being too aggressive on the dashboard',     sentiment: -0.22, urgency: 'medium', detectedAt: '4 days ago',  ticketIds: ['t40','t41'] },
+  { id: 's6',  type: 'feature request',               accountId: 'voltari',   summary: 'Compliance team asks for SAML group sync — flagged twice in renewal conversations',      sentiment: 0.12,  urgency: 'medium', detectedAt: '6 days ago',  ticketIds: ['t50','t51'] },
+  { id: 's7',  type: 'negative sentiment',            accountId: 'kovacs',    summary: 'CSAT dropped sharply across 4 tickets — agent tone, response time mentioned by name',    sentiment: -0.55, urgency: 'medium', detectedAt: '1 day ago',   ticketIds: ['t60','t61'] },
+  { id: 's8',  type: 'strategic account escalation',  accountId: 'voltari',   summary: 'CISO escalated to support lead after security review backlog — top-3 account by ARR',    sentiment: -0.25, urgency: 'high',   detectedAt: 'yesterday',   ticketIds: ['t70'] },
+  { id: 's9',  type: 'documentation gap',             accountId: 'helios',    summary: 'API rate-limit headers not documented — 7 tickets across 5 accounts asking the same Q',  sentiment: -0.05, urgency: 'low',    detectedAt: '1 week ago',  ticketIds: ['t80','t81'] },
+  { id: 's10', type: 'repeated manual workaround',    accountId: 'mossrose',  summary: 'CSMs exporting CSV weekly to fake bulk-tag — third request for proper bulk endpoint',    sentiment: -0.1,  urgency: 'low',    detectedAt: '2 weeks ago', ticketIds: ['t90','t91','t92'] },
+  { id: 's11', type: 'expansion intent',              accountId: 'lumen',     summary: 'Procurement asked about per-seat vs platform pricing on 3 calls + 2 tickets',            sentiment: 0.18,  urgency: 'medium', detectedAt: '3 days ago',  ticketIds: ['t100','t101'] },
+  { id: 's12', type: 'churn risk',                    accountId: 'tundra',    summary: 'Champion left, replacement asking "what does this do for us again" — renewal in 38 days', sentiment: -0.3,  urgency: 'high',   detectedAt: '4 days ago',  ticketIds: ['t110','t111'] },
+  { id: 's13', type: 'product friction',              accountId: 'pelago',    summary: 'Mobile app sign-in loop — 3 tickets, all senior staff on iOS 18',                        sentiment: -0.2,  urgency: 'medium', detectedAt: '2 days ago',  ticketIds: ['t120'] },
+  { id: 's14', type: 'feature request',               accountId: 'nordicpay', summary: 'Customer wants Slack-as-a-channel for their support team — referenced 4 times this month', sentiment: 0.2,  urgency: 'low',    detectedAt: '6 days ago',  ticketIds: ['t130','t131'] },
+];
+
+const tickets = {
+  t1:   { id: 't1',   subject: 'Stripe webhook not firing on subscription renew',           channel: 'intercom', date: '2 days ago',    snippet: 'We have not received a single renew event since Tuesday and revenue reporting is now blocked.' },
+  t2:   { id: 't2',   subject: 'Re: Stripe integration — escalation',                       channel: 'intercom', date: '3 days ago',    snippet: 'This is the third time in two weeks we have had to manually reconcile. Looking at alternatives.' },
+  t3:   { id: 't3',   subject: 'Webhook signature mismatch',                                channel: 'intercom', date: '4 days ago',    snippet: 'Getting 401s on every call. Documentation says one secret but the dashboard shows two.' },
+  t4:   { id: 't4',   subject: 'No response on ticket #4421',                               channel: 'intercom', date: '5 days ago',    snippet: 'Still waiting for an update on the integration issue we raised last Thursday.' },
+  t5:   { id: 't5',   subject: 'Billing dashboard out of sync',                             channel: 'intercom', date: '7 days ago',    snippet: 'Numbers between Stripe and CustomerCue are off by 12%. Auditors flagged it.' },
+  t6:   { id: 't6',   subject: 'Considering pause on renewal',                              channel: 'intercom', date: '8 days ago',    snippet: 'Need to discuss before signing the renewal — this has cost my team 14 hours this month.' },
+  t10:  { id: 't10',  subject: 'Does CustomerCue support SAML SSO?',                        channel: 'zendesk',  date: '5 days ago',    snippet: 'Looking to roll this out to 80+ users — IT requires SSO and audit log export.' },
+  t11:  { id: 't11',  subject: 'Audit log retention question',                              channel: 'zendesk',  date: '6 days ago',    snippet: 'We need 7-year retention for compliance. Is that configurable per workspace?' },
+  t12:  { id: 't12',  subject: 'Admin role granularity',                                    channel: 'zendesk',  date: '7 days ago',    snippet: 'Can we have a read-only auditor role separate from billing admin?' },
+  t13:  { id: 't13',  subject: 'SCIM provisioning timeline?',                               channel: 'zendesk',  date: '9 days ago',    snippet: 'Procurement asked if SCIM is on the roadmap before we sign the larger contract.' },
+  t20:  { id: 't20',  subject: 'Cannot get past CSV column mapping step',                   channel: 'intercom', date: '6 days ago',    snippet: 'Step 3 keeps throwing "unknown header" even when columns match the template exactly.' },
+  t21:  { id: 't21',  subject: 'Setup wizard step 3 — stuck',                               channel: 'intercom', date: '7 days ago',    snippet: 'Cleared cache twice. The Continue button never enables.' },
+  t22:  { id: 't22',  subject: 'How do I skip the import?',                                 channel: 'intercom', date: '8 days ago',    snippet: 'Need to launch a pilot tomorrow — can we bypass step 3 and import later?' },
+  t23:  { id: 't23',  subject: 'Step 3 error: NaN in count',                                channel: 'intercom', date: '8 days ago',    snippet: 'Sample preview shows NaN for half the rows. CSV opens cleanly in Excel.' },
+  t24:  { id: 't24',  subject: 'Re: onboarding call follow-up',                             channel: 'intercom', date: '10 days ago',   snippet: 'Per our call — still blocked at step 3, this is now a launch risk on our side.' },
+  t30:  { id: 't30',  subject: 'CSV import drops first row',                                channel: 'zendesk',  date: '3 days ago',    snippet: 'If the first column is blank the row vanishes. Reproducible on the sample file.' },
+  t31:  { id: 't31',  subject: 'Missing rows after import',                                 channel: 'zendesk',  date: '4 days ago',    snippet: 'Imported 12,000 rows, see 11,847 in the dashboard. Spot-checked: blank leading column.' },
+  t32:  { id: 't32',  subject: 'Need a fix or workaround for CSV importer',                 channel: 'zendesk',  date: '5 days ago',    snippet: 'Customer-facing launch is in 6 days, this is blocking us.' },
+  t40:  { id: 't40',  subject: 'Session timeout is way too aggressive',                     channel: 'intercom', date: '4 days ago',    snippet: 'Logged out mid-form three times today. Can we get a config to extend?' },
+  t41:  { id: 't41',  subject: 'Dashboard kicks me out every 15 minutes',                   channel: 'intercom', date: '5 days ago',    snippet: 'Two of my admins refuse to use it now and have asked for read-only exports instead.' },
+  t50:  { id: 't50',  subject: 'SAML group → role sync?',                                   channel: 'zendesk',  date: '6 days ago',    snippet: 'Compliance is asking whether we can drive role assignment from our IdP groups.' },
+  t51:  { id: 't51',  subject: 'Group sync mentioned in renewal call',                      channel: 'zendesk',  date: '7 days ago',    snippet: 'Procurement put a hard requirement on group-based provisioning for the renewal.' },
+  t60:  { id: 't60',  subject: 'Disappointed with response times',                          channel: 'intercom', date: '1 day ago',     snippet: 'Three tickets in three days, all over 24h to first response. This is below what we expect.' },
+  t61:  { id: 't61',  subject: 'Agent tone follow-up',                                      channel: 'intercom', date: '2 days ago',    snippet: 'I appreciated the resolution but the messaging felt curt. Wanted to flag it.' },
+  t70:  { id: 't70',  subject: 'CISO escalation: security review backlog',                  channel: 'email',    date: 'yesterday',     snippet: 'Forwarded by procurement. Top-of-mind for renewal conversation next quarter.' },
+  t80:  { id: 't80',  subject: 'Where are the rate limit headers documented?',              channel: 'intercom', date: '1 week ago',    snippet: 'Searched docs, found nothing. Need to know X-RateLimit-Remaining behavior.' },
+  t81:  { id: 't81',  subject: 'API limits unclear',                                        channel: 'intercom', date: '2 weeks ago',   snippet: 'Hit a 429 with no Retry-After header. Is there a sliding window?' },
+  t90:  { id: 't90',  subject: 'Bulk tag accounts via CSV?',                                 channel: 'zendesk',  date: '2 weeks ago',   snippet: 'CSM team is exporting accounts, tagging in Excel, re-importing. Painful.' },
+  t91:  { id: 't91',  subject: 'Workaround for bulk update?',                                channel: 'zendesk',  date: '3 weeks ago',   snippet: 'Need to update 400 accounts. Manual UI clicks would take all day.' },
+  t92:  { id: 't92',  subject: 'API bulk-tag endpoint?',                                     channel: 'zendesk',  date: '4 weeks ago',   snippet: 'Would even take a daily-batch CSV upload — anything to avoid the weekly export dance.' },
+  t100: { id: 't100', subject: 'Pricing question — platform vs per-seat',                   channel: 'intercom', date: '3 days ago',    snippet: 'For 200+ seats, does platform pricing make sense? Procurement wants a quote.' },
+  t101: { id: 't101', subject: 'Renewal scoping call notes',                                channel: 'intercom', date: '4 days ago',    snippet: 'Customer asked for an enterprise tier breakdown, hinted at adding 3 BUs next year.' },
+  t110: { id: 't110', subject: 'New PM — onboarding to CustomerCue',                        channel: 'zendesk',  date: '4 days ago',    snippet: 'I just took over from Mira. Can we set up a refresher on what this tool does?' },
+  t111: { id: 't111', subject: 'Justifying renewal internally',                              channel: 'zendesk',  date: '5 days ago',    snippet: 'Need a 1-pager on outcomes to present to my CFO. Renewal is in late June.' },
+  t120: { id: 't120', subject: 'iOS app loops on sign-in',                                  channel: 'intercom', date: '2 days ago',    snippet: 'Enter creds, see spinner, back to sign-in. iOS 18.2. Three of us hit it today.' },
+  t130: { id: 't130', subject: 'Slack as a channel for customer support?',                  channel: 'zendesk',  date: '6 days ago',    snippet: 'Would love if CustomerCue could ingest our shared Slack channel with key customers.' },
+  t131: { id: 't131', subject: 'Re: Slack channel ingestion',                               channel: 'zendesk',  date: '8 days ago',    snippet: 'Following up — this came up again in our QBR yesterday.' },
+};
+
+/* ------------------------------------------------------------------ */
+/* Helpers                                                              */
+/* ------------------------------------------------------------------ */
+const fmtMoney = n => '$' + (n >= 1000 ? (n/1000).toFixed(n>=10000?0:1) + 'k' : n);
+const fmtMoneyFull = n => '$' + n.toLocaleString('en-US');
+const accountById = id => accounts.find(a => a.id === id);
+const ticketsForSignal = s => s.ticketIds.map(id => tickets[id]).filter(Boolean);
+
+// Editorial colour map for variant A (paper/oxblood palette).
+// Same canonical type keys as docs/signals.md; harmonised to the cream background.
+const VA_TONE = {
+  'churn risk':                   '#8C2D2D',
+  'expansion intent':             '#2A5D3C',
+  'product friction':             '#B8893C',
+  'bug cluster':                  '#C25A1F',
+  'onboarding issue':             '#2D5C8C',
+  'feature request':              '#5A3C8C',
+  'negative sentiment':           '#8C2D5C',
+  'strategic account escalation': '#A02020',
+  'documentation gap':            '#4A453E',
+  'repeated manual workaround':   '#2D7C7C',
+};
+
+function ticketRef(t) {
+  const num = String(t.id.replace(/^t/, '')).padStart(3, '0');
+  const prefix = t.channel === 'intercom' ? 'IC' : t.channel === 'zendesk' ? 'ZD' : 'EM';
+  return `${prefix}·${num}`;
+}
+
+// Fake but stable 7-point sentiment trajectory ending near `sentiment`.
+function vaSparklinePoints(sentiment) {
+  const seed = Math.abs(Math.round(sentiment * 137));
+  const pts = [];
+  for (let i = 0; i < 7; i++) {
+    const noise = (((seed + i * 23) % 11) - 5) / 32;
+    const drift = sentiment * (i / 6);
+    const v = drift + noise;
+    const x = (i / 6) * 70;
+    const y = 11 - v * 14;
+    pts.push(`${i === 0 ? 'M' : 'L'}${x.toFixed(1)},${y.toFixed(1)}`);
+  }
+  return pts.join(' ');
+}
+
+// ARR-weighted urgency score for sorting (rough).
+const score = s => (s.urgency === 'high' ? 3 : s.urgency === 'medium' ? 2 : 1) * Math.log10(accountById(s.accountId).arr + 1);
+
+const escapeHtml = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+/* ------------------------------------------------------------------ */
+/* App state                                                            */
+/* ------------------------------------------------------------------ */
+const state = {
+  selectedSignalId: 's1',
+  listing: 1,        // 1=cards, 2=ledger, 3=grouped
+  sort: 'priority',  // priority|arr|recent|urgency|type
+  // Added by surfaces-explorer fork: which non-inbox surface (if any) is in view
+  surface: 'inbox',  // inbox|classify|drilldown|sendto|stub|login
+  variant: 'A',      // A|B|C — per surface
+};
+
+const SORT_MODES = [
+  { key: 'priority', label: 'Priority', desc: 'ARR × urgency'           },
+  { key: 'arr',      label: 'ARR',      desc: 'Largest accounts first'  },
+  { key: 'recent',   label: 'Recent',   desc: 'Newest signals first'    },
+  { key: 'urgency',  label: 'Urgency',  desc: 'High → low'              },
+  { key: 'type',     label: 'Type',     desc: 'Grouped by signal type'  },
+];
+const SORT_KEYS = SORT_MODES.map(m => m.key);
+
+function sortLabel(key) {
+  return (SORT_MODES.find(m => m.key === key) || SORT_MODES[0]).label;
+}
+function urgencyRank(u) { return u === 'high' ? 3 : u === 'medium' ? 2 : 1; }
+function recencyHours(s) {
+  const t = (s.detectedAt || '').toLowerCase();
+  if (t === 'yesterday') return 24;
+  const m = t.match(/(\d+)\s*(hour|day|week|month)/);
+  if (!m) return 9999;
+  const n = parseInt(m[1], 10);
+  const u = m[2];
+  return n * (u === 'hour' ? 1 : u === 'day' ? 24 : u === 'week' ? 168 : 720);
+}
+function applySort(list) {
+  const copy = [...list];
+  switch (state.sort) {
+    case 'arr':      copy.sort((a,b) => accountById(b.accountId).arr - accountById(a.accountId).arr || score(b) - score(a)); break;
+    case 'recent':   copy.sort((a,b) => recencyHours(a) - recencyHours(b) || score(b) - score(a)); break;
+    case 'urgency':  copy.sort((a,b) => urgencyRank(b.urgency) - urgencyRank(a.urgency) || score(b) - score(a)); break;
+    case 'type':     copy.sort((a,b) => a.type.localeCompare(b.type) || score(b) - score(a)); break;
+    case 'priority':
+    default:         copy.sort((a,b) => score(b) - score(a));
+  }
+  return copy;
+}
+function countByType(list) {
+  const m = new Map();
+  for (const s of list) m.set(s.type, (m.get(s.type) || 0) + 1);
+  return m;
+}
+
+function readStateFromUrl() {
+  const url = new URL(window.location);
+  const l = parseInt(url.searchParams.get('layout'), 10);
+  if (l >= 1 && l <= 3) state.listing = l;
+  const s = url.searchParams.get('sort');
+  if (s && SORT_KEYS.includes(s)) state.sort = s;
+}
+
+function persistListing() {
+  const url = new URL(window.location);
+  url.searchParams.set('layout', String(state.listing));
+  window.history.replaceState({}, '', url);
+}
+
+function persistSort() {
+  const url = new URL(window.location);
+  url.searchParams.set('sort', state.sort);
+  window.history.replaceState({}, '', url);
+}
+
+// "2 days ago" -> "2d", "1 week ago" -> "1w", "yesterday" -> "1d"
+function shortTime(s) {
+  if (!s) return '';
+  if (s === 'yesterday') return '1d';
+  const m = s.match(/(\d+)\s*(day|week|month|hour)/i);
+  if (m) return m[1] + m[2][0].toLowerCase();
+  return s;
+}
+
+/* ------------------------------------------------------------------ */
+/* Variant A — Editorial Triage Inbox                                   */
+/* Aesthetic: paper-cream "financial terminal" — Fraunces display +     */
+/* Geist UI + JetBrains mono meta. Oxblood for risk, forest for         */
+/* expansion. All styling under .va so the surrounding page chrome is   */
+/* free to evolve in a follow-up design session.                        */
+/* ------------------------------------------------------------------ */
+function renderVariantA() {
+  const sorted = applySort(signals);
+  if (!sorted.find(s => s.id === state.selectedSignalId)) state.selectedSignalId = sorted[0].id;
+  const sel  = sorted.find(s => s.id === state.selectedSignalId);
+  const acct = accountById(sel.accountId);
+  const ts   = ticketsForSignal(sel);
+  const tone = VA_TONE[sel.type];
+  const highCount = sorted.filter(s => s.urgency === 'high').length;
+  const ownerInitials = acct.owner.split(' ').map(n => n[0]).join('').slice(0,2);
+  const sentimentClass = sel.sentiment < -0.2 ? 'text-risk' : sel.sentiment > 0.05 ? 'text-expand' : '';
+  const sparkColor = sel.sentiment < 0 ? '#8C2D2D' : '#2A5D3C';
+
+  return `
+  <div class="va">
+
+    <!-- top bar ------------------------------------------------------ -->
+    <header class="va-topbar">
+      <div class="va-brand">
+        <span class="va-brand-mark">CC</span>
+        <span class="va-brand-name">CustomerCue</span>
+        <span class="va-brand-workspace mono">acme-trial · prod</span>
+      </div>
+      <div class="va-search" role="search">
+        <span class="va-search-icon">⌕</span>
+        <span>Search signals, accounts, tickets…</span>
+        <kbd>/</kbd>
+      </div>
+      <div class="va-kbd-hints">
+        <span><kbd>J</kbd><kbd>K</kbd> nav</span>
+        <span><kbd>E</kbd> send</span>
+        <span><kbd>?</kbd> help</span>
+      </div>
+      <div class="va-sync mono">live · 4m ago</div>
+      <div class="va-avatar" title="Felix Andersson">${escapeHtml(ownerInitials)}</div>
+    </header>
+
+    <!-- main grid --------------------------------------------------- -->
+    <div class="va-grid">
+
+      <!-- icon rail -->
+      <nav class="va-iconrail" aria-label="Primary">
+        ${[
+          ['◎','Signals',true],
+          ['◵','Accounts',false],
+          ['▤','Reports',false],
+          ['⛁','Sources',false],
+          ['⚙','Settings',false],
+        ].map(([g,l,a]) => `<button class="va-icon ${a?'is-active':''}" title="${escapeHtml(l)}" aria-label="${escapeHtml(l)}">${g}</button>`).join('')}
+        <div class="va-iconrail-spacer"></div>
+        <button class="va-icon" title="Help" aria-label="Help">?</button>
+      </nav>
+
+      <!-- queue -->
+      <section class="va-queue" aria-label="Signals queue">
+        <header class="va-queue-header">
+          <div>
+            <div class="va-eyebrow">Queue · ARR-weighted</div>
+            <h2 class="va-queue-title">This week</h2>
+          </div>
+          <div class="va-queue-meta mono">
+            <span><strong>${sorted.length}</strong> open</span>
+            <span class="va-dot"></span>
+            <span class="text-risk"><strong>${highCount}</strong> high</span>
+          </div>
+        </header>
+        <div class="va-queue-toolbar">
+          ${renderListingTabs()}
+          ${renderSortDropdown()}
+        </div>
+        ${renderListingBody(sorted)}
+      </section>
+
+      <!-- detail canvas -->
+      <article class="va-detail">
+        <div class="va-detail-inner">
+
+          <nav class="va-trail mono" aria-label="Breadcrumb">
+            <span>SIGNALS</span>
+            <span class="va-trail-sep">/</span>
+            <span>${escapeHtml(acct.name).toUpperCase()}</span>
+            <span class="va-trail-sep">/</span>
+            <span class="va-trail-current">${escapeHtml(sel.type).toUpperCase()}</span>
+          </nav>
+
+          <div class="va-headline-row">
+            <span class="va-type-tag">
+              <span class="va-type-dot" style="background:${tone}"></span>
+              ${escapeHtml(sel.type)}
+            </span>
+            <span class="va-urgency u-${sel.urgency}">${sel.urgency} priority</span>
+            <span class="va-detected mono">detected ${escapeHtml(sel.detectedAt)}</span>
+            <button class="va-pill-btn va-share">⇪ Share</button>
+            <button class="va-pill-btn">★ Pin</button>
+          </div>
+
+          <h1 class="va-headline">${escapeHtml(acct.name)}</h1>
+
+          <div class="va-meta-strip">
+            <span><em>ARR</em><strong>${fmtMoneyFull(acct.arr)}</strong></span>
+            <span class="va-meta-rule"></span>
+            <span><em>Plan</em>${escapeHtml(acct.plan)}</span>
+            <span class="va-meta-rule"></span>
+            <span><em>Segment</em>${escapeHtml(acct.segment)}</span>
+            <span class="va-meta-rule"></span>
+            <span><em>Owner</em>${escapeHtml(acct.owner)}</span>
+            <span class="va-meta-rule"></span>
+            <span><em>Source</em>Intercom · Zendesk</span>
+          </div>
+
+          <blockquote class="va-pullquote">
+            <div class="va-eyebrow">Why we flagged this</div>
+            <p>${escapeHtml(sel.summary)}</p>
+          </blockquote>
+
+          <div class="va-stats">
+            <div class="va-stat">
+              <div class="va-stat-label">Sentiment</div>
+              <div class="va-stat-row">
+                <div class="va-stat-value ${sentimentClass}">${sel.sentiment.toFixed(2)}</div>
+                <svg class="va-sparkline" viewBox="0 0 70 22" preserveAspectRatio="none" aria-hidden="true">
+                  <path d="${vaSparklinePoints(sel.sentiment)}" fill="none" stroke="${sparkColor}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
+              <div class="va-stat-sub mono">trailing 14 days</div>
+            </div>
+            <div class="va-stat">
+              <div class="va-stat-label">Source tickets</div>
+              <div class="va-stat-value">${sel.ticketIds.length}</div>
+              <div class="va-stat-sub mono">linked evidence</div>
+            </div>
+            <div class="va-stat">
+              <div class="va-stat-label">Account ARR</div>
+              <div class="va-stat-value">${fmtMoney(acct.arr)}</div>
+              <div class="va-stat-sub mono">${escapeHtml(acct.segment.toLowerCase())} segment</div>
+            </div>
+            <div class="va-stat va-stat-impact">
+              <div class="va-stat-label">If this churns</div>
+              <div class="va-stat-value">−${fmtMoney(acct.arr)}</div>
+              <div class="va-stat-sub mono">annual recurring</div>
+            </div>
+          </div>
+
+          <section class="va-sources">
+            <header class="va-section-header">
+              <div>
+                <div class="va-eyebrow">Source conversations</div>
+                <p class="va-section-subtitle">Every signal links to its evidence. Trust contract from <span class="mono">docs/signals.md</span>.</p>
+              </div>
+              <button class="va-pill-btn">Open full thread →</button>
+            </header>
+            <ol class="va-source-list">
+              ${ts.map((t,i) => `
+                <li class="va-source-row" style="--i:${i}">
+                  <div class="va-source-meta">
+                    <span class="va-source-channel">${t.channel === 'email' ? 'EMAIL' : t.channel.toUpperCase()}</span>
+                    <span class="va-source-id mono">${ticketRef(t)}</span>
+                  </div>
+                  <div class="va-source-body">
+                    <div class="va-source-subject">${escapeHtml(t.subject)}</div>
+                    <div class="va-source-snippet">${escapeHtml(t.snippet)}</div>
+                  </div>
+                  <div class="va-source-date mono">${escapeHtml(t.date)}</div>
+                  <span class="va-source-arrow">↗</span>
+                </li>`).join('')}
+            </ol>
+          </section>
+
+          <footer class="va-actions">
+            <div class="va-actions-head">
+              <div class="va-eyebrow">Next action</div>
+              <p class="va-actions-sub">Routing is mocked. No external calls fire from this prototype.</p>
+            </div>
+            <div class="va-action-buttons">
+              <button class="va-action-primary">
+                <span>Send to ${escapeHtml(acct.owner.split(' ')[0])} via Slack</span>
+                <kbd>E</kbd>
+              </button>
+              <button class="va-action-secondary">Create CSM task <kbd>T</kbd></button>
+              <button class="va-action-secondary">Forward to Product <kbd>F</kbd></button>
+              <button class="va-action-ghost">Mark handled <kbd>X</kbd></button>
+            </div>
+          </footer>
+        </div>
+      </article>
+
+    </div>
+
+    <!-- status footer -------------------------------------------------- -->
+    <footer class="va-statusbar mono">
+      <span>1,284 conversations indexed · 7-day window</span>
+      <span class="va-statusbar-dot"></span>
+      <span>${signals.length} open signals · ${highCount} high priority</span>
+      <span class="va-statusbar-dot"></span>
+      <span>Intercom · Zendesk</span>
+      <span class="va-statusbar-dot"></span>
+      <span>classifier · v0.4-mock · 4m ago</span>
+      <span class="va-statusbar-fill"></span>
+      <span class="va-statusbar-cta">demo build · fictional data</span>
+    </footer>
+  </div>`;
+}
+
+function renderListingTabs() {
+  const opts = [
+    { n: 1, label: 'Cards',   desc: 'Editorial card stack' },
+    { n: 2, label: 'Ledger',  desc: 'Compact one-line rows' },
+    { n: 3, label: 'Grouped', desc: 'Grouped by signal type' },
+  ];
+  return `
+    <div class="va-listing-tabs" role="tablist" aria-label="Queue listing layout">
+      ${opts.map(o => `
+        <button class="va-listing-tab ${state.listing === o.n ? 'is-active' : ''}"
+                data-act="set-listing" data-id="${o.n}"
+                title="${escapeHtml(o.desc)}"
+                role="tab" aria-selected="${state.listing === o.n}">
+          <span>${o.label}</span>
+          <kbd>${o.n}</kbd>
+        </button>
+      `).join('')}
+    </div>`;
+}
+
+function renderSortDropdown() {
+  const current = sortLabel(state.sort);
+  return `
+    <details class="va-sort">
+      <summary class="va-sort-summary" aria-label="Sort signals">
+        <span class="va-sort-arrow mono">↓</span>
+        <span class="va-sort-current">${escapeHtml(current)}</span>
+        <span class="va-sort-chev">▾</span>
+      </summary>
+      <div class="va-sort-menu" role="menu">
+        <div class="va-sort-eyebrow va-eyebrow">Sort signals</div>
+        ${SORT_MODES.map(m => `
+          <button class="va-sort-opt ${state.sort === m.key ? 'is-active' : ''}"
+                  data-act="set-sort" data-id="${m.key}"
+                  role="menuitemradio" aria-checked="${state.sort === m.key}">
+            <span class="va-sort-opt-label">${escapeHtml(m.label)}</span>
+            <span class="va-sort-opt-desc">${escapeHtml(m.desc)}</span>
+          </button>
+        `).join('')}
+      </div>
+    </details>`;
+}
+
+function typeDividerHtml(type, count, variant /* 'cards' | 'ledger' */) {
+  const tone = VA_TONE[type];
+  const cls = variant === 'ledger' ? 'va-type-divider va-type-divider--thin' : 'va-type-divider';
+  return `
+    <li class="${cls}" role="presentation" style="--tone:${tone}">
+      <span class="va-type-divider-bar"></span>
+      <span class="va-type-divider-label">${escapeHtml(type)}</span>
+      <span class="va-type-divider-count mono">${count}</span>
+    </li>`;
+}
+
+function renderListingBody(sorted) {
+  if (state.listing === 2) return renderListingLedger(sorted);
+  if (state.listing === 3) return renderListingGrouped(sorted);
+  return renderListingCards(sorted);
+}
+
+function renderListingCards(sorted) {
+  const showDividers = state.sort === 'type';
+  const counts = showDividers ? countByType(sorted) : null;
+  let prevType = null;
+  const rows = [];
+  sorted.forEach((s, i) => {
+    if (showDividers && s.type !== prevType) {
+      rows.push(typeDividerHtml(s.type, counts.get(s.type), 'cards'));
+    }
+    const a = accountById(s.accountId);
+    const active = s.id === state.selectedSignalId;
+    const t = VA_TONE[s.type];
+    rows.push(`
+      <li class="va-item ${active?'is-active':''}" data-act="select-signal" data-id="${s.id}" style="--i:${i}; --tone:${t}">
+        <div class="va-item-rank mono">${String(i+1).padStart(2,'0')}</div>
+        <div class="va-item-body">
+          <div class="va-item-row1">
+            <span class="va-type">
+              <span class="va-type-dot" style="background:${t}"></span>
+              <span class="va-type-name">${escapeHtml(s.type)}</span>
+            </span>
+            <span class="va-item-time mono">${escapeHtml(s.detectedAt)}</span>
+          </div>
+          <div class="va-item-account">${escapeHtml(a.name)}</div>
+          <div class="va-item-meta mono">${fmtMoneyFull(a.arr)} · ${escapeHtml(a.plan)} · ${escapeHtml(a.owner)}</div>
+          <div class="va-item-summary">${escapeHtml(s.summary)}</div>
+          <div class="va-item-foot">
+            <span class="va-urgency u-${s.urgency}">${s.urgency}</span>
+            <span class="va-item-tix mono">${s.ticketIds.length} sources</span>
+            ${active ? '<span class="va-item-current mono">▸ OPEN</span>' : ''}
+          </div>
+        </div>
+      </li>`);
+    prevType = s.type;
+  });
+  return `<ul class="va-queue-list">${rows.join('')}</ul>`;
+}
+
+function renderListingLedger(sorted) {
+  const showDividers = state.sort === 'type';
+  const counts = showDividers ? countByType(sorted) : null;
+  let prevType = null;
+  const rows = [];
+  sorted.forEach((s, i) => {
+    if (showDividers && s.type !== prevType) {
+      rows.push(typeDividerHtml(s.type, counts.get(s.type), 'ledger'));
+    }
+    const a = accountById(s.accountId);
+    const active = s.id === state.selectedSignalId;
+    const t = VA_TONE[s.type];
+    const uLetter = s.urgency === 'high' ? 'H' : s.urgency === 'medium' ? 'M' : 'L';
+    rows.push(`
+      <li class="va-ledger-row ${active?'is-active':''}" data-act="select-signal" data-id="${s.id}" title="${escapeHtml(s.type)} · ${escapeHtml(s.summary)}" style="--i:${i}; --tone:${t}">
+        <span class="va-ledger-rank">${String(i+1).padStart(2,'0')}</span>
+        <span class="va-ledger-dot" style="background:${t}" aria-label="${escapeHtml(s.type)}"></span>
+        <span class="va-ledger-account">${escapeHtml(a.name)}</span>
+        <span class="va-ledger-arr">${fmtMoney(a.arr)}</span>
+        <span class="va-ledger-urgency u-${s.urgency}" aria-label="${escapeHtml(s.urgency)} priority">${uLetter}</span>
+        <span class="va-ledger-time">${escapeHtml(shortTime(s.detectedAt))}</span>
+      </li>`);
+    prevType = s.type;
+  });
+  return `<ul class="va-list-ledger">${rows.join('')}</ul>`;
+}
+
+function renderListingGrouped(sorted) {
+  // Preserve order: types appear in the order their first signal appears (already ARR-weighted).
+  const groups = new Map();
+  for (const s of sorted) {
+    if (!groups.has(s.type)) groups.set(s.type, []);
+    groups.get(s.type).push(s);
+  }
+  return `
+    <div class="va-list-grouped">
+      ${[...groups.entries()].map(([type, items], gi) => {
+        const tone = VA_TONE[type];
+        return `
+        <section class="va-group" style="--tone:${tone}; --gi:${gi}">
+          <header class="va-group-header">
+            <span class="va-group-bar"></span>
+            <span class="va-group-name">${escapeHtml(type)}</span>
+            <span class="va-group-count">${items.length}</span>
+            <span class="va-group-toggle">▾</span>
+          </header>
+          <ul class="va-group-items">
+            ${items.map((s,i) => {
+              const a = accountById(s.accountId);
+              const active = s.id === state.selectedSignalId;
+              return `
+              <li class="va-group-item ${active?'is-active':''}" data-act="select-signal" data-id="${s.id}" style="--tone:${tone}">
+                <div class="va-group-item-rank mono">${String(i+1).padStart(2,'0')}</div>
+                <div>
+                  <div class="va-group-item-head">
+                    <span class="va-group-item-account">${escapeHtml(a.name)}</span>
+                    <span class="va-group-item-arr mono">${fmtMoney(a.arr)}</span>
+                    <span class="va-group-item-time mono">${escapeHtml(s.detectedAt)}</span>
+                  </div>
+                  <div class="va-group-item-summary">${escapeHtml(s.summary)}</div>
+                  <div class="va-group-item-foot">
+                    <span class="va-urgency u-${s.urgency}">${s.urgency}</span>
+                    <span class="va-item-tix mono">${s.ticketIds.length} sources · ${escapeHtml(a.owner)}</span>
+                  </div>
+                </div>
+              </li>`;
+            }).join('')}
+          </ul>
+        </section>`;
+      }).join('')}
+    </div>`;
+}
+
+/* ------------------------------------------------------------------ */
+/* Surfaces explorer additions — wraps the Variant A render() above     */
+/* with surface-aware gating and per-surface overlay rendering.         */
+/* ------------------------------------------------------------------ */
+const SURFACES = [
+  { key:'inbox',     num:'·', tab:'Triage Inbox',     variants:['A'],         names:{ A:'Locked design — use 1/2/3 for layout' } },
+  { key:'classify',  num:'1', tab:'Paste-classify',   variants:['A','B','C'], names:{ A:'Editorial single-pane',     B:'Split-screen live preview', C:'Three-step wizard' } },
+  { key:'drilldown', num:'2', tab:'Account drilldown',variants:['A','B','C'], names:{ A:'Right slide-in panel',      B:'Full-screen account page',  C:'Inline expansion in detail' } },
+  { key:'sendto',    num:'3', tab:'Send-to-owner',    variants:['A','B','C'], names:{ A:'Centered modal with tabs',  B:'Bottom-sheet quick send',   C:'Inline composer in detail' } },
+  { key:'stub',      num:'4', tab:'[stub] rationale', variants:['A','B','C'], names:{ A:'Inline mono chip prefix',   B:'Banner above pull-quote',   C:'Footer meta tag only' } },
+  { key:'login',     num:'5', tab:'/login picker',    variants:['A','B'],     names:{ A:'Two editorial cards',       B:'Inbox-style row list' } },
+];
+
+const PX_USERS = [
+  { initials:'SL', name:'Sara Lindqvist', role:'CSM',   stats:'9 open signals',  book:'6 accounts · $186k ARR' },
+  { initials:'MB', name:'Marc Bergström', role:'VP CS', stats:'23 open signals', book:'All teams · $1.2M ARR' },
+];
+const PX_FAKE_TICKET = `Hi — opened a ticket last week and again two days ago about the payment webhook. We're seeing 504s when Stripe pings our endpoint; about 30% of charges are failing the post-checkout reconciliation step. This is the third time this month. Renewal is in November and frankly this is making the conversation about expanding to enterprise harder. Can someone from product look at this properly? — Jonas, Acme`;
+const PX_ACCOUNT_OPTIONS = accounts.map(a => `<option value="${a.id}">${escapeHtml(a.name)} · ${fmtMoney(a.arr)} · ${escapeHtml(a.owner)}</option>`).join('');
+
+/* ------- URL state ------------------------------------------------- */
+function readStateFromUrlExtras() {
+  const params = new URL(window.location).searchParams;
+  const s = params.get('surface');
+  if (s && SURFACES.find(x => x.key === s)) state.surface = s;
+  const surf = SURFACES.find(x => x.key === state.surface);
+  const v = params.get('variant');
+  if (v && surf.variants.includes(v)) state.variant = v;
+  else state.variant = surf.variants[0];
+}
+function persistSurfaceState() {
+  const url = new URL(window.location);
+  url.searchParams.set('surface', state.surface);
+  url.searchParams.set('variant', state.variant);
+  window.history.replaceState({}, '', url);
+}
+
+/* ------- Surface tabs (top dark bar) ------------------------------ */
+function populateSurfaceTabs() {
+  const tabs = document.getElementById('px-tabs');
+  if (!tabs) return;
+  if (tabs.dataset.populated !== 'true') {
+    tabs.innerHTML = SURFACES.map(s =>
+      `<button class="px-topbar-tab" data-px-surface="${s.key}">
+         <span class="px-tab-num">${s.num}</span>
+         <span>${escapeHtml(s.tab)}</span>
+       </button>`
+    ).join('');
+    tabs.addEventListener('click', e => {
+      const t = e.target.closest('[data-px-surface]');
+      if (t) setSurface(t.getAttribute('data-px-surface'));
+    });
+    tabs.dataset.populated = 'true';
+  }
+  tabs.querySelectorAll('.px-topbar-tab').forEach(btn =>
+    btn.classList.toggle('is-active', btn.getAttribute('data-px-surface') === state.surface)
+  );
+}
+
+function setSurface(key) {
+  const surf = SURFACES.find(x => x.key === key);
+  if (!surf) return;
+  state.surface = key;
+  state.variant = surf.variants[0];
+  persistSurfaceState();
+  render();
+}
+function cycleVariant(dir) {
+  const surf = SURFACES.find(x => x.key === state.surface);
+  if (surf.variants.length <= 1) return;
+  const i = surf.variants.indexOf(state.variant);
+  state.variant = surf.variants[(i + dir + surf.variants.length) % surf.variants.length];
+  persistSurfaceState();
+  render();
+}
+
+/* ------- Per-surface render --------------------------------------- */
+function noteRibbonHtml(surfaceKey, variant) {
+  const surf = SURFACES.find(x => x.key === surfaceKey);
+  const text = surf.names[variant];
+  return `<div class="px-note"><span class="mono">S${surf.num}·${variant}</span>${escapeHtml(text)}</div>`;
+}
+
+// S1 — Paste-classify (full-page surface)
+function renderClassifySurface(variant) {
+  const wrap = document.createElement('div');
+  wrap.className = 'px-page';
+  let inner = '';
+  if (variant === 'A') inner = s1aHtml();
+  if (variant === 'B') inner = s1bHtml();
+  if (variant === 'C') inner = s1cHtml();
+  wrap.innerHTML = inner + noteRibbonHtml('classify', variant);
+  return wrap;
+}
+function s1aHtml() {
+  return `
+    <div class="px-page-inner">
+      <div class="px-page-eyebrow">Paste-classify · /classify</div>
+      <h1 class="px-page-headline">Classify a conversation</h1>
+      <p class="px-page-lede">Paste one Intercom or Zendesk conversation. The signal type, urgency, and rationale come back from the model — the new Card lands at the top of your queue.</p>
+
+      <div class="s1a-form">
+        <label class="px-field-label">Conversation</label>
+        <textarea class="px-textarea">${escapeHtml(PX_FAKE_TICKET)}</textarea>
+        <div class="px-field-help" style="margin-top:6px">Auto-detects JSON. Plain text works fine.</div>
+
+        <div class="row2">
+          <div>
+            <label class="px-field-label">Account</label>
+            <select class="px-select">${PX_ACCOUNT_OPTIONS}</select>
+          </div>
+          <div>
+            <label class="px-field-label">Channel</label>
+            <div class="px-seg">
+              <button class="is-active">Intercom</button>
+              <button>Zendesk</button>
+              <button>Other</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="s1a-submit">
+          <button class="px-btn px-btn-primary">Classify <kbd>↵</kbd></button>
+          <span class="px-field-help">Falls back to local Stub Classifier if the API is unreachable.</span>
+        </div>
+      </div>
+
+      <div class="s1a-result" style="--tone:#8C2D2D">
+        <div style="display:flex; gap:10px; align-items:center; margin-bottom:6px;">
+          <span class="px-eyebrow">Classified · PC·001</span>
+          <span class="px-chip high">high · 0.84 conf</span>
+          <span class="px-type-pill" style="--tone:#8C2D2D">churn risk</span>
+        </div>
+        <h3>Acme Corp — payment webhook 504s pre-renewal</h3>
+        <div class="pull">Three repeat reports of the same payment-webhook 504, with the customer tying it to a stalled enterprise-expansion conversation pre-renewal. Sentiment is declining; classify as <b>churn risk</b>.</div>
+        <div style="display:flex; gap:10px; margin-top:14px;">
+          <button class="px-btn px-btn-primary">Open in queue →</button>
+          <button class="px-btn px-btn-secondary">Reclassify</button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+function s1bHtml() {
+  return `
+    <div class="px-page-inner" style="max-width: 1080px;">
+      <div class="px-page-eyebrow">Paste-classify · /classify</div>
+      <h1 class="px-page-headline">New signal from a conversation</h1>
+      <p class="px-page-lede">Form on the left, the Card-as-it-will-appear on the right — including the rationale pull-quote, before and after.</p>
+
+      <div class="s1b-grid">
+        <div class="s1b-pane">
+          <div class="s1b-pane-head"><h3>Input</h3><span class="px-field-help">~78 tokens</span></div>
+          <label class="px-field-label">Conversation</label>
+          <textarea class="px-textarea" style="flex:1; min-height:220px;">${escapeHtml(PX_FAKE_TICKET)}</textarea>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:14px;">
+            <div>
+              <label class="px-field-label">Account</label>
+              <select class="px-select">${PX_ACCOUNT_OPTIONS}</select>
+            </div>
+            <div>
+              <label class="px-field-label">Channel</label>
+              <div class="px-seg">
+                <button class="is-active">Intercom</button>
+                <button>Zendesk</button>
+                <button>Other</button>
+              </div>
+            </div>
+          </div>
+          <div style="margin-top:18px; display:flex; gap:10px;">
+            <button class="px-btn px-btn-primary">Classify <kbd>↵</kbd></button>
+            <button class="px-btn px-btn-ghost">Clear</button>
+          </div>
+        </div>
+
+        <div class="s1b-pane preview">
+          <div class="s1b-pane-head">
+            <h3>Preview</h3>
+            <span class="s1b-status"><span class="pulse"></span>Classifying…</span>
+          </div>
+          <p class="px-field-help" style="margin-top:0;">Updates live as the API responds. Pre-classification the card shows the Account and Channel you picked; the signal type and rationale arrive together.</p>
+
+          <div class="s1b-preview-card" style="--tone:#8C2D2D">
+            <div style="display:flex; gap:8px; align-items:center; margin-bottom:8px;">
+              <span class="px-type-pill" style="--tone:#8C2D2D">churn risk</span>
+              <span class="px-chip high">high</span>
+              <span class="mono" style="font-size:10.5px; color:var(--ink-mute); margin-left:auto;">PC·001 · 0.84</span>
+            </div>
+            <div class="acct">Acme Corp</div>
+            <div class="mono" style="font-size:10.5px; color:var(--ink-mute); margin-top:2px;">$42,000 ARR · Maja Lindberg · just now</div>
+            <div class="pull">Three repeat reports of the same payment-webhook 504, tied to a stalled enterprise-expansion conversation pre-renewal. Sentiment declining.</div>
+          </div>
+
+          <div class="s1b-preview-card ghost">
+            <div class="px-field-help" style="margin-bottom:6px;">Before classify · placeholder</div>
+            <div class="acct" style="color: var(--ink-mute);">Acme Corp — awaiting classification</div>
+            <div class="mono" style="font-size:10.5px; color:var(--ink-faint); margin-top:6px;">channel: intercom · pasted 78 tokens</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+function s1cHtml() {
+  return `
+    <div class="px-page-inner">
+      <div class="px-page-eyebrow">Paste-classify · /classify</div>
+      <h1 class="px-page-headline">Add a conversation</h1>
+
+      <div class="s1c-progress">
+        <div class="s1c-step is-done"><span class="num">✓</span><span>Paste</span></div>
+        <div class="s1c-rule"></div>
+        <div class="s1c-step is-current"><span class="num">2</span><span>Confirm context</span></div>
+        <div class="s1c-rule"></div>
+        <div class="s1c-step"><span class="num">3</span><span>Review classification</span></div>
+      </div>
+
+      <div class="s1c-panel">
+        <div class="px-eyebrow" style="margin-bottom:10px;">Step 2 of 3</div>
+        <h2 style="font-family:'Fraunces',serif; font-size:24px; font-weight:500; font-variation-settings:'opsz' 48; margin:0 0 12px; letter-spacing:-0.02em;">Confirm context</h2>
+        <p class="px-field-help" style="font-size:13px; margin:0 0 18px;">Bind the conversation to an Account and a Channel. The model classifies the type — you keep the Account choice human.</p>
+
+        <label class="px-field-label">Pasted conversation · 78 tokens</label>
+        <div class="s1c-pasted-preview">${escapeHtml(PX_FAKE_TICKET)}</div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:18px; margin-top:18px;">
+          <div>
+            <label class="px-field-label">Account</label>
+            <select class="px-select">${PX_ACCOUNT_OPTIONS}</select>
+          </div>
+          <div>
+            <label class="px-field-label">Channel</label>
+            <div class="px-seg">
+              <button class="is-active">Intercom</button>
+              <button>Zendesk</button>
+              <button>Other</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="s1c-actions">
+          <button class="px-btn px-btn-ghost">← Back</button>
+          <button class="px-btn px-btn-primary">Classify <kbd>↵</kbd></button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+// S2 — Drilldown (overlays for A & B; inline for C)
+function renderDrilldownSurface(variant) {
+  const wrap = document.createElement('div');
+  wrap.style.cssText = 'position:absolute; inset:0; pointer-events:auto;';
+  if (variant === 'A') wrap.innerHTML = `<div class="px-backdrop"></div>${s2aPanelHtml()}` + noteRibbonHtml('drilldown', variant);
+  if (variant === 'B') wrap.innerHTML = s2bPageHtml() + noteRibbonHtml('drilldown', variant);
+  if (variant === 'C') wrap.innerHTML = noteRibbonHtml('drilldown', variant); // C injects inline
+  return wrap;
+}
+function s2aPanelHtml() {
+  const acct = accountById('acme');
+  const sigsForAcme = [
+    { tone: VA_TONE['churn risk'],        type:'churn risk',         title:'Renewal at risk — payment webhook 504s', urg:'high',   meta:'6 conv · 14 d', rank:'01' },
+    { tone: VA_TONE['product friction'],  type:'product friction',   title:'CSV export still 60s on >5k rows',        urg:'medium', meta:'3 conv · 22 d', rank:'04' },
+    { tone: VA_TONE['documentation gap'], type:'documentation gap',  title:'Webhook retry schema undocumented',       urg:'low',    meta:'2 conv · 31 d', rank:'09' },
+    { tone: VA_TONE['feature request'],   type:'feature request',    title:'Slack channel routing per integration',   urg:'low',    meta:'1 conv · 47 d', rank:'12' },
+  ];
+  return `
+    <div class="s2a-panel">
+      <div class="s2a-head">
+        <button class="s2a-close" aria-label="Close">×</button>
+        <div class="px-eyebrow">Account</div>
+        <h2 class="s2a-headline">${escapeHtml(acct.name)}</h2>
+        <div class="s2a-meta-strip">
+          <div><em>ARR</em><b>${fmtMoneyFull(acct.arr)}</b></div>
+          <div><em>Plan</em><b>${escapeHtml(acct.plan)}</b></div>
+          <div><em>Segment</em><b>${escapeHtml(acct.segment)}</b></div>
+          <div><em>Owner</em><b>${escapeHtml(acct.owner)}</b></div>
+        </div>
+      </div>
+      <div class="s2a-body">
+        <div class="s2a-list-head">
+          <div>
+            <div class="px-eyebrow">4 Signals on this Account</div>
+            <p class="px-field-help" style="font-style:italic; font-family:'Fraunces',serif; font-variation-settings:'opsz' 18,'ital' 1; font-size:12.5px; margin:4px 0 0;">Sorted by priority. Click to open in the queue →</p>
+          </div>
+          <button class="px-btn px-btn-secondary">Sort: Priority ▾</button>
+        </div>
+        ${sigsForAcme.map(it => `
+          <div class="s2a-signal">
+            <div class="rank">${it.rank}</div>
+            <div>
+              <div style="display:flex; gap:9px; align-items:center;">
+                <span class="px-type-pill" style="--tone:${it.tone}">${escapeHtml(it.type)}</span>
+                <span class="px-chip ${it.urg==='high'?'high':it.urg==='medium'?'med':'low'}">${it.urg}</span>
+              </div>
+              <div class="summary">${escapeHtml(it.title)}</div>
+            </div>
+            <div class="meta">${it.meta}</div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+}
+function s2bPageHtml() {
+  const acct = accountById('acme');
+  return `
+    <div class="s2b-page">
+      <div class="s2b-bar">
+        <button class="px-btn px-btn-ghost" style="font-size:12px;">← Back to inbox</button>
+        <div class="s2b-tabs">
+          <button class="s2b-tab is-active">Signals · 4</button>
+          <button class="s2b-tab">Conversations · 12</button>
+          <button class="s2b-tab">Notes</button>
+        </div>
+        <div style="margin-left:auto; font-size:11px; color:var(--ink-mute);">Last sync <span class="mono">2m ago</span></div>
+      </div>
+      <div class="s2b-body">
+        <div class="px-eyebrow">Account</div>
+        <h1 style="font-family:'Fraunces',serif; font-size:46px; font-weight:400; letter-spacing:-0.034em; font-variation-settings:'opsz' 120; margin:4px 0 22px; line-height:1;">${escapeHtml(acct.name)}</h1>
+
+        <div class="s2b-header">
+          <div class="s2b-summary">
+            <div class="px-eyebrow" style="margin-bottom:10px;">Account at a glance</div>
+            <div class="s2b-summary-row"><span>ARR</span><b>${fmtMoneyFull(acct.arr)}</b></div>
+            <div class="s2b-summary-row"><span>Plan</span><b>${escapeHtml(acct.plan)}</b></div>
+            <div class="s2b-summary-row"><span>Segment</span><b>${escapeHtml(acct.segment)}</b></div>
+            <div class="s2b-summary-row"><span>Owner</span><b>${escapeHtml(acct.owner)}</b></div>
+            <div class="s2b-summary-row"><span>Renewal in</span><b class="text-risk">42 days</b></div>
+          </div>
+          <div>
+            <div class="px-eyebrow">AI summary · today</div>
+            <blockquote style="font-family:'Fraunces',serif; font-variation-settings:'opsz' 48,'SOFT' 50; font-weight:350; font-size:20px; line-height:1.4; letter-spacing:-0.014em; margin:8px 0 0; padding:6px 0 6px 18px; border-left:2px solid #8C2D2D;">
+              Acme has six tickets in two weeks about the payment-webhook 504, with the renewal six weeks away. Confidence in the integration is dropping inside their team — they've raised it themselves with their VP. CSM should call before the renewal review.
+            </blockquote>
+          </div>
+        </div>
+
+        <div style="display:flex; justify-content:space-between; align-items:baseline; margin:18px 0 12px;">
+          <h3 style="font-family:'Fraunces',serif; font-variation-settings:'opsz' 36; font-weight:500; font-size:20px; margin:0;">Signals</h3>
+          <button class="px-btn px-btn-secondary">Sort: Priority ▾</button>
+        </div>
+
+        ${[
+          { tone: VA_TONE['churn risk'],        type:'churn risk',         title:'Renewal at risk — payment webhook 504s', meta:'6 conv · 14 d', rank:'01' },
+          { tone: VA_TONE['product friction'],  type:'product friction',   title:'CSV export still 60s on >5k rows',        meta:'3 conv · 22 d', rank:'04' },
+          { tone: VA_TONE['documentation gap'], type:'documentation gap',  title:'Webhook retry schema undocumented',       meta:'2 conv · 31 d', rank:'09' },
+          { tone: VA_TONE['feature request'],   type:'feature request',    title:'Slack channel routing per integration',   meta:'1 conv · 47 d', rank:'12' },
+        ].map(it => `
+          <div class="s2b-card" style="--tone:${it.tone}">
+            <div class="mono" style="color:var(--ink-faint); font-size:11px;">${it.rank}</div>
+            <div>
+              <div class="px-type-pill" style="--tone:${it.tone}">${escapeHtml(it.type)}</div>
+              <div style="font-family:'Fraunces',serif; font-variation-settings:'opsz' 28; font-weight:500; font-size:17px; letter-spacing:-0.014em; margin:4px 0 2px;">${escapeHtml(it.title)}</div>
+              <div class="mono" style="font-size:10.5px; color:var(--ink-mute);">${it.meta}</div>
+            </div>
+            <button class="px-btn px-btn-ghost" style="font-size:11px;">Open →</button>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+}
+function injectS2CInline() {
+  // S2·C: append an inline expansion block inside the detail canvas, after the pull-quote.
+  const detail = document.querySelector('.va-detail-inner');
+  if (!detail) return;
+  const pull = detail.querySelector('.va-pullquote');
+  if (!pull) return;
+  const block = document.createElement('div');
+  block.className = 's2c-inline';
+  block.innerHTML = `
+    <div class="s2c-inline-head">
+      <div>
+        <div class="px-eyebrow" style="margin-bottom:2px;">3 other Signals on Acme Corp</div>
+        <div class="mono" style="font-size:10.5px; color:var(--ink-mute);">$42,000 ARR · Growth · Maja Lindberg</div>
+      </div>
+      <button class="px-btn px-btn-ghost" style="font-size:11px;">Collapse ×</button>
+    </div>
+    ${[
+      { tone: VA_TONE['product friction'],  type:'product friction',   title:'CSV export still 60s on >5k rows',     meta:'3 conv · #04' },
+      { tone: VA_TONE['documentation gap'], type:'documentation gap',  title:'Webhook retry schema undocumented',    meta:'2 conv · #09' },
+      { tone: VA_TONE['feature request'],   type:'feature request',    title:'Slack channel routing per integration',meta:'1 conv · #12' },
+    ].map(it => `
+      <div class="s2c-row">
+        <span class="px-type-pill" style="--tone:${it.tone}"></span>
+        <div>
+          <span style="font-size:11.5px; color:var(--ink-soft); font-weight:500;">${escapeHtml(it.type)}</span>
+          <div class="title">${escapeHtml(it.title)}</div>
+        </div>
+        <span class="meta">${it.meta}</span>
+        <button class="px-btn px-btn-ghost" style="font-size:11px;">Open →</button>
+      </div>
+    `).join('')}
+  `;
+  pull.parentNode.insertBefore(block, pull.nextSibling);
+
+  // Decorate the account name in the meta strip as a clickable tag
+  const metaStrip = detail.querySelector('.va-meta-strip');
+  if (metaStrip) {
+    const ownerSpans = metaStrip.querySelectorAll('span');
+    // The "Owner" line already exists; instead, add a visible "Account" cue at the top of the headline row
+  }
+}
+
+// S3 — Send-to-owner
+function renderSendtoSurface(variant) {
+  const wrap = document.createElement('div');
+  wrap.style.cssText = 'position:absolute; inset:0; pointer-events:auto;';
+  if (variant === 'A') wrap.innerHTML = `<div class="px-backdrop"></div>${s3aModalHtml()}` + noteRibbonHtml('sendto', variant);
+  if (variant === 'B') wrap.innerHTML = s3bSheetHtml() + noteRibbonHtml('sendto', variant);
+  if (variant === 'C') wrap.innerHTML = noteRibbonHtml('sendto', variant); // C injects inline
+  return wrap;
+}
+function s3aModalHtml() {
+  return `
+    <div class="s3a-modalwrap">
+      <div class="s3a-modal">
+        <div class="s3a-head">
+          <div>
+            <div class="px-eyebrow" style="margin-bottom:2px;">Send to owner</div>
+            <div style="font-family:'Fraunces',serif; font-variation-settings:'opsz' 36; font-weight:500; font-size:19px; letter-spacing:-0.018em;">Maja Lindberg · Acme Corp</div>
+          </div>
+          <button class="px-btn px-btn-ghost" style="font-size:11px;">× <kbd>esc</kbd></button>
+        </div>
+        <div class="s3a-tabs">
+          <button class="s3a-tab is-active">◮ Slack</button>
+          <button class="s3a-tab">✉ Email</button>
+        </div>
+        <div class="s3a-body">
+          <div class="px-field-help" style="margin-bottom:8px;">Preview · what Maja will see in her DM</div>
+          <div class="s3a-preview">
+            <div style="display:flex; gap:8px; align-items:center; margin-bottom:8px;">
+              <div style="width:22px; height:22px; border-radius:3px; background:var(--ink); color:var(--paper); display:grid; place-items:center; font-family:'Fraunces',serif; font-size:11px; font-variation-settings:'opsz' 40; font-weight:600;">CC</div>
+              <b>CustomerCue</b> <span class="mono" style="font-size:10.5px; color:var(--ink-mute);">APP</span>
+            </div>
+            <div>Hi Maja — flagging <b>Acme Corp</b> (<span class="mono">$42k</span> ARR). New <b>churn risk</b> signal: <i>"Renewal at risk — payment webhook 504s"</i>. 6 source conversations over 14 days. Renewal in 42 days.<br><br>→ <a style="color:var(--accent)">Open signal in CustomerCue</a></div>
+          </div>
+        </div>
+        <div class="s3a-actions">
+          <button class="px-btn px-btn-ghost">Edit message</button>
+          <button class="px-btn px-btn-secondary">Save draft</button>
+          <button class="px-btn px-btn-primary">Send to Maja <kbd>↵</kbd></button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+function s3bSheetHtml() {
+  return `
+    <div class="s3b-sheet">
+      <div class="s3b-grab"></div>
+      <div class="s3b-row">
+        <div>
+          <div class="px-eyebrow">Send to owner · Maja Lindberg</div>
+          <div style="font-family:'Fraunces',serif; font-variation-settings:'opsz' 28; font-weight:500; font-size:18px; letter-spacing:-0.018em; margin-top:2px;">Acme Corp · churn risk · <span class="mono" style="color:var(--ink-mute); font-size:13px;">$42k ARR</span></div>
+        </div>
+        <div class="px-seg">
+          <button class="is-active">◮ Slack</button>
+          <button>✉ Email</button>
+          <button>⊞ Both</button>
+        </div>
+      </div>
+      <div class="s3b-preview">Hi Maja — flagging <b>Acme Corp</b> ($42k ARR). New <b>churn risk</b> signal · 6 conversations over 14 days · renewal in 42 days. <a style="color:var(--accent)">Open →</a></div>
+      <div class="s3b-actions">
+        <button class="px-btn px-btn-ghost">Edit</button>
+        <button class="px-btn px-btn-primary">Send <kbd>↵</kbd></button>
+      </div>
+    </div>
+  `;
+}
+function injectS3CInline() {
+  // S3·C: replace the va-actions footer in the detail with an inline composer + Actioned-log entry
+  const actions = document.querySelector('.va-actions');
+  if (!actions) return;
+  const composer = document.createElement('div');
+  composer.className = 's3c-composer';
+  composer.innerHTML = `
+    <div class="s3c-head">
+      <span class="px-eyebrow">Send to owner · Maja Lindberg <span style="color:var(--accent); margin-left:6px;" class="mono">inline composer</span></span>
+      <button class="px-btn px-btn-ghost" style="margin-left:auto; font-size:11px;">Cancel <kbd>esc</kbd></button>
+    </div>
+    <div class="s3c-channels">
+      <div class="s3c-channel">
+        <h4>◮ Slack DM</h4>
+        <div>Hi Maja — flagging <b>Acme</b>. New <b>churn risk</b> · 6 conv · 14 d · renewal in 42 d.</div>
+      </div>
+      <div class="s3c-channel">
+        <h4>✉ Email</h4>
+        <div><b>Subject:</b> CustomerCue · Acme Corp churn-risk signal<br><br>Hi Maja — six conversations in 14 days flag a churn-risk pattern…</div>
+      </div>
+    </div>
+    <div class="s3c-foot">
+      <label><input type="checkbox" checked> Slack</label>
+      <label><input type="checkbox"> Email</label>
+      <div class="right">
+        <button class="px-btn px-btn-ghost">Edit message</button>
+        <button class="px-btn px-btn-primary">Send to Maja <kbd>↵</kbd></button>
+      </div>
+    </div>
+  `;
+  const actioned = document.createElement('div');
+  actioned.className = 's3c-actioned';
+  actioned.innerHTML = `
+    <span style="font-size:13px;">✓</span>
+    <span>Sent to <b>Maja Lindberg</b> · Slack · <span class="mono">2 min ago</span> · <span class="mono">by Sara Lindqvist</span></span>
+  `;
+  actions.parentNode.insertBefore(composer, actions);
+  actions.parentNode.insertBefore(actioned, actions);
+  actions.style.display = 'none';
+}
+
+// S4 — [stub] rationale treatment (modifies the inbox detail in-place)
+function applyStubTreatment(variant) {
+  const pull = document.querySelector('.va-pullquote p');
+  const pullBlock = document.querySelector('.va-pullquote');
+  const statusbar = document.querySelector('.va-statusbar');
+  if (!pull || !pullBlock || !statusbar) return;
+
+  if (variant === 'A') {
+    // Inline mono chip prefix on the rationale itself
+    pull.innerHTML = `<span class="s4-stub-inline">stub</span>` + pull.innerHTML;
+  } else if (variant === 'B') {
+    // Banner above the pullquote
+    const banner = document.createElement('div');
+    banner.className = 's4-banner';
+    banner.innerHTML = `
+      <span class="ico">!</span>
+      <span>Classified locally — <b>Anthropic API unreachable</b>. Rationale is keyword-matched against the canonical signal taxonomy. Will retry on next sync.</span>
+    `;
+    pullBlock.parentNode.insertBefore(banner, pullBlock);
+  } else if (variant === 'C') {
+    // Footer meta tag — flip the classifier name in the statusbar
+    statusbar.innerHTML = statusbar.innerHTML.replace(
+      'classifier · v0.4-mock · 4m ago',
+      'classifier · <span style="color: #B8893C; font-weight:600;">local stub</span> · 4m ago'
+    );
+  }
+}
+
+// S5 — /login (full-page)
+function renderLoginSurface(variant) {
+  const wrap = document.createElement('div');
+  wrap.className = 'px-page';
+  if (variant === 'A') {
+    wrap.innerHTML = `
+      <div class="px-page-inner" style="text-align:center; padding-top: 28px;">
+        <div class="px-page-eyebrow">CustomerCue</div>
+        <h1 class="px-page-headline" style="font-size: 40px;">Choose your perspective</h1>
+        <p class="px-page-lede" style="margin: 0 auto 26px;">Mocked sign-in for the workshop demo. Two seeded users — pick whichever lens you want to demo from. Switch any time.</p>
+        <div class="s5a-grid">
+          ${PX_USERS.map(u => `
+            <div class="s5a-card">
+              <div class="s5a-avatar">${u.initials}</div>
+              <div class="s5a-name">${escapeHtml(u.name)}</div>
+              <div class="s5a-role">${escapeHtml(u.role)}</div>
+              <div class="s5a-stats">${u.stats}</div>
+              <div style="margin-top:18px;">
+                <button class="px-btn px-btn-primary">Continue as ${u.name.split(' ')[0]} →</button>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+        <div class="mono" style="font-size:10px; color:var(--ink-mute); margin-top:34px; letter-spacing:0.1em; text-transform:uppercase;">No real auth · cookie picker for the demo</div>
+      </div>
+    ` + noteRibbonHtml('login', 'A');
+  } else if (variant === 'B') {
+    wrap.innerHTML = `
+      <div class="px-page-inner" style="padding-top: 28px;">
+        <div class="px-page-eyebrow">Sign in · CustomerCue</div>
+        <h1 class="px-page-headline" style="font-size: 34px;">Pick a user</h1>
+        <p class="px-page-lede">Mocked picker for the workshop. The row layout mirrors the Triage Inbox queue so the entry feels continuous with the rest of the app.</p>
+        <div class="s5b-list">
+          ${PX_USERS.map(u => `
+            <div class="s5b-row">
+              <div class="s5b-avatar">${u.initials}</div>
+              <div class="s5b-info">
+                <div class="s5b-name">${escapeHtml(u.name)}</div>
+                <div class="s5b-meta">${escapeHtml(u.role)} · ${u.stats}</div>
+              </div>
+              <div class="s5b-arr">${u.book}</div>
+              <div style="color:var(--ink-faint); font-size:16px;">→</div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    ` + noteRibbonHtml('login', 'B');
+  }
+  return wrap;
+}
+
+/* ------- Surface-aware render ------------------------------------- */
+function render() {
+  populateSurfaceTabs();
+  const fullpage = state.surface === 'classify' || state.surface === 'login';
+  document.body.classList.toggle('px-fullpage', fullpage);
+
+  if (!fullpage) {
+    document.getElementById('app').innerHTML = renderVariantA();
+  } else {
+    document.getElementById('app').innerHTML = '';
+  }
+
+  const overlayRoot = document.getElementById('px-overlay-root');
+  overlayRoot.innerHTML = '';
+  if (state.surface === 'classify')   overlayRoot.appendChild(renderClassifySurface(state.variant));
+  if (state.surface === 'drilldown')  overlayRoot.appendChild(renderDrilldownSurface(state.variant));
+  if (state.surface === 'sendto')     overlayRoot.appendChild(renderSendtoSurface(state.variant));
+  if (state.surface === 'login')      overlayRoot.appendChild(renderLoginSurface(state.variant));
+
+  // Inline mutations into the inbox detail (overlay-free surfaces)
+  if (state.surface === 'stub') {
+    applyStubTreatment(state.variant);
+    overlayRoot.innerHTML = noteRibbonHtml('stub', state.variant);
+  }
+  if (state.surface === 'drilldown' && state.variant === 'C')  injectS2CInline();
+  if (state.surface === 'sendto'    && state.variant === 'C')  injectS3CInline();
+
+  // Variant bar at bottom
+  const bar = document.getElementById('px-variant-bar');
+  const surf = SURFACES.find(x => x.key === state.surface);
+  if (state.surface === 'inbox' || surf.variants.length <= 1) {
+    bar.hidden = true;
+    bar.innerHTML = '';
+  } else {
+    bar.hidden = false;
+    bar.innerHTML =
+      `<button data-px-cycle="-1">‹</button>` +
+      `<span class="label"><span class="key">S${surf.num}·${state.variant}</span><b>${escapeHtml(surf.names[state.variant])}</b></span>` +
+      `<button data-px-cycle="1">›</button>`;
+  }
+}
+
+/* ------- Wiring ---------------------------------------------------- */
+document.addEventListener('click', e => {
+  // Variant cycling arrows
+  const cyc = e.target.closest('[data-px-cycle]');
+  if (cyc) { cycleVariant(parseInt(cyc.getAttribute('data-px-cycle'), 10)); return; }
+  // close any open sort popover when clicking outside of it
+  if (!e.target.closest('.va-sort')) {
+    document.querySelectorAll('.va-sort[open]').forEach(d => d.removeAttribute('open'));
+  }
+  const t = e.target.closest('[data-act]');
+  if (!t) return;
+  const act = t.getAttribute('data-act');
+  if (act === 'select-signal') { state.selectedSignalId = t.getAttribute('data-id'); render(); }
+  if (act === 'set-listing')   { state.listing = parseInt(t.getAttribute('data-id'), 10); persistListing(); render(); }
+  if (act === 'set-sort')      { state.sort = t.getAttribute('data-id'); persistSort(); render(); }
+});
+
+document.addEventListener('keydown', e => {
+  const tag = (e.target.tagName || '').toLowerCase();
+  if (tag === 'input' || tag === 'textarea' || tag === 'select' || e.target.isContentEditable) return;
+  // ← / → cycle variants within the current non-inbox surface
+  if (e.key === 'ArrowLeft')  { e.preventDefault(); cycleVariant(-1); return; }
+  if (e.key === 'ArrowRight') { e.preventDefault(); cycleVariant(1);  return; }
+  // 1 / 2 / 3 — layout (inbox only)
+  if (state.surface === 'inbox' && (e.key === '1' || e.key === '2' || e.key === '3')) {
+    state.listing = parseInt(e.key, 10);
+    persistListing();
+    render();
+  }
+});
+
+readStateFromUrl();
+readStateFromUrlExtras();
+render();
+</script>
+</body>
+</html>

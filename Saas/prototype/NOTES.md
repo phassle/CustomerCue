@@ -103,6 +103,50 @@ When the stack is chosen and the real `Saas/` is scaffolded, port these in order
 - The amber "fictional data" banner — replace with real product chrome.
 - The mocked 14-signal seed — real demo-data lives in `Saas/src/data/` once the stack is in.
 
+## Surfaces explorer (2026-05-13) — `surfaces-explorer.html`
+
+Companion prototype. The IA from Variant A is locked; this file explores the **five surfaces in Saas 1.0 that did not exist in the original variant-A export** and have no design yet. Run alongside `variant-a-standalone.html` — the chrome/typography/colour tokens are intentionally identical.
+
+```bash
+open Saas/prototype/surfaces-explorer.html
+# URL: ?surface=classify|drilldown|sendto|stub|login & ?variant=A|B|C
+# Keys: 1-5 switch surfaces; ← / → cycle variants
+```
+
+Question being answered for each:
+
+- **S1 — `/classify` (Paste-classify route).** What's the right form UX + classification feedback?
+  - A: editorial single-pane (paste, pick, classify; result lands below)
+  - B: split-screen with live preview (form left, would-be Card right, updates as classifier runs)
+  - C: three-step wizard (Paste → Confirm context → Review classification)
+- **S2 — Account drilldown.** What's the right shape for "show me everything on this Account"?
+  - A: right slide-in panel over dimmed inbox
+  - B: full-screen account page (back-to-inbox + tabs)
+  - C: inline expansion inside the current Signal's detail canvas
+- **S3 — Send-to-owner.** What's the right surface for the mocked Slack/email send?
+  - A: centered modal with Slack/Email tabs
+  - B: bottom-sheet quick send (segmented control, compact preview)
+  - C: inline composer in the detail canvas (replaces the action bar; both channels visible)
+- **S4 — `[stub]` rationale presentation.** How do we mark a stub-classified Signal as honest-but-not-alarming?
+  - A: inline `[STUB]` mono chip prefix on the rationale
+  - B: paper-bordered banner above the pull-quote
+  - C: footer meta tag only — classifier name flips to `local stub` in the existing meta line
+- **S5 — `/login` user picker.** What does the mocked-auth entry look like?
+  - A: two editorial cards side-by-side
+  - B: inbox-style row list
+
+### Decision capture — fill in once a variant has been picked
+
+- S1 winner: _TBD_
+- S2 winner: _TBD_
+- S3 winner: _TBD_
+- S4 winner: _TBD_
+- S5 winner: _TBD_
+
+Borrowed bits from each (the "I want the header from B with the sidebar from C" feedback) live here:
+
+- _TBD — capture cross-variant borrows here before deleting the explorer._
+
 ## Next step
 
-Scaffold `Saas/` (Next.js App Router + Tailwind + shadcn expected per `Saas/AGENTS.md`, but framework choice is still open per `docs/stop-rules.md` — confirm before installing). Then port the seven items above one at a time, deleting this prototype folder once the third (trust contract) lands.
+Scaffold `Saas/` (Next.js App Router + Tailwind v4 + shadcn per [`../docs/adr/0005-nextjs-app-router-for-saas.md`](../docs/adr/0005-nextjs-app-router-for-saas.md) and the locked stack in PRD #55). Then port the seven items from the Variant A plan + the picked variants from the surfaces explorer above. Delete this prototype folder once all five surface verdicts are captured and folded into the real `Saas/` app.
