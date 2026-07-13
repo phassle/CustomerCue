@@ -1,4 +1,4 @@
-import { type Classification, type SignalType, SIGNAL_TYPES } from '@/lib/signals/types';
+import { type Classification, type SignalType } from '@/lib/signals/types';
 
 const KEYWORD_RULES: { type: SignalType; keywords: string[] }[] = [
   { type: 'churn risk', keywords: ['cancel', 'churn', 'leave', 'alternative', 'competitor', 'renewal risk', 'not renewing', 'pause', 'downgrade'] },
@@ -44,4 +44,3 @@ function deriveUrgency(text: string): 'high' | 'medium' | 'low' {
   return 'low';
 }
 
-export { SIGNAL_TYPES };

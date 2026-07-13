@@ -23,13 +23,10 @@ export function get(id: string): Signal | undefined {
 }
 
 export function prepend(signal: Signal): void {
-  const newStore = new Map<string, Signal>();
-  newStore.set(signal.id, signal);
-  for (const [k, v] of store) {
-    newStore.set(k, v);
-  }
+  const entries = [...store.entries()];
   store.clear();
-  for (const [k, v] of newStore) {
+  store.set(signal.id, signal);
+  for (const [k, v] of entries) {
     store.set(k, v);
   }
 }

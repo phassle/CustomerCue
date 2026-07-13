@@ -1,5 +1,5 @@
-import type { Signal, Urgency } from './types';
-import { priorityScore } from './priority';
+import type { Signal } from './types';
+import { priorityScore, urgencyWeight } from './priority';
 import { accounts } from '@/data/accounts';
 
 export type SortMode = 'priority' | 'arr' | 'recent' | 'urgency' | 'type';
@@ -16,18 +16,19 @@ function accountById(id: string) {
   return accounts.find((a) => a.id === id)!;
 }
 
-function urgencyRank(u: Urgency): number {
-  return u === 'high' ? 3 : u === 'medium' ? 2 : 1;
-}
+const UNIT_TO_HOURS: Record<string, number> = {
+  hour: 1,
+  day: 24,
+  week: 168,
+  month: 720,
+};
 
 function recencyHours(s: Signal): number {
   const t = (s.detectedAt || '').toLowerCase();
   if (t === 'yesterday') return 24;
   const m = t.match(/(\d+)\s*(hour|day|week|month)/);
   if (!m) return 9999;
-  const n = parseInt(m[1], 10);
-  const u = m[2];
-  return n * (u === 'hour' ? 1 : u === 'day' ? 24 : u === 'week' ? 168 : 720);
+  return parseInt(m[1], 10) * (UNIT_TO_HOURS[m[2]] ?? 720);
 }
 
 function score(s: Signal): number {
@@ -44,7 +45,7 @@ export function applySort(list: Signal[], mode: SortMode): Signal[] {
       copy.sort((a, b) => recencyHours(a) - recencyHours(b) || score(b) - score(a));
       break;
     case 'urgency':
-      copy.sort((a, b) => urgencyRank(b.urgency) - urgencyRank(a.urgency) || score(b) - score(a));
+      copy.sort((a, b) => urgencyWeight(b.urgency) - urgencyWeight(a.urgency) || score(b) - score(a));
       break;
     case 'type':
       copy.sort((a, b) => a.type.localeCompare(b.type) || score(b) - score(a));
@@ -56,14 +57,21 @@ export function applySort(list: Signal[], mode: SortMode): Signal[] {
   return copy;
 }
 
+const CHANNEL_PREFIX: Record<string, string> = {
+  intercom: 'IC',
+  zendesk: 'ZD',
+  email: 'EM',
+};
+
 export function ticketRef(channel: string, id: string): string {
   const num = String(id.replace(/^t/, '')).padStart(3, '0');
-  const prefix = channel === 'intercom' ? 'IC' : channel === 'zendesk' ? 'ZD' : channel === 'email' ? 'EM' : 'PC';
+  const prefix = CHANNEL_PREFIX[channel] ?? 'PC';
   return `${prefix}·${num}`;
 }
 
 export function fmtMoney(n: number): string {
-  if (n >= 1000) return '$' + (n >= 10000 ? (n / 1000).toFixed(0) : (n / 1000).toFixed(1)) + 'k';
+  if (n >= 10000) return '$' + (n / 1000).toFixed(0) + 'k';
+  if (n >= 1000) return '$' + (n / 1000).toFixed(1) + 'k';
   return '$' + n;
 }
 
